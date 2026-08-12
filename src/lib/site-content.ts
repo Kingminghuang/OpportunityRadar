@@ -1,4 +1,4 @@
-import { parseReports, type RawReport, type Report } from './reports';
+import { parseReports, type RawReport, type Report, validateReportAnchors } from './reports';
 import type { MarkdownInstance } from 'astro';
 
 type MarkdownModule = MarkdownInstance<Record<string, unknown>>;
@@ -23,6 +23,8 @@ export function loadReportModules(): ReportModule[] {
     if (!matchingModule) {
       throw new Error(`无法加载日报内容：${report.path}`);
     }
+
+    validateReportAnchors(report, matchingModule.rawContent());
 
     return { report, Content: matchingModule.Content };
   });

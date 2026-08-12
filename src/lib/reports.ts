@@ -2,13 +2,24 @@ import { z } from 'zod';
 
 const decisionSchema = z.enum(['深挖', '观察', '跳过']);
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug 必须为小写 kebab-case');
+
+function isValidCalendarDate(value: string): boolean {
+  const [year, month, day] = value.split('-').map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+}
+
 const dateSchema = z.preprocess(
   (value) => {
     if (value instanceof Date) return value.toISOString().slice(0, 10);
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value)) return value.slice(0, 10);
     return value;
   },
-  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期必须为 YYYY-MM-DD')
+  z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, '日期必须为 YYYY-MM-DD')
+    .refine(isValidCalendarDate, '日期必须是有效的日历日期')
 );
 
 const opportunitySchema = z
@@ -76,6 +87,16 @@ export type RawReport = {
 
 export function contentAnchor(slug: string): string {
   return `opportunity-${slug}`;
+}
+
+export function validateReportAnchors(report: Report, body: string): void {
+  for (const opportunity of report.opportunities) {
+    const expectedAnchor = `<a id="${contentAnchor(opportunity.slug)}"></a>`;
+
+    if (!body.includes(expectedAnchor)) {
+      throw new Error(`报告正文缺少机会锚点：${expectedAnchor}`);
+    }
+  }
 }
 
 export function reportSlug(date: string): string {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentAnchor, parseReports, reportHref, sitePath } from '../src/lib/reports';
+import { contentAnchor, parseReports, reportHref, sitePath, validateReportAnchors } from '../src/lib/reports';
 
 const validReport = {
   path: '/_posts/2026-08-12-daily-opportunities.md',
@@ -49,6 +49,16 @@ describe('parseReports', () => {
     expect(() => parseReports([invalid])).toThrow(/总分/);
   });
 
+  it('rejects an impossible calendar date', () => {
+    const invalid = {
+      ...validReport,
+      path: '/_posts/2026-02-30-daily-opportunities.md',
+      frontmatter: { ...validReport.frontmatter, date: '2026-02-30' }
+    };
+
+    expect(() => parseReports([invalid])).toThrow(/日期/);
+  });
+
   it('rejects duplicate opportunity slugs within a report', () => {
     const invalid = structuredClone(validReport);
     invalid.frontmatter.opportunities.push({ ...invalid.frontmatter.opportunities[0] });
@@ -78,6 +88,13 @@ describe('parseReports', () => {
 describe('contentAnchor', () => {
   it('uses a stable opportunity slug for report links', () => {
     expect(contentAnchor('ai-session-manager')).toBe('opportunity-ai-session-manager');
+  });
+
+  it('rejects a report body missing an opportunity anchor', () => {
+    const report = parseReports([validReport])[0];
+
+    expect(() => validateReportAnchors(report, '## AI 编程会话管理器')).toThrow(/锚点/);
+    expect(() => validateReportAnchors(report, '<a id="opportunity-ai-session-manager"></a>')).not.toThrow();
   });
 });
 

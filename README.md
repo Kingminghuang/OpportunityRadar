@@ -96,7 +96,7 @@ npm run build
 4. 上传 `dist/`；
 5. 部署到 GitHub Pages。
 
-Astro 默认站点配置位于 [`astro.config.mjs`](./astro.config.mjs)，当前项目路径为 `/OpportunityRadar`。
+Astro 默认站点配置位于 [`astro.config.mjs`](./astro.config.mjs)；GitHub Pages 部署时站点 base path 由 [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) 计算并通过 `npm run build:pages` 注入。
 
 ## 项目结构
 

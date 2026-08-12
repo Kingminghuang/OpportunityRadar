@@ -96,7 +96,7 @@ On every push to `main`, GitHub Actions will:
 4. upload `dist/`;
 5. deploy the artifact to GitHub Pages.
 
-The default Astro site configuration is defined in [`astro.config.mjs`](./astro.config.mjs), with `/OpportunityRadar` as the project base path.
+The default Astro site configuration is defined in [`astro.config.mjs`](./astro.config.mjs), and the GitHub Pages workflow injects the correct base path via `BASE_PATH` when running `npm run build:pages`.
 
 ## Project Structure
 

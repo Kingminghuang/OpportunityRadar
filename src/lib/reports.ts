@@ -61,7 +61,7 @@ const reportSchema = z
   .object({
     schemaVersion: z.literal(1),
     date: dateSchema,
-    timezone: z.literal('Asia/Singapore'),
+    timezone: z.literal('Asia/Shanghai'),
     title: z.string().trim().min(1),
     summary: z.string().trim().min(1),
     categories: z.array(z.string()).min(1).refine((categories) => categories.includes('opportunities'), {

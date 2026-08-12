@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-08-12",
-  "timezone": "Asia/Singapore",
+  "timezone": "Asia/Shanghai",
   "title": "每日机会扫描 — 2026-08-12",
   "summary": "今天最强的机会仍集中在 AI/Agent 基础设施层：会话与上下文的持久化、MCP 权限控制、Agent 浏览器调试，以及生成式 AI 成本失控防护；这些方向都有真实用户在公开渠道描述具体痛点，而不是单纯追逐热点。",
   "categories": ["opportunities"],

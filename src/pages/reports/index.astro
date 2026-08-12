@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { loadReportModules } from '../../lib/site-content';
+import { sitePath } from '../../lib/reports';
+
+const reports = loadReportModules().map(({ report }) => report);
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="日报归档 — Opportunity Radar">
+  <section class="page-intro">
+    <p class="eyebrow">ARCHIVE</p>
+    <h1>每日机会扫描</h1>
+    <p>每一份报告都保留机会判断、评分和可核验证据。</p>
+  </section>
+  <section class="report-list">
+    {reports.map((report) => (
+      <a class="report-row" href={sitePath(base, `reports/${report.slug}/`)}>
+        <time datetime={report.date}>{report.date}</time>
+        <div><h2>{report.title}</h2><p>{report.summary}</p></div>
+        <span>{report.opportunities.length} 个机会 →</span>
+      </a>
+    ))}
+  </section>
+</BaseLayout>

@@ -2,12 +2,66 @@
 layout: post
 title: "每日机会扫描 — 2026-08-12"
 date: 2026-08-12
+summary: "AI/Agent 基础设施层的机会最强，尤其是会话持久化、MCP 权限控制、浏览器调试和生成式 AI 成本防护。"
 categories: [opportunities]
+opportunities:
+  - slug: ai-session-manager
+    title: "AI 编程会话资产化与跨设备连续性"
+    score: 23
+    demand: 5
+    payment: 4
+    mvp: 5
+    competition: 4
+    acquisition: 5
+    category: developer-tools
+    decision: "深挖"
+  - slug: mcp-permission-console
+    title: "MCP 与 Agent 权限控制台"
+    score: 22
+    demand: 5
+    payment: 5
+    mvp: 4
+    competition: 4
+    acquisition: 4
+    category: ai-infra
+    decision: "深挖"
+  - slug: agent-browser-replay
+    title: "Agent 浏览器诊断与 Replay 层"
+    score: 22
+    demand: 5
+    payment: 4
+    mvp: 4
+    competition: 4
+    acquisition: 5
+    category: developer-tools
+    decision: "深挖"
+  - slug: genai-cost-circuit-breaker
+    title: "生成式 AI API 成本熔断器"
+    score: 22
+    demand: 5
+    payment: 5
+    mvp: 4
+    competition: 3
+    acquisition: 5
+    category: ai-infra
+    decision: "深挖"
+  - slug: live-skill-verification
+    title: "10 分钟真实能力验证招聘工具"
+    score: 21
+    demand: 5
+    payment: 5
+    mvp: 4
+    competition: 3
+    acquisition: 4
+    category: hr-tech
+    decision: "深挖"
 ---
 
 # 每日机会扫描 — 2026-08-12
 
 **一句话结论：** 今天最强的机会仍集中在 AI/Agent 基础设施层：会话与上下文的持久化、MCP 权限控制、Agent 浏览器调试，以及生成式 AI 成本失控防护；这些方向都有真实用户在公开渠道描述具体痛点，而不是单纯追逐热点。
+
+<a id="opportunity-ai-session-manager"></a>
 
 ## 1. AI 编程会话「资产化 + 跨设备连续性」 — 23/25
 
@@ -24,6 +78,8 @@ categories: [opportunities]
 
 **判断：** `深挖` — 最小可用版本不需要做 Agent，本地扫描 session 文件 + 搜索 + 备份 + 导出就能产生价值；再逐步扩展到跨 Agent/跨设备。
 
+<a id="opportunity-mcp-permission-console"></a>
+
 ## 2. MCP / Agent 权限控制台与策略调试器 — 22/25
 
 **机会：** 做一个 MCP 权限管理层：按 server/tool 配置 Automatic / Ask First / Disabled，支持 Read/Search/Write/Dangerous 预设、策略 diff、审批历史和“为什么这次会被拦截”的解释器；可以先作为本地 proxy 或配置生成器存在。
@@ -38,6 +94,8 @@ categories: [opportunities]
 **评分：** 需求强度 5/5 · 付费可能 5/5 · MVP 可行性 4/5 · 竞争空隙 4/5 · 获客可行 4/5
 
 **判断：** `深挖` — 企业/团队场景的付费理由很强，特别适合“想放 Agent 自动跑，但不敢给它全权限”的团队。
+
+<a id="opportunity-agent-browser-replay"></a>
 
 ## 3. Agent 浏览器「诊断 + Replay」层 — 22/25
 
@@ -54,6 +112,8 @@ categories: [opportunities]
 
 **判断：** `深挖` — 不要一开始做完整 observability SaaS；先做 agent-browser / Playwright 的本地 wrapper + timeline + stuck detector，会更容易验证。
 
+<a id="opportunity-genai-cost-circuit-breaker"></a>
+
 ## 4. 生成式 AI/API 成本「熔断器」 — 22/25
 
 **机会：** 做一个面向 GenAI API 的实时 spend guard：按项目/API key/模型建立基线，检测异常请求速率或成本斜率，先 Slack/SMS 告警，再按用户预设自动禁用 key、关 API、收紧 quota 或触发 kill switch。核心卖点不是 FinOps dashboard，而是“几分钟内阻止账单继续失控”。
@@ -68,6 +128,8 @@ categories: [opportunities]
 **评分：** 需求强度 5/5 · 付费可能 5/5 · MVP 可行性 4/5 · 竞争空隙 3/5 · 获客可行 5/5
 
 **判断：** `深挖` — 泛 FinOps 很拥挤，但“GenAI/API key 实时熔断 + 自动处置”是更窄、价值更直接的切口。
+
+<a id="opportunity-live-skill-verification"></a>
 
 ## 5. AI 时代的「10 分钟真实能力验证」招聘工具 — 21/25
 

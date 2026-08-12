@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { loadReportModules } from '../../lib/site-content';
+
+export function getStaticPaths() {
+  return loadReportModules().map(({ report, Content }) => ({ params: { slug: report.slug }, props: { report, Content } }));
+}
+
+const { report, Content } = Astro.props;
+---
+
+<BaseLayout title={`${report.title} — Opportunity Radar`} description={report.summary}>
+  <article class="report-article">
+    <header>
+      <p class="eyebrow">DAILY REPORT · {report.date}</p>
+      <h1>{report.title}</h1>
+      <p class="report-summary">{report.summary}</p>
+      <div class="report-tags">{report.opportunities.map((opportunity) => <span>{opportunity.category} · {opportunity.score}/25</span>)}</div>
+    </header>
+    <Content />
+  </article>
+</BaseLayout>

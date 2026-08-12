@@ -1,0 +1,36 @@
+---
+import '../styles/global.css';
+import { sitePath } from '../lib/reports';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '基于真实需求信号的每日创业机会扫描。' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={base} aria-label="Opportunity Radar 首页">
+        <span class="brand-mark" aria-hidden="true">◉</span>
+        <span>Opportunity Radar</span>
+      </a>
+      <nav aria-label="主导航">
+        <a href={base}>雷达</a>
+        <a href={sitePath(base, 'reports/')}>日报归档</a>
+      </nav>
+    </header>
+    <main><slot /></main>
+    <footer class="site-footer">每天捕捉真实需求信号，而非追逐噪声。</footer>
+  </body>
+</html>

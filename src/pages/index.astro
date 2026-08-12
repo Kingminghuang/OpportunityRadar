@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { reportHref, sitePath } from '../lib/reports';
+import { loadReportModules } from '../lib/site-content';
+
+const reportModules = loadReportModules();
+const reports = reportModules.map(({ report }) => report);
+const base = import.meta.env.BASE_URL;
+const latest = reports[0];
+const records = reports.flatMap((report) =>
+  report.opportunities.map((opportunity) => ({ ...opportunity, date: report.date, reportSlug: report.slug }))
+);
+const categories = [...new Set(records.map((record) => record.category))].sort();
+const decisions = ['深挖', '观察', '跳过'];
+---
+
+<BaseLayout title="Opportunity Radar — 每日机会扫描">
+  <section class="hero">
+    <p class="eyebrow">DAILY OPPORTUNITY INTELLIGENCE</p>
+    <h1>发现值得现在出手的机会。</h1>
+    <p>从公开讨论中的真实痛点出发，沉淀可回溯的产品机会与一手证据。</p>
+    {latest && <a class="button" href={sitePath(base, `reports/${latest.slug}/`)}>阅读最新扫描</a>}
+  </section>
+
+  <section class="section" aria-labelledby="overview-heading">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">THE RADAR</p>
+        <h2 id="overview-heading">机会雷达</h2>
+      </div>
+      <p>{records.length} 条扫描记录 · {reports.length} 份日报</p>
+    </div>
+
+    <div class="filters" aria-label="机会筛选">
+      <label>日期
+        <select data-filter="date"><option value="">全部时间</option>{reports.map((report) => <option value={report.date}>{report.date}</option>)}</select>
+      </label>
+      <label>分类
+        <select data-filter="category"><option value="">全部分类</option>{categories.map((category) => <option value={category}>{category}</option>)}</select>
+      </label>
+      <label>最低分
+        <select data-filter="score"><option value="0">不限</option><option value="20">20 分及以上</option><option value="22">22 分及以上</option><option value="24">24 分及以上</option></select>
+      </label>
+      <label>判断
+        <select data-filter="decision"><option value="">全部判断</option>{decisions.map((decision) => <option value={decision}>{decision}</option>)}</select>
+      </label>
+    </div>
+
+    <div class="radar-grid" data-radar-grid>
+      {records.map((record) => (
+        <a
+          class="opportunity-card"
+          href={reportHref(base, record.reportSlug, record.slug)}
+          data-date={record.date}
+          data-category={record.category}
+          data-score={record.score}
+          data-decision={record.decision}
+        >
+          <div class="card-meta"><span>{record.category}</span><span>{record.date}</span></div>
+          <h3>{record.title}</h3>
+          <div class="card-footer"><strong>{record.score}<small>/25</small></strong><span class:list={{ decision: true, deep: record.decision === '深挖' }}>{record.decision}</span></div>
+        </a>
+      ))}
+    </div>
+    <p class="empty-state" data-empty-state hidden>没有符合当前条件的机会记录。</p>
+  </section>
+
+  <section class="section category-section" aria-labelledby="category-heading">
+    <div class="section-heading"><div><p class="eyebrow">SIGNAL MAP</p><h2 id="category-heading">分类分布</h2></div></div>
+    <div class="category-grid">
+      {categories.map((category) => <div><span>{category}</span><strong>{records.filter((record) => record.category === category).length}</strong></div>)}
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ records }}>
+    const controls = Array.from(document.querySelectorAll('[data-filter]'));
+    const cards = Array.from(document.querySelectorAll('[data-radar-grid] .opportunity-card'));
+    const emptyState = document.querySelector('[data-empty-state]');
+    const query = new URLSearchParams(window.location.search);
+
+    for (const control of controls) {
+      const value = query.get(control.dataset.filter);
+      if (value !== null) control.value = value;
+      control.addEventListener('change', applyFilters);
+    }
+
+    function applyFilters() {
+      const values = Object.fromEntries(controls.map((control) => [control.dataset.filter, control.value]));
+      const nextQuery = new URLSearchParams();
+      let visible = 0;
+
+      for (const card of cards) {
+        const matches =
+          (!values.date || card.dataset.date === values.date) &&
+          (!values.category || card.dataset.category === values.category) &&
+          Number(card.dataset.score) >= Number(values.score || 0) &&
+          (!values.decision || card.dataset.decision === values.decision);
+        card.hidden = !matches;
+        if (matches) visible += 1;
+      }
+
+      for (const [key, value] of Object.entries(values)) if (value && value !== '0') nextQuery.set(key, value);
+      const suffix = nextQuery.toString();
+      window.history.replaceState({}, '', `${window.location.pathname}${suffix ? `?${suffix}` : ''}`);
+      emptyState.hidden = visible > 0;
+    }
+
+    applyFilters();
+  </script>
+</BaseLayout>

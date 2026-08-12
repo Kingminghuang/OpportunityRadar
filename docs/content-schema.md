@@ -5,7 +5,7 @@
 ## 文件规则
 
 - 路径固定为 `_data/reports/YYYY-MM-DD.json`。
-- 日期使用 `Asia/Singapore` 当地日期，文件名日期必须等于 JSON 的 `date`。
+- 日期使用 `Asia/Shanghai` 当地日期，文件名日期必须等于 JSON 的 `date`。
 - 每天最多一份报告；同日重跑时更新原 JSON，不创建重复文件。
 - 每份报告包含 1–5 个机会；`rank` 和 `slug` 均必须在同日报内唯一。
 
@@ -15,7 +15,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-08-12",
-  "timezone": "Asia/Singapore",
+  "timezone": "Asia/Shanghai",
   "title": "每日机会扫描 — 2026-08-12",
   "summary": "一句话总结当天最重要的机会信号。",
   "categories": ["opportunities"],
@@ -56,7 +56,7 @@
 | 位置 | 规则 |
 | --- | --- |
 | `schemaVersion` | 必填，固定为整数 `1`。 |
-| `date` / `timezone` | 必填；`date` 为有效 `YYYY-MM-DD`，`timezone` 固定 `Asia/Singapore`。 |
+| `date` / `timezone` | 必填；`date` 为有效 `YYYY-MM-DD`，`timezone` 固定 `Asia/Shanghai`。 |
 | `title` / `summary` | 必填非空文本。 |
 | `categories` | 必填数组，必须包含 `opportunities`。 |
 | `opportunities` | 必填数组，1–5 项。 |

@@ -73,3 +73,11 @@
 ## 写入前检查
 
 自动化写入前必须检查 JSON 可解析、所有必填字段存在、日期与文件名一致、总分计算正确、`rank`/`slug` 唯一、分类与判断值合法、证据链接完整、所有优先级引用存在。任一检查失败时，不写入仓库并说明原因。
+
+## 派生 Markdown 归档
+
+Markdown 归档不是内容输入，也不提交回仓库。`npm run build` 和 GitHub Pages 的 `npm run build:pages` 会在 JSON 校验与 Astro 构建完成后，自动为每一份 `_data/reports/YYYY-MM-DD.json` 生成 `dist/archives/YYYY-MM-DD.md`。
+
+- 归档文件包含稳定锚点、机会论证、评分表、证据链接、优先级和扫描说明。
+- 文件顶部有 `Generated from ... Do not edit.` 标记；对归档的修改会在下次构建被覆盖。
+- JSON 无法通过校验时，Astro 构建失败，归档不会生成或部署，因此线上保留上一次成功版本。

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && node scripts/generate-markdown-archives.mjs --out dist/archives",
+    "build:pages": "astro check && astro build --site \"$SITE_URL\" --base \"$BASE_PATH\" && node scripts/generate-markdown-archives.mjs --out dist/archives",
     "test": "vitest run"
   },
   "dependencies": {

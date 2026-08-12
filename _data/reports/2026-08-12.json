@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-12",
+  "timezone": "Asia/Singapore",
+  "title": "每日机会扫描 — 2026-08-12",
+  "summary": "今天最强的机会仍集中在 AI/Agent 基础设施层：会话与上下文的持久化、MCP 权限控制、Agent 浏览器调试，以及生成式 AI 成本失控防护；这些方向都有真实用户在公开渠道描述具体痛点，而不是单纯追逐热点。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "ai-session-manager",
+      "title": "AI 编程会话资产化与跨设备连续性",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": { "total": 23, "demand": 5, "payment": 4, "mvp": 5, "competition": 4, "acquisition": 5 },
+      "opportunity": "做一个本地优先的 AI 编程会话管理层，统一接管 Codex、Claude Code 等工具的 session：自动备份、全文搜索、项目关联、Markdown 导出、状态健康检查，并支持可信设备间的加密迁移/同步。",
+      "whyNow": "AI 编程会话正在从“临时聊天”变成长生命周期工作资产，但底层持久化、跨设备迁移和跨工具连续性仍不稳定。最近同时出现了“本地 Work chat 跨设备同步”的明确需求，以及 session 持久化错误导致静默丢历史的 bug；HN 上也有开发者因为 Agent 每次新会话都要重新学习代码库而专门做了 codebase notebook。",
+      "evidence": [
+        { "title": "Codex #35812 — Local-only trusted-device transfer/sync for Work chats", "url": "https://github.com/openai/codex/issues/35812", "sourceType": "github-issue", "publishedAt": "2026-07-28", "summary": "提出在 Mac/Windows 等可信设备间迁移或同步本地 Work chats，同时保持内容不进入云端的明确需求。" },
+        { "title": "Codex #35385 — session persistence errors can cause silent data loss", "url": "https://github.com/openai/codex/issues/35385", "sourceType": "github-issue", "publishedAt": "2026-07-25", "summary": "报告 session resume/fork 的持久化错误可能被静默吞掉，重启后造成历史截断。" },
+        { "title": "Ask HN: What Are You Working On? (July 2026)", "url": "https://news.ycombinator.com/item?id=48884984", "sourceType": "hacker-news", "summary": "开发者表示 AI Agent 每次新 session 都要重新学习代码库，因此做了 coldstart/codebase notebook。" }
+      ],
+      "verdict": "最小可用版本不需要做 Agent，本地扫描 session 文件 + 搜索 + 备份 + 导出就能产生价值；再逐步扩展到跨 Agent/跨设备。",
+      "tags": ["AI Agent", "开发者工具", "本地优先"]
+    },
+    {
+      "rank": 2,
+      "slug": "mcp-permission-console",
+      "title": "MCP 与 Agent 权限控制台",
+      "category": "ai-infra",
+      "decision": "deep-dive",
+      "score": { "total": 22, "demand": 5, "payment": 5, "mvp": 4, "competition": 4, "acquisition": 4 },
+      "opportunity": "做一个 MCP 权限管理层：按 server/tool 配置 Automatic / Ask First / Disabled，支持 Read/Search/Write/Dangerous 预设、策略 diff、审批历史和“为什么这次会被拦截”的解释器；可以先作为本地 proxy 或配置生成器存在。",
+      "whyNow": "MCP 工具数量开始从个位数增长到几十甚至上百个，权限配置已经明显从“配置文件问题”变成“运维与安全 UX 问题”。近期 Codex 用户明确要求把已有的 per-tool 权限暴露为 GUI，同时也持续出现 approval policy 与 sandbox 组合行为不符合预期的问题。",
+      "evidence": [
+        { "title": "Codex #35548 — Expose Existing Per-Tool MCP Configuration in the Codex UI", "url": "https://github.com/openai/codex/issues/35548", "sourceType": "github-issue", "publishedAt": "2026-07-27", "summary": "明确要求 per-tool 权限、权限预设、工具搜索、审批记忆、活动历史和基本指标。" },
+        { "title": "Codex #35672 — Approval policy untrusted should work with sandbox workspace_write", "url": "https://github.com/openai/codex/issues/35672", "sourceType": "github-issue", "publishedAt": "2026-07-27", "summary": "报告 approval policy 与 sandbox 组合后行为不符合预期，导致可信写操作也频繁请求批准。" },
+        { "title": "Codex #35437 — permissions profile can abort sandboxed exec on macOS", "url": "https://github.com/openai/codex/issues/35437", "sourceType": "github-issue", "publishedAt": "2026-07-26", "summary": "报告 permissions profile 在特定配置下会让 sandboxed exec 崩溃，并阻碍无人值守 Agent 的 git 工作流。" }
+      ],
+      "verdict": "企业/团队场景的付费理由很强，特别适合“想放 Agent 自动跑，但不敢给它全权限”的团队。",
+      "tags": ["MCP", "Agent 安全", "开发者基础设施"]
+    },
+    {
+      "rank": 3,
+      "slug": "agent-browser-replay",
+      "title": "Agent 浏览器诊断与 Replay 层",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": { "total": 22, "demand": 5, "payment": 4, "mvp": 4, "competition": 4, "acquisition": 5 },
+      "opportunity": "给 agent-browser / Playwright 类 Agent 增加一个本地调试层：统一记录 action、DOM/snapshot、console、network、截图和 trace；检测“卡住/页面无响应/CDP 丢失”等状态，自动生成失败原因和可重放步骤，并支持一键重启到最近安全检查点。",
+      "whyNow": "过去一周 agent-browser 连续出现 session daemon 卡死、snapshot 永久 hang、页面内导航事件缺失、Teams 交互后浏览器意外关闭等问题。项目本身虽然已经能 capture trace，但社区仍明确提出缺少 CLI trace viewer / summarizer，让 Agent 自己无法读取、查询和比较 trace。",
+      "evidence": [
+        { "title": "agent-browser issues", "url": "https://github.com/vercel-labs/agent-browser/issues", "sourceType": "github-issue", "publishedAt": "2026-08-10", "summary": "2026-08-05 至 08-10 连续出现 stuck Runtime.evaluate、snapshot hang、session 无响应、浏览器意外关闭等问题。" },
+        { "title": "agent-browser #1280 — CLI debugger / trace viewer / annotated screencast", "url": "https://github.com/vercel-labs/agent-browser/issues/1280", "sourceType": "github-issue", "summary": "明确提出 CLI trace viewer、trace query/diff、可由 Agent 驱动的 debugger 等缺口。" },
+        { "title": "HN July 2026 — local browser session recorder", "url": "https://news.ycombinator.com/item?id=48884984", "sourceType": "hacker-news", "summary": "开发者做了本地 Chrome session recorder，记录 network、console、截图、视频和操作 timeline，证明本地可观察性与可导出有独立需求。" }
+      ],
+      "verdict": "不要一开始做完整 observability SaaS；先做 agent-browser / Playwright 的本地 wrapper + timeline + stuck detector，会更容易验证。",
+      "tags": ["浏览器自动化", "可观测性", "AI Agent"]
+    },
+    {
+      "rank": 4,
+      "slug": "genai-cost-circuit-breaker",
+      "title": "生成式 AI API 成本熔断器",
+      "category": "ai-infra",
+      "decision": "deep-dive",
+      "score": { "total": 22, "demand": 5, "payment": 5, "mvp": 4, "competition": 3, "acquisition": 5 },
+      "opportunity": "做一个面向 GenAI API 的实时 spend guard：按项目/API key/模型建立基线，检测异常请求速率或成本斜率，先 Slack/SMS 告警，再按用户预设自动禁用 key、关 API、收紧 quota 或触发 kill switch。核心卖点不是 FinOps dashboard，而是“几分钟内阻止账单继续失控”。",
+      "whyNow": "生成式 AI API 的单位调用成本高、key 泄露后放大速度快，而云平台账单和异常通知存在延迟。近期 Google Cloud 社区出现一个公开案例：正常约 $200/月的项目因 Gemini API key 被滥用，最终账单约 $55k；同一讨论中还有其他用户报告相似事件。HN 上也有人因为忘记关 EC2/Bedrock 导致约 $1,700 账单，随后专门做了 AWS bill smoke detector。",
+      "evidence": [
+        { "title": "r/googlecloud — ~$55k Gemini API bill from Firebase iOS key abuse", "url": "https://www.reddit.com/r/googlecloud/comments/1uj4848/", "sourceType": "reddit", "summary": "用户称正常约 $200/月，异常期间约 220 万次 Gemini API 请求，最终账单约 $55k。" },
+        { "title": "r/googlecloud — emergency key-disable discussion", "url": "https://www.reddit.com/r/googlecloud/comments/1uj4848/", "sourceType": "reddit", "summary": "讨论中有其他用户报告类似 API key 滥用或异常计费，并直接询问如何立刻禁用 key。" },
+        { "title": "HN July 2026 — watchmy.cloud", "url": "https://news.ycombinator.com/item?id=48884984", "sourceType": "hacker-news", "summary": "创作者描述因忘记关 EC2 + Bedrock 两周后收到约 $1,700 账单，并希望在 Slack/Jira/SMS 获得及时提醒。" }
+      ],
+      "verdict": "泛 FinOps 很拥挤，但“GenAI/API key 实时熔断 + 自动处置”是更窄、价值更直接的切口。",
+      "tags": ["GenAI", "FinOps", "成本控制"]
+    },
+    {
+      "rank": 5,
+      "slug": "live-skill-verification",
+      "title": "10 分钟真实能力验证招聘工具",
+      "category": "hr-tech",
+      "decision": "deep-dive",
+      "score": { "total": 21, "demand": 5, "payment": 5, "mvp": 4, "competition": 3, "acquisition": 4 },
+      "opportunity": "不做另一个 ATS/简历 AI 检测器，而是根据岗位自动生成 5–15 分钟、紧贴真实工作的 live reasoning task + 追问树 + 结构化 scorecard，用于验证候选人的真实能力、项目经历和思考过程。",
+      "whyNow": "招聘者正在公开描述“CV 与 take-home 的信号价值下降”：AI 让简历和书面作业越来越容易被优化，而现场解释真实项目、短工作样本和多层追问仍被认为更难伪装。一个 r/recruiting 讨论中，多位招聘者报告同类现象；远程 SWE 岗位甚至有人称首日收到 500+ 申请，筛出的候选人中仍有大量疑似虚假身份或过度 AI 辅助。",
+      "evidence": [
+        { "title": "r/recruiting — CVs are becoming useless?", "url": "https://www.reddit.com/r/recruiting/comments/1tuizkc/", "sourceType": "reddit", "summary": "原帖基于一个月面试 15 名工程师的经历，认为 CV/take-home 与 live conversation 的信号出现明显偏差。" },
+        { "title": "r/recruiting — short work samples and live conversation", "url": "https://www.reddit.com/r/recruiting/comments/1tuizkc/", "sourceType": "reddit", "summary": "多位招聘者认为短岗位样本、真实项目 trade-off 深挖和 15 分钟无脚本技术对话，比简历更可靠。" },
+        { "title": "r/recruiting — remote SWE application volume", "url": "https://www.reddit.com/r/recruiting/comments/1tuizkc/", "sourceType": "reddit", "summary": "一位远程 SWE 招聘者称职位发布 24 小时收到 500+ 申请，初筛后仍遇到大量疑似虚假候选人或过度 AI 辅助问题。" }
+      ],
+      "verdict": "关键差异化应是“提高真实能力信号”，而不是声称能准确检测 AI；后者误报与隐私风险都更高。",
+      "tags": ["招聘", "能力评估", "HR Tech"]
+    }
+  ],
+  "priorities": {
+    "deepDive": { "slug": "ai-session-manager", "reason": "用户需求明确、MVP 很小、首批用户高度集中在 Codex/Claude Code/GitHub 社区，而且这个痛点会随 Agent 使用时长自然放大。" },
+    "fastestMvp": { "slug": "agent-browser-replay", "reason": "可以先只支持 agent-browser：wrap CLI、抓 trace/console/snapshot、检测超时并生成 timeline，不需要重做浏览器自动化引擎。" },
+    "highestCommercialValue": { "slug": "genai-cost-circuit-breaker", "reason": "痛点直接对应真实财务损失，且自动处置的价值比又一个成本 dashboard 更容易量化。" },
+    "needsValidation": { "slug": "live-skill-verification", "reason": "需求明显，但 assessment 市场已有大量竞争；需要先验证招聘团队是否愿意为了“10 分钟 role-specific live check”单独付费。" }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-05 至 2026-08-12",
+    "sources": ["GitHub Issues", "Hacker News", "Reddit"],
+    "limitations": "近 24–48 小时的公开、可索引“明确需求”信号较少，因此优先采用 2026-08-05 至 08-10 的最新 agent-browser 问题，并用 2026-07 下旬至 06 月的独立 GitHub / Hacker News / Reddit 信号做交叉验证；未把无法稳定读取的登录态 X、部分 Indie Hackers 页面硬凑入结果。"
+  }
+}

@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadReportModules } from '../../lib/site-content';
+import { loadReports } from '../../lib/site-content';
 import { sitePath } from '../../lib/reports';
 
-const reports = loadReportModules().map(({ report }) => report);
+const reports = loadReports();
 const base = import.meta.env.BASE_URL;
 ---
 

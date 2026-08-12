@@ -1,17 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { reportHref, sitePath } from '../lib/reports';
-import { loadReportModules } from '../lib/site-content';
+import { decisionLabel, reportHref, sitePath } from '../lib/reports';
+import { loadReports } from '../lib/site-content';
 
-const reportModules = loadReportModules();
-const reports = reportModules.map(({ report }) => report);
+const reports = loadReports();
 const base = import.meta.env.BASE_URL;
 const latest = reports[0];
 const records = reports.flatMap((report) =>
   report.opportunities.map((opportunity) => ({ ...opportunity, date: report.date, reportSlug: report.slug }))
 );
 const categories = [...new Set(records.map((record) => record.category))].sort();
-const decisions = ['深挖', '观察', '跳过'];
+const decisions = ['deep-dive', 'watch', 'skip'] as const;
 ---
 
 <BaseLayout title="Opportunity Radar — 每日机会扫描">
@@ -36,7 +35,7 @@ const decisions = ['深挖', '观察', '跳过'];
           <div class="workspace-item">
             <span class:list={{ 'workspace-rank': true, first: index === 0 }}>{index + 1}</span>
             <span>{record.title}</span>
-            <strong>{record.score}</strong>
+            <strong>{record.score.total}</strong>
           </div>
         ))}
       </div>
@@ -66,7 +65,7 @@ const decisions = ['深挖', '观察', '跳过'];
         <select data-filter="score"><option value="0">不限</option><option value="20">20 分及以上</option><option value="22">22 分及以上</option><option value="24">24 分及以上</option></select>
       </label>
       <label><span>判断</span>
-        <select data-filter="decision"><option value="">全部判断</option>{decisions.map((decision) => <option value={decision}>{decision}</option>)}</select>
+        <select data-filter="decision"><option value="">全部判断</option>{decisions.map((decision) => <option value={decision}>{decisionLabel(decision)}</option>)}</select>
       </label>
       </div>
     </div>
@@ -78,12 +77,12 @@ const decisions = ['深挖', '观察', '跳过'];
           href={reportHref(base, record.reportSlug, record.slug)}
           data-date={record.date}
           data-category={record.category}
-          data-score={record.score}
+          data-score={record.score.total}
           data-decision={record.decision}
         >
           <div class="card-meta"><span class="property-tag">{record.category}</span><span>{record.date}</span></div>
           <h3>{record.title}</h3>
-          <div class="card-footer"><strong>{record.score}<small>/25</small></strong><span class:list={{ decision: true, deep: record.decision === '深挖' }}>{record.decision}</span></div>
+          <div class="card-footer"><strong>{record.score.total}<small>/25</small></strong><span class:list={{ decision: true, deep: record.decision === 'deep-dive' }}>{decisionLabel(record.decision)}</span></div>
         </a>
       ))}
     </div>

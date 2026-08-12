@@ -1,12 +1,26 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadReportModules } from '../../lib/site-content';
+import { contentAnchor, decisionLabel, type OpportunityRecord, type Report } from '../../lib/reports';
+import { loadReports } from '../../lib/site-content';
 
 export function getStaticPaths() {
-  return loadReportModules().map(({ report, Content }) => ({ params: { slug: report.slug }, props: { report, Content } }));
+  return loadReports().map((report) => ({ params: { slug: report.slug }, props: { report } }));
 }
 
-const { report, Content } = Astro.props;
+const { report } = Astro.props as { report: Report };
+const priorityLabels: Record<keyof Report['priorities'], string> = {
+  deepDive: '最值得深挖',
+  fastestMvp: '最快可做 MVP',
+  highestCommercialValue: '商业价值最高',
+  needsValidation: '最需要验证'
+};
+const opportunitiesBySlug = new Map(report.opportunities.map((opportunity) => [opportunity.slug, opportunity]));
+
+function priorityOpportunity(slug: string): OpportunityRecord {
+  const opportunity = opportunitiesBySlug.get(slug);
+  if (!opportunity) throw new Error(`优先级引用了不存在的机会：${slug}`);
+  return opportunity;
+}
 ---
 
 <BaseLayout title={`${report.title} — Opportunity Radar`} description={report.summary}>
@@ -15,8 +29,73 @@ const { report, Content } = Astro.props;
       <p class="eyebrow">DAILY REPORT · {report.date}</p>
       <h1>{report.title}</h1>
       <p class="report-summary">{report.summary}</p>
-      <div class="report-tags">{report.opportunities.map((opportunity) => <span>{opportunity.category} · {opportunity.score}/25</span>)}</div>
+      <div class="report-tags">{report.opportunities.map((opportunity) => <span>{opportunity.category} · {opportunity.score.total}/25</span>)}</div>
     </header>
-    <Content />
+
+    <section class="report-priorities" aria-labelledby="priorities-heading">
+      <div class="detail-section-heading"><p class="eyebrow">FOCUS BOARD</p><h2 id="priorities-heading">今日优先级</h2></div>
+      <div class="priority-grid">
+        {Object.entries(report.priorities).map(([key, priority]) => {
+          const opportunity = priorityOpportunity(priority.slug);
+          return (
+            <a class="priority-card" href={`#${contentAnchor(opportunity.slug)}`}>
+              <span>{priorityLabels[key as keyof Report['priorities']]}</span>
+              <strong>{opportunity.title}</strong>
+              <p>{priority.reason}</p>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <section class="opportunity-details" aria-label="完整机会论证">
+      {report.opportunities.map((opportunity) => (
+        <section class="opportunity-detail" id={contentAnchor(opportunity.slug)}>
+          <div class="detail-topline">
+            <span class="detail-rank">{String(opportunity.rank).padStart(2, '0')}</span>
+            <span class={`property-tag category-${opportunity.category}`}>{opportunity.category}</span>
+            <span class:list={{ decision: true, deep: opportunity.decision === 'deep-dive' }}>{decisionLabel(opportunity.decision)}</span>
+          </div>
+          <div class="detail-title-row">
+            <h2>{opportunity.title}</h2>
+            <strong class="detail-score">{opportunity.score.total}<small>/25</small></strong>
+          </div>
+          <div class="score-breakdown" aria-label={`${opportunity.title} 的评分构成`}>
+            <span><small>需求</small><b>{opportunity.score.demand}</b></span>
+            <span><small>付费</small><b>{opportunity.score.payment}</b></span>
+            <span><small>MVP</small><b>{opportunity.score.mvp}</b></span>
+            <span><small>竞争</small><b>{opportunity.score.competition}</b></span>
+            <span><small>获客</small><b>{opportunity.score.acquisition}</b></span>
+          </div>
+          <div class="detail-copy-grid">
+            <section><h3>机会</h3><p>{opportunity.opportunity}</p></section>
+            <section><h3>为什么现在</h3><p>{opportunity.whyNow}</p></section>
+          </div>
+          <section class="evidence-section">
+            <h3>证据</h3>
+            <ul class="evidence-list">
+              {opportunity.evidence.map((evidence) => (
+                <li>
+                  <a href={evidence.url} target="_blank" rel="noreferrer">{evidence.title} <span aria-hidden="true">↗</span></a>
+                  <div><span>{evidence.sourceType}</span>{evidence.publishedAt && <time datetime={evidence.publishedAt}>{evidence.publishedAt}</time>}</div>
+                  <p>{evidence.summary}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section class="verdict-section"><h3>判断</h3><p>{opportunity.verdict}</p></section>
+          <div class="detail-tags">{opportunity.tags.map((tag) => <span>{tag}</span>)}</div>
+        </section>
+      ))}
+    </section>
+
+    <section class="scan-notes" aria-labelledby="scan-notes-heading">
+      <p class="eyebrow">SCAN NOTES</p><h2 id="scan-notes-heading">扫描说明</h2>
+      <dl>
+        <div><dt>覆盖时间</dt><dd>{report.scanNotes.coverageWindow}</dd></div>
+        <div><dt>来源</dt><dd>{report.scanNotes.sources.join(' · ')}</dd></div>
+        <div><dt>限制</dt><dd>{report.scanNotes.limitations}</dd></div>
+      </dl>
+    </section>
   </article>
 </BaseLayout>

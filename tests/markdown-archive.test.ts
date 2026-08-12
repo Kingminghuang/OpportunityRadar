@@ -5,7 +5,7 @@ import { renderMarkdownArchive } from '../scripts/generate-markdown-archives.mjs
 const report = {
   schemaVersion: 1,
   date: '2026-08-12',
-  timezone: 'Asia/Singapore',
+  timezone: 'Asia/Shanghai',
   title: '每日机会扫描 — 2026-08-12',
   summary: '面向 AI Agent 基础设施的高质量机会。',
   categories: ['opportunities'],

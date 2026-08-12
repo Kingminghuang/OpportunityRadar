@@ -16,13 +16,35 @@ const decisions = ['深挖', '观察', '跳过'];
 
 <BaseLayout title="Opportunity Radar — 每日机会扫描">
   <section class="hero">
-    <p class="eyebrow">DAILY OPPORTUNITY INTELLIGENCE</p>
-    <h1>发现值得现在出手的机会。</h1>
-    <p>从公开讨论中的真实痛点出发，沉淀可回溯的产品机会与一手证据。</p>
-    {latest && <a class="button" href={sitePath(base, `reports/${latest.slug}/`)}>阅读最新扫描</a>}
+    <span class="hero-dot hero-dot-pink" aria-hidden="true"></span>
+    <span class="hero-dot hero-dot-yellow" aria-hidden="true"></span>
+    <span class="hero-dot hero-dot-mint" aria-hidden="true"></span>
+    <div class="hero-copy">
+      <p class="eyebrow">DAILY OPPORTUNITY INTELLIGENCE</p>
+      <h1>把真实需求，<br />变成下一个机会。</h1>
+      <p>从公开讨论中的明确痛点出发，建立一个可追溯、可筛选的创业机会工作区。</p>
+      <div class="hero-actions">
+        {latest && <a class="button" href={sitePath(base, `reports/${latest.slug}/`)}>阅读最新扫描 <span aria-hidden="true">→</span></a>}
+        <a class="button-secondary" href="#radar">浏览机会雷达</a>
+      </div>
+    </div>
+    <aside class="workspace-preview" aria-label="今日雷达快照">
+      <div class="workspace-topbar"><span class="workspace-icon">⌁</span><strong>今日雷达</strong><span class="workspace-date">{latest?.date}</span></div>
+      <div class="workspace-summary"><span>已扫描信号</span><strong>{records.length.toString().padStart(2, '0')}</strong><small>优先机会</small></div>
+      <div class="workspace-items">
+        {records.slice(0, 3).map((record, index) => (
+          <div class="workspace-item">
+            <span class:list={{ 'workspace-rank': true, first: index === 0 }}>{index + 1}</span>
+            <span>{record.title}</span>
+            <strong>{record.score}</strong>
+          </div>
+        ))}
+      </div>
+      <div class="workspace-bottom"><span class="workspace-pulse"></span>实时整理中</div>
+    </aside>
   </section>
 
-  <section class="section" aria-labelledby="overview-heading">
+  <section class="section radar-section" id="radar" aria-labelledby="overview-heading">
     <div class="section-heading">
       <div>
         <p class="eyebrow">THE RADAR</p>
@@ -31,19 +53,22 @@ const decisions = ['深挖', '观察', '跳过'];
       <p>{records.length} 条扫描记录 · {reports.length} 份日报</p>
     </div>
 
-    <div class="filters" aria-label="机会筛选">
-      <label>日期
+    <div class="database-toolbar" aria-label="机会筛选">
+      <div class="database-label"><span class="database-icon">▦</span>所有机会</div>
+      <div class="filters">
+      <label><span>日期</span>
         <select data-filter="date"><option value="">全部时间</option>{reports.map((report) => <option value={report.date}>{report.date}</option>)}</select>
       </label>
-      <label>分类
+      <label><span>分类</span>
         <select data-filter="category"><option value="">全部分类</option>{categories.map((category) => <option value={category}>{category}</option>)}</select>
       </label>
-      <label>最低分
+      <label><span>最低分</span>
         <select data-filter="score"><option value="0">不限</option><option value="20">20 分及以上</option><option value="22">22 分及以上</option><option value="24">24 分及以上</option></select>
       </label>
-      <label>判断
+      <label><span>判断</span>
         <select data-filter="decision"><option value="">全部判断</option>{decisions.map((decision) => <option value={decision}>{decision}</option>)}</select>
       </label>
+      </div>
     </div>
 
     <div class="radar-grid" data-radar-grid>
@@ -56,7 +81,7 @@ const decisions = ['深挖', '观察', '跳过'];
           data-score={record.score}
           data-decision={record.decision}
         >
-          <div class="card-meta"><span>{record.category}</span><span>{record.date}</span></div>
+          <div class="card-meta"><span class="property-tag">{record.category}</span><span>{record.date}</span></div>
           <h3>{record.title}</h3>
           <div class="card-footer"><strong>{record.score}<small>/25</small></strong><span class:list={{ decision: true, deep: record.decision === '深挖' }}>{record.decision}</span></div>
         </a>
@@ -68,7 +93,7 @@ const decisions = ['深挖', '观察', '跳过'];
   <section class="section category-section" aria-labelledby="category-heading">
     <div class="section-heading"><div><p class="eyebrow">SIGNAL MAP</p><h2 id="category-heading">分类分布</h2></div></div>
     <div class="category-grid">
-      {categories.map((category) => <div><span>{category}</span><strong>{records.filter((record) => record.category === category).length}</strong></div>)}
+      {categories.map((category) => <div data-category={category}><span>{category}</span><strong>{records.filter((record) => record.category === category).length}</strong><small>条机会记录</small></div>)}
     </div>
   </section>
 

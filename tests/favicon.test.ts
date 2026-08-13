@@ -13,6 +13,7 @@ describe('favicon', () => {
     expect(svg).toContain('#0a1530');
     expect(svg).toContain('#8f81ff');
     expect(layout).toContain('rel="icon"');
-    expect(layout).toContain("`${base}favicon.svg`");
+    expect(layout).toContain("`${base}/favicon.svg`");
+    expect(layout).not.toContain("`${base}favicon.svg`");
   });
 });

@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-13",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-13",
+  "summary": "今天最强的信号来自开发者基础设施：GitHub Actions 的本地可复现/故障切换，以及让游戏开发 Agent 获得可验证的视觉闭环；同时，游戏资产管理、Health Connect 数据统一和本地乐谱识别也出现了可验证的重复痛点。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-native-local-ci",
+      "title": "Agent 原生的 GitHub Actions 本地运行与故障切换",
+      "category": "devops",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 3,
+        "competition": 3,
+        "acquisition": 5
+      },
+      "opportunity": "做一个兼容 GitHub Actions 工作流的本地/自托管执行层，重点不是替代 CI 平台，而是让开发者和编码 Agent 在 push 前复现 workflow、在失败点暂停进入同一环境调试，并在 GitHub Actions 不可用时快速切换执行。",
+      "whyNow": "过去一周 GitHub Actions 可用性与容量问题集中暴露；同时最新 HN 讨论里已有开发者因为官方 Actions 的可靠性和无法本地测试而重写 runner，并明确把 Agent 驱动 CI 作为目标。需求从“本地跑一下 YAML”升级成“可复现、可调试、可故障切换的执行层”。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? — Preloop",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-12",
+          "summary": "开发者称因 GitHub Actions 的可靠性和无法本地运行/测试而重写 runner；每个 job 在 microVM 中运行，并支持失败点暂停、修复、重试以及 Agent 驱动 CI。"
+        },
+        {
+          "title": "GitHub owes us all an apology...",
+          "url": "https://www.reddit.com/r/github/comments/1vhnhf8/github_owes_us_all_an_apology_and_an_explanation/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-08-07",
+          "summary": "GitHub Actions 长时间故障导致开发者称工作完全停摆，评论中多人讨论迁移或降低对 Actions 单点依赖。"
+        },
+        {
+          "title": "How can I maximize my actions?",
+          "url": "https://www.reddit.com/r/github/comments/1vl69rv/how_can_i_maximize_my_actions/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-08-11",
+          "summary": "游戏开发者因频繁构建触及 Actions 存储限制且手工发布麻烦，讨论直接建议本地/自托管执行和绕开不必要的 artifact 存储。"
+        }
+      ],
+      "verdict": "先验证“精确复现 + 失败点 shell + 一键切换本地/自托管 runner”是否足以让团队付费；不要一开始重做完整 CI SaaS。",
+      "tags": [
+        "GitHub Actions",
+        "CI/CD",
+        "Agent",
+        "开发者工具"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "game-agent-visual-qa",
+      "title": "游戏开发 Agent 的视觉闭环 QA Harness",
+      "category": "game-development",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 3,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个 Unity/Godot/Unreal 上层的 Agent QA Harness：自动进入 play mode、执行输入、抓取截图/运行时状态/日志、对比预期，再把失败场景结构化反馈给编码 Agent；核心是让 Agent 能验证自己是否真的把游戏改对。",
+      "whyNow": "最新 HN 讨论再次出现“Agent 能写复杂服务器，却连 Pong 小改动都频繁破坏”的反差，用户直接归因于 Agent 看不到结果。ICML 2026 的 GameDevBench 也显示加入视觉反馈能显著提升游戏开发任务表现，说明瓶颈正从代码生成转向可验证的视觉执行闭环。",
+      "evidence": [
+        {
+          "title": "Show HN: Ante — coding agent discussion",
+          "url": "https://news.ycombinator.com/item?id=49245437",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-13",
+          "summary": "评论者描述前沿模型在 Agent 模式下修改简单 Pong 游戏时会反复失败或破坏其他部分，认为主要问题是模型看不到自己做出的视觉结果。"
+        },
+        {
+          "title": "Ask HN: What Are You Working On? (July 2026)",
+          "url": "https://news.ycombinator.com/item?id=48884984",
+          "sourceType": "hacker-news",
+          "summary": "独立开发者报告相同不对称现象：模型能实现复杂 rollback netcode，却会在 Pong 这类简单视觉任务上失败，怀疑原因是无法实际游玩并验证。"
+        },
+        {
+          "title": "GameDevBench",
+          "url": "https://github.com/waynchi/gamedevbench",
+          "sourceType": "other",
+          "summary": "ICML 2026 的游戏开发 Agent 基准显示，多模态 Agent 仍明显落后；给 GPT-5.4 加视觉反馈后任务成功率从 41.1% 提升到 52.0%。"
+        }
+      ],
+      "verdict": "从 Unity 做窄 MVP：复用现有 MCP/Editor API，只做 playtest 脚本、截图/状态采集、断言与失败回放，验证是否能显著减少人工验收轮次。",
+      "tags": [
+        "GameDev",
+        "Agent QA",
+        "Unity",
+        "视觉反馈"
+      ]
+    },
+    {
+      "rank": 3,
+      "slug": "cross-engine-asset-library",
+      "title": "跨引擎本地优先游戏资产库",
+      "category": "game-development",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向独立游戏开发者的本地资产管理器，统一索引 Blender、Unity、Unreal、Godot 和磁盘目录里的模型/贴图/音频，提供缩略图、重复检测、来源/许可证记录、风格标签和跨项目拖拽复用。",
+      "whyNow": "本月 HN 有游戏开发者明确表示大型资产库缺少可共享的成熟管理方案，现有解决方案多是工作室内部自建。此前多个 Reddit 讨论也反复出现资产散落、多次重复购买、跨来源风格不一致、花大量时间修资产等问题，说明这是长期且可量化的工作流摩擦。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? — game asset management",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-12",
+          "summary": "一名长期游戏开发者称自己积累了大量资产，而成熟的资产管理方案似乎多为工作室内部工具，因此正在做兼容 Unreal、Unity、Blender 的系统。"
+        },
+        {
+          "title": "Built a local asset manager to solve my own file chaos",
+          "url": "https://www.reddit.com/r/gamedev/comments/1si49dv/built_a_local_asset_manager_to_solve_my_own_file/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-04-11",
+          "summary": "开发者描述多年资产散落多个磁盘、找不到文件甚至重复购买同一贴图包，因此做了本地优先的统一搜索和缩略图库；帖子获得较高社区反馈。"
+        },
+        {
+          "title": "I'm spending more time creating/fixing 3D assets than actually making my game",
+          "url": "https://www.reddit.com/r/IndieDev/comments/1r7qs4d/im_spending_more_time_creatingfixing_3d_assets/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-02-18",
+          "summary": "独立开发者称约 60% 的开发时间耗在建模、修复购买资产和反复搜索资产商店，直接体现了资产工作流的时间成本。"
+        }
+      ],
+      "verdict": "需求真实但已有 Asset Hoard 等新进入者；先验证“跨引擎 + 许可证/重复检测 + 风格一致性”是否是足够强的差异化，而不是只做文件浏览器。",
+      "tags": [
+        "游戏资产",
+        "本地优先",
+        "Unity",
+        "Blender"
+      ]
+    },
+    {
+      "rank": 4,
+      "slug": "health-connect-unified-viewer",
+      "title": "Health Connect 全量数据查看与导出层",
+      "category": "health-data",
+      "decision": "watch",
+      "score": {
+        "total": 18,
+        "demand": 4,
+        "payment": 3,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "做一个 Android 本地优先的 Health Connect 数据浏览器：把各厂商实际写入的数据统一展示，明确标注缺失字段/来源，支持 CSV/Sheets/Webhook 导出，并让用户知道“数据没同步”到底发生在哪一层。",
+      "whyNow": "最新 HN 项目明确针对“各健康 App 和厂商只选择性展示/共享数据”的痛点；GitHub 上也有人报告通过 Health Connect 获取 Samsung Health 时会丢失大量有价值字段。随着更多健康产品强调跨设备聚合，透明的数据可见性和可导出性成为更明确的底层需求。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? — Health Connect viewer",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-12",
+          "summary": "开发者正在做 Health Connect 前端，动机是不同健康 App 和厂商会选择性展示或共享来自其他来源的数据。"
+        },
+        {
+          "title": "Android Mobile App Samsung Health Integration (Beyond Health Connect)",
+          "url": "https://github.com/CodeWithCJ/SparkyFitness/issues/1034",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-03-29",
+          "summary": "项目维护者称 Health Connect 能覆盖基础指标，但会丢失许多 Samsung Health 的有用数据，因此提出更深的原生集成需求。"
+        },
+        {
+          "title": "healthexport",
+          "url": "https://github.com/teqxnology/healthexport",
+          "sourceType": "other",
+          "summary": "活跃开源项目专门提供 Health Connect 全量数据到 Google Sheets/CSV 的本地导出，验证了用户希望绕过封闭 App 界面直接访问原始健康数据。"
+        }
+      ],
+      "verdict": "适合先做一次性付费或开源+Pro 的工具型产品；首要验证点是用户愿不愿意为“可见性/导出/缺失诊断”付费，而不只是把数据接进另一个免费 dashboard。",
+      "tags": [
+        "Health Connect",
+        "Android",
+        "数据导出",
+        "隐私"
+      ]
+    },
+    {
+      "rank": 5,
+      "slug": "local-sheet-music-ocr",
+      "title": "本地乐谱 OCR 与播放工具",
+      "category": "music-tools",
+      "decision": "watch",
+      "score": {
+        "total": 17,
+        "demand": 4,
+        "payment": 3,
+        "mvp": 3,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "做一个无需云端和订阅的手机乐谱识别工具：拍照/PDF 转 MusicXML 或 MIDI、可直接播放，并把识别不确定的音符/升降号高亮，让用户快速人工修正。",
+      "whyNow": "最新 HN 用户明确因为现有乐谱识别产品大量采用订阅而尝试纯本地处理；现有付费产品近期评论又集中抱怨识别漏音、漏升降号、扫描失败和从一次性购买转订阅，说明用户既对价格模型不满，也对识别质量有持续痛点。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? — local sheet music scanner",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-12",
+          "summary": "开发者称市面上已有很多乐谱扫描产品，但多数要求订阅，因此正在验证能否完全在手机本地完成照片识别与 MIDI 播放。"
+        },
+        {
+          "title": "Sheet Music Scanner Pro — Google Play",
+          "url": "https://play.google.com/store/apps/details?hl=en_SG&id=com.xemsoft.sheetmusicscanner2",
+          "sourceType": "other",
+          "summary": "2026 年用户评论报告即使按推荐方式拍摄仍漏掉大量音符和升降号，也有付费后无法正常扫描/播放的反馈。"
+        },
+        {
+          "title": "Sheet Music Scanner — App Store reviews",
+          "url": "https://apps.apple.com/us/app/884984324?platform=iphone&see-all=reviews",
+          "sourceType": "other",
+          "summary": "评论者抱怨核心扫描功能失灵，以及产品从一次性购买转向订阅后部分功能被重新锁定，明确表达寻找替代品的意愿。"
+        },
+        {
+          "title": "Can't launch Sheet Music Scanner",
+          "url": "https://musescore.org/en/node/394474",
+          "sourceType": "other",
+          "publishedAt": "2026-06-29",
+          "summary": "已付费用户报告应用要求额外认证后无法启动，并称多次联系支持半年无回应，体现现有工具的可用性与售后摩擦。"
+        }
+      ],
+      "verdict": "先做 iOS/Android 单平台、只支持印刷谱；关键差异化是“本地 + 一次性付费 + 可人工纠错”，否则很容易落入已有 OCR 工具的同质化竞争。",
+      "tags": [
+        "乐谱",
+        "OCR",
+        "本地 AI",
+        "音乐工具"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "agent-native-local-ci",
+      "reason": "近期 GitHub Actions 故障和本地调试痛点同时出现，B2B 付费理由最直接；可以用“失败点 shell + 精确复现 + failover”切出比 act 更聚焦的产品定位。"
+    },
+    "fastestMvp": {
+      "slug": "health-connect-unified-viewer",
+      "reason": "Health Connect 已提供标准 Android SDK，最小版本只需本地读取、来源标记、缺失诊断和 CSV 导出，不必先解决复杂模型或跨平台执行。"
+    },
+    "highestCommercialValue": {
+      "slug": "agent-native-local-ci",
+      "reason": "CI 故障直接阻塞工程交付并消耗开发者高价值时间，团队对稳定性、可复现性和故障切换的预算通常高于消费级工具。"
+    },
+    "needsValidation": {
+      "slug": "cross-engine-asset-library",
+      "reason": "痛点很明确，但已有新资产管理器进入；必须验证跨引擎、许可证/重复检测和风格一致性是否足以让用户从文件夹、引擎内置库或现有工具迁移。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-07 至 2026-08-13；对重复痛点补充使用 2026 年较早的独立证据",
+    "sources": [
+      "Hacker News",
+      "Reddit",
+      "GitHub Issues/Repositories",
+      "Product Hunt",
+      "Google Play / App Store / MuseScore"
+    ],
+    "limitations": "X 的 site:x.com 查询未找到足够新且可核验的目标短语帖子；Starter Story、Exploding Topics、Google Trends 与 GitHub Trending 本轮未提供比上述用户痛点更强的可核验证据，因此没有为了覆盖来源而强行纳入。"
+  }
+}

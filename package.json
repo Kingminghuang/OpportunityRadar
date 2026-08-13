@@ -5,12 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build && node scripts/generate-markdown-archives.mjs --out dist/archives",
-    "build:pages": "astro check && astro build --site \"$SITE_URL\" --base \"$BASE_PATH\" && node scripts/generate-markdown-archives.mjs --out dist/archives",
+    "sync:research": "node scripts/sync-issue-research.mjs",
+    "build": "npm run sync:research && astro check && astro build && node scripts/generate-markdown-archives.mjs --out dist/archives",
+    "build:pages": "npm run sync:research && astro check && astro build --site \"$SITE_URL\" --base \"$BASE_PATH\" && node scripts/generate-markdown-archives.mjs --out dist/archives",
     "test": "vitest run"
   },
   "dependencies": {
     "astro": "^7.2.1",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {

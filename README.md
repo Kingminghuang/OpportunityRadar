@@ -13,7 +13,7 @@ Opportunity Radar 是一个面向独立开发者、产品经理和创业者的�
 - **结构化评分**：从需求强度、付费可能、MVP 可行性、竞争空隙、获客可行性五个维度评分，总分 25 分。
 - **明确行动判断**：每个机会标记为 `deep-dive`、`watch` 或 `skip`，帮助快速决定下一步。
 - **可筛选机会雷达**：首页支持按日期、分类、最低分和判断筛选历史机会。
-- **单一数据源**：`_data/reports/YYYY-MM-DD.json` 是唯一内容源，站点和 Markdown 归档都由它派生。
+- **分层事实源**：日报以 `_data/reports/YYYY-MM-DD.json` 为唯一内容源；完成深挖后的完整研究报告以对应 GitHub Issue 正文为唯一内容源。
 - **自动构建部署**：推送到 `main` 后由 GitHub Actions 构建 Astro 静态站点并部署到 GitHub Pages。
 
 ## 工作方式
@@ -25,7 +25,7 @@ Opportunity Radar 是一个面向独立开发者、产品经理和创业者的�
 3. 对机会进行五维评分，并给出 `deep-dive` / `watch` / `skip` 判断。
 4. 按 [`docs/content-schema.md`](./docs/content-schema.md) 校验数据结构。
 5. 写入当天唯一的 `_data/reports/YYYY-MM-DD.json`。
-6. Astro 在构建时读取 JSON，生成站点页面，并额外生成只读 Markdown 归档到 `dist/archives/`。
+6. Astro 在构建时读取日报 JSON 与符合 [`docs/research-issue-schema.md`](./docs/research-issue-schema.md) 的 GitHub Issue，生成站点页面，并额外生成只读 Markdown 归档到 `dist/archives/`。
 
 用于自动化执行每日扫描的完整提示词位于 [`automate_prompt.md`](./automate_prompt.md)。
 
@@ -50,6 +50,12 @@ _data/
 - `scanNotes`：覆盖范围、来源及限制说明
 
 完整字段定义、枚举和校验规则以 [`docs/content-schema.md`](./docs/content-schema.md) 为准。
+
+## 深挖机会
+
+每日任务写入日报后会列出全部 Top 1–5；在同一任务对话中回复 `深挖 <rank>`，例如 `深挖 1`。ChatGPT 会创建或更新一个 `[Deep Dive]` GitHub Issue，且将完整研究报告写入其正文。研究完成后使用 `research-complete` 状态；下一次推送到 `main` 或手动运行 Pages workflow 时，站点会同步并公开显示该 Issue 的完整 Markdown 内容。
+
+Issue 正文的元数据格式、必填研究章节和公开内容限制见 [`docs/research-issue-schema.md`](./docs/research-issue-schema.md)。
 
 ## 本地开发
 
@@ -82,7 +88,7 @@ npm test
 npm run build
 ```
 
-构建流程会依次执行 Astro 类型检查、静态站点构建，以及 Markdown 归档生成。输出目录为 `dist/`。
+构建流程会先同步 GitHub Issue 研究索引、执行 Astro 类型检查和静态站点构建，再生成 Markdown 归档。若本地未设置 `GITHUB_TOKEN`，构建会使用空研究索引；GitHub Pages 部署会使用仓库内令牌读取 Issue。输出目录为 `dist/`。
 
 ## GitHub Pages 构建
 
@@ -92,9 +98,10 @@ npm run build
 
 1. 安装依赖；
 2. 根据 GitHub Pages 环境解析站点地址和 base path；
-3. 执行 `npm run build:pages`；
-4. 上传 `dist/`；
-5. 部署到 GitHub Pages。
+3. 使用最小化的 `issues: read` 权限同步深挖 Issue；
+4. 执行 `npm run build:pages`；
+5. 上传 `dist/`；
+6. 部署到 GitHub Pages。
 
 Astro 默认站点配置位于 [`astro.config.mjs`](./astro.config.mjs)；GitHub Pages 部署时站点 base path 由 [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) 计算并通过 `npm run build:pages` 注入。
 
@@ -105,7 +112,7 @@ OpportunityRadar/
 ├── .github/workflows/        # GitHub Pages 部署
 ├── _data/reports/            # 每日机会 JSON，唯一内容源
 ├── docs/                     # 内容契约和项目文档
-├── scripts/                  # 构建期脚本，如 Markdown 归档生成
+├── scripts/                  # 构建期脚本，如 Issue 同步与 Markdown 归档生成
 ├── src/
 │   ├── layouts/              # Astro 布局
 │   ├── lib/                  # 数据加载、校验与链接辅助逻辑

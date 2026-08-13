@@ -1,6 +1,6 @@
 # Opportunity Radar 内容契约
 
-`_data/reports/` 中的 JSON 是 Opportunity Radar 的唯一内容数据源。ChatGPT 自动化、人工编辑和站点构建必须遵循本文件；站点不再读取 `_posts/` Markdown。
+`_data/reports/` 中的 JSON 是 Opportunity Radar 每日扫描的唯一内容数据源。ChatGPT 自动化、人工编辑和站点构建必须遵循本文件；站点不再读取 `_posts/` Markdown。完成深挖后的完整研究报告由 [`research-issue-schema.md`](./research-issue-schema.md) 定义，并以对应 GitHub Issue 正文为唯一内容源。
 
 ## 文件规则
 

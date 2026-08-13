@@ -13,7 +13,7 @@ Live site: https://kingminghuang.github.io/OpportunityRadar/
 - **Structured scoring**: opportunities are scored across demand strength, willingness to pay, MVP feasibility, competitive whitespace, and acquisition feasibility, for a total of 25 points.
 - **Clear action labels**: every opportunity is classified as `deep-dive`, `watch`, or `skip`.
 - **Filterable radar**: the homepage can filter historical opportunities by date, category, minimum score, and decision.
-- **Single source of truth**: `_data/reports/YYYY-MM-DD.json` is the only content source. Site pages and Markdown archives are derived from it.
+- **Layered sources of truth**: `_data/reports/YYYY-MM-DD.json` is the only source for daily scans; the corresponding GitHub Issue body is the only source for a completed deep-dive report.
 - **Automated deployment**: pushes to `main` trigger GitHub Actions to build the Astro site and deploy it to GitHub Pages.
 
 ## How It Works
@@ -25,7 +25,7 @@ A typical daily scan follows this flow:
 3. Score each opportunity across five dimensions and assign a `deep-dive`, `watch`, or `skip` decision.
 4. Validate the report against [`docs/content-schema.md`](./docs/content-schema.md).
 5. Write the single daily file at `_data/reports/YYYY-MM-DD.json`.
-6. During the Astro build, the JSON is used to generate the site and read-only Markdown archives under `dist/archives/`.
+6. During the Astro build, daily-report JSON and GitHub Issues that conform to [`docs/research-issue-schema.md`](./docs/research-issue-schema.md) generate the site and read-only Markdown archives under `dist/archives/`.
 
 The full prompt used for the automated daily scan is available in [`automate_prompt.md`](./automate_prompt.md).
 
@@ -50,6 +50,12 @@ Each report contains 1–5 opportunities. Important fields include:
 - `scanNotes`: coverage window, sources, and limitations
 
 See [`docs/content-schema.md`](./docs/content-schema.md) for the complete schema, enums, and validation rules.
+
+## Deep-Diving an Opportunity
+
+After the daily task writes a report, it lists all Top 1–5 opportunities. Reply in the same task conversation with `deep dive <rank>`, for example `deep dive 1`. ChatGPT creates or updates a `[Deep Dive]` GitHub Issue and writes the complete research report into its body. Completed research uses the `research-complete` status; the next push to `main` or manual Pages workflow run syncs and publicly displays the Issue's full Markdown content on the site.
+
+See [`docs/research-issue-schema.md`](./docs/research-issue-schema.md) for the Issue-body metadata format, required report sections, and public-content constraints.
 
 ## Local Development
 
@@ -82,7 +88,7 @@ npm test
 npm run build
 ```
 
-The build runs Astro checks, generates the static site, and creates Markdown archives. Output is written to `dist/`.
+The build first synchronizes the GitHub Issue research index, runs Astro checks and static-site generation, then creates Markdown archives. Without a local `GITHUB_TOKEN`, it uses an empty research index; the GitHub Pages deployment uses its repository token to read Issues. Output is written to `dist/`.
 
 ## GitHub Pages Deployment
 
@@ -92,9 +98,10 @@ On every push to `main`, GitHub Actions will:
 
 1. install dependencies;
 2. resolve the GitHub Pages site URL and base path;
-3. run `npm run build:pages`;
-4. upload `dist/`;
-5. deploy the artifact to GitHub Pages.
+3. synchronize deep-dive Issues with minimal `issues: read` permission;
+4. run `npm run build:pages`;
+5. upload `dist/`;
+6. deploy the artifact to GitHub Pages.
 
 The default Astro site configuration is defined in [`astro.config.mjs`](./astro.config.mjs), and the GitHub Pages workflow injects the correct base path via `BASE_PATH` when running `npm run build:pages`.
 
@@ -103,9 +110,9 @@ The default Astro site configuration is defined in [`astro.config.mjs`](./astro.
 ```text
 OpportunityRadar/
 ├── .github/workflows/        # GitHub Pages deployment
-├── _data/reports/            # Daily opportunity JSON; single content source
+├── _data/reports/            # Daily opportunity JSON; source for daily scans
 ├── docs/                     # Content schema and project documentation
-├── scripts/                  # Build-time scripts, including Markdown archive generation
+├── scripts/                  # Build-time scripts, including Issue sync and Markdown archive generation
 ├── src/
 │   ├── layouts/              # Astro layouts
 │   ├── lib/                  # Data loading, validation, and URL helpers

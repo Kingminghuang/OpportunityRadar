@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { contentAnchor, decisionLabel, type OpportunityRecord, type Report } from '../../lib/reports';
-import { loadReports } from '../../lib/site-content';
+import { renderResearchMarkdown } from '../../lib/render-research';
+import { createOpportunityId } from '../../lib/research';
+import { loadReports, loadResearch } from '../../lib/site-content';
 
 export function getStaticPaths() {
   return loadReports().map((report) => ({ params: { slug: report.slug }, props: { report } }));
@@ -15,6 +17,11 @@ const priorityLabels: Record<keyof Report['priorities'], string> = {
   needsValidation: '最需要验证'
 };
 const opportunitiesBySlug = new Map(report.opportunities.map((opportunity) => [opportunity.slug, opportunity]));
+const researchByOpportunityId = new Map(loadResearch().map((research) => [research.metadata.opportunityId, research]));
+const renderedResearchBySlug = new Map(await Promise.all(report.opportunities.map(async (opportunity) => {
+  const research = researchByOpportunityId.get(createOpportunityId(report.date, opportunity.slug));
+  return [opportunity.slug, research ? { research, html: await renderResearchMarkdown(research.markdown) } : undefined] as const;
+})));
 
 function priorityOpportunity(slug: string): OpportunityRecord {
   const opportunity = opportunitiesBySlug.get(slug);
@@ -85,6 +92,20 @@ function priorityOpportunity(slug: string): OpportunityRecord {
           </section>
           <section class="verdict-section"><h3>判断</h3><p>{opportunity.verdict}</p></section>
           <div class="detail-tags">{opportunity.tags.map((tag) => <span>{tag}</span>)}</div>
+          {renderedResearchBySlug.get(opportunity.slug) && (() => {
+            const renderedResearch = renderedResearchBySlug.get(opportunity.slug)!;
+            return (
+              <section class="research-section" aria-label={`${opportunity.title} 的完整深挖报告`}>
+                <div class="research-section-heading">
+                  <div><p class="eyebrow">RESEARCH COMPLETE</p><h3>完整深挖报告</h3></div>
+                  <a href={renderedResearch.research.issueUrl} target="_blank" rel="noreferrer">GitHub Issue #{renderedResearch.research.issueNumber} ↗</a>
+                </div>
+                <p class="research-summary">{renderedResearch.research.metadata.siteSummary}</p>
+                <p class="research-updated">最后调研：<time datetime={renderedResearch.research.updatedAt}>{renderedResearch.research.updatedAt.slice(0, 10)}</time></p>
+                <div class="research-markdown" set:html={renderedResearch.html}></div>
+              </section>
+            );
+          })()}
         </section>
       ))}
     </section>

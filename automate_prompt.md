@@ -20,4 +20,15 @@
 5. 写入前逐项检查：JSON 可解析、所有必填字段、日期与文件名一致、总分、rank/slug 唯一性、枚举值、每个机会 2–4 条证据链接、以及所有优先级引用。任一不合规时不要写入，并说明原因。
 6. `_data/reports/YYYY-MM-DD.json` 是唯一内容源。不要创建、更新或提交 `_posts/`、`archives/` 或任何 Markdown 镜像文件；GitHub Pages 构建会从 JSON 自动生成只读归档 `archives/YYYY-MM-DD.md`。每次只创建或更新当天一个 JSON 文件。
 7. 通过 GitHub 连接器检查 `https://github.com/Kingminghuang/OpportunityRadar` 中该 JSON 路径是否存在：不存在则 create；存在则读取当前 blob SHA 后 update。不要重复创建同一天的多个文件。
-8. 同步完成后，在最终通知中给出：今日 Top 1、写入的 JSON 仓库路径、本次是 create 还是 update。
+8. 同步完成后，在最终通知中给出：今日 Top 1、写入的 JSON 仓库路径、本次是 create 还是 update；随后列出当天全部 1–5 条机会的 `rank`、标题、总分和判断，并只问一句：`要深挖哪一项？回复“深挖 <rank>”，例如“深挖 1”。`
+
+## 深挖指令
+
+当用户在同一任务对话中回复 `深挖 <rank>`（或 `深挖 YYYY-MM-DD <rank>`）时，立即执行以下流程，不再要求二次确认：
+
+1. 使用刚刚展示的日报；如果当前对话存在多个候选日报且指令未给出日期，询问用户日期，不得猜测。读取 `_data/reports/YYYY-MM-DD.json` 中该 `rank` 的机会。
+2. 计算稳定 ID：`{date}--{slug}`。例如 `2026-08-12--ai-session-manager`。通过 GitHub 连接器搜索仓库 `Kingminghuang/OpportunityRadar` 中正文包含该 ID 的 Issue，并逐一读取正文，只有第一个非空块为 `<!-- opportunity-radar:research {...} -->` 且 JSON 中 `opportunityId` 精确相等的 Issue 才算匹配。
+3. 精确匹配为零时，完成一次完整深挖后创建 Issue，标题固定为 `[Deep Dive] <机会标题>`。精确匹配为一时，先读取该 Issue 当前正文，再完成增量调研并更新正文；Issue 正文是权威记录，必须保留人工补充的内容，除非用户明确要求删除或重写。精确匹配超过一时，停止写入并报告重复 Issue 链接。
+4. Issue 正文的第一个非空块必须是单行 HTML 注释，格式严格遵循 [`docs/research-issue-schema.md`](./docs/research-issue-schema.md)：`<!-- opportunity-radar:research {"version":1,"opportunityId":"…","originReport":"…","originSlug":"…","status":"research-complete","siteSummary":"…"} -->`。不要使用 YAML front matter、代码围栏或 labels；不要改动稳定 ID。注释之后写完整 Markdown 研究报告。
+5. 完整报告必须包含：研究结论、用户与问题、证据、竞品与替代方案、市场与付费、MVP、验证计划、风险与 Kill Criteria。所有会公开显示，不能写入私密访谈信息、凭据或未证实的断言；外部证据必须给出可核验链接。
+6. 完成后返回：深挖机会名称、`research-complete` 状态、创建或更新动作、Issue URL，以及一句话研究结论。Issue 编辑会在下一次 `main` 推送或手动 GitHub Pages 部署时同步到站点；不要回写日报 JSON。

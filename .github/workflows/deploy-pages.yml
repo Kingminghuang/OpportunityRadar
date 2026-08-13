@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: read
   pages: write
   id-token: write
 
@@ -55,6 +56,8 @@ jobs:
           echo "SITE_URL=$PAGES_ORIGIN" >> "$GITHUB_ENV"
           echo "BASE_PATH=$PAGES_BASE_PATH" >> "$GITHUB_ENV"
       - name: Build site
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: npm run build:pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

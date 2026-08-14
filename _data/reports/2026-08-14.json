@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-14",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-14",
+  "summary": "今天最强的机会集中在 AI 产品合规工程与编码 Agent 的工作连续性：欧盟 AI Act 的透明度义务已经进入执行期，同时多会话 Agent 工作流仍缺少可靠的可追溯层；前端可视化回写、桌面应用发布基础设施和木工/DIY 材料感知设计也出现了可验证的工作流痛点。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "ai-act-compliance-ci",
+      "title": "AI Act 透明度与合规证据 CI",
+      "category": "ai-compliance",
+      "decision": "deep-dive",
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个面向 AI 产品团队的工程化合规 CI：扫描代码库和产品配置，检查用户交互披露、AI 生成内容标记、模型/供应商清单和审计证据是否齐全，并生成可版本化的证据包与整改清单。产品定位是持续合规工程工具，而不是法律意见或“保证合规”。",
+      "whyNow": "欧盟委员会在 2026 年 7 月发布了 Article 50 透明度义务指南，相关透明度义务自 2026 年 8 月 2 日起适用；与此同时，开源框架和早期产品团队已经开始提出结构化审计日志、代码扫描和低成本合规工作流需求。合规压力正在从一次性文档咨询转向可持续、可验证的工程流程。",
+      "evidence": [
+        {
+          "title": "Guidelines on transparency obligations for providers and deployers of AI systems",
+          "url": "https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems",
+          "sourceType": "other",
+          "publishedAt": "2026-07-20",
+          "summary": "欧盟委员会发布 Article 50 透明度义务指南，并说明相关义务自 2026 年 8 月 2 日起适用，为产品侧披露与内容标记形成了明确的近期工程需求。"
+        },
+        {
+          "title": "Structured compliance audit logging for EU AI Act (Article 12)",
+          "url": "https://github.com/langchain-ai/langchain/issues/35357",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-02-20",
+          "summary": "LangChain 用户提出需要面向监管审计的结构化、可篡改检测日志，指出常规可观测性数据与可证明的合规审计轨迹之间存在缺口。"
+        },
+        {
+          "title": "EU AI Act for AI builders: what should early-stage teams actually understand?",
+          "url": "https://www.producthunt.com/p/openbox/eu-ai-act-for-ai-builders-what-should-early-stage-teams-actually-understand",
+          "sourceType": "product-hunt",
+          "summary": "面向早期 AI 团队的讨论聚焦风险分类、责任、人工监督和记录保存，说明小团队正在寻找比企业级咨询更轻量的合规落地方式。"
+        },
+        {
+          "title": "Show HN: Open-source EU AI Act compliance scanning for CI/CD",
+          "url": "https://news.ycombinator.com/item?id=47376869",
+          "sourceType": "hacker-news",
+          "summary": "开发者把 EU AI Act 检查直接放进 CI/CD，扫描代码并生成整改项与模板，验证了“合规即代码/持续检查”这一产品形态已有明确需求。"
+        }
+      ],
+      "verdict": "优先从 Article 50 透明度与证据留存做窄 MVP：代码/配置扫描、披露检查、内容标记验证和版本化 evidence pack；不要承诺法律合规结论，也不要一开始覆盖全部高风险体系。",
+      "tags": [
+        "EU AI Act",
+        "Compliance",
+        "CI/CD",
+        "AI Governance"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "agent-session-ledger",
+      "title": "编码 Agent 会话账本与工作溯源",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个跨 Claude Code、Codex、Cursor 等编码 Agent 的本地优先工作账本：把会话记录、Git diff、工具调用和文件变化整理成稳定的“意图—动作—结果—待办”时间线，可搜索、可恢复、可导出，并对并发会话污染或历史丢失给出告警。",
+      "whyNow": "编码 Agent 已从单次问答变成跨天、并行和多设备工作流，但现有会话列表仍常以 ID/时间戳为主，用户反复报告难以知道某次会话做了什么、桌面与移动端历史不可见、更新后历史消失或并发会话互相污染。随着 Agent 自主执行时间增长，“工作发生过什么”正在变成新的开发资产。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? (August 2026) — agent session reconstruction",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-12",
+          "summary": "开发者描述无人值守或较早的 Claude Code 会话很难重建：需要手动翻 JSONL、会话记录和 git diff 才能知道当时要求了什么、Agent 实际做了什么，因此正在做会话区间重建工具。"
+        },
+        {
+          "title": "Feature Request: Rich session browser with summaries and completion state",
+          "url": "https://github.com/anthropics/claude-code/issues/58267",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-12",
+          "summary": "用户指出现有 resume/session 体验主要依赖裸 ID 和时间戳，缺少“做了什么、完成了什么、还剩什么”的可读摘要，手动解析 JSONL 既慢又笨重。"
+        },
+        {
+          "title": "Desktop-hosted sessions become invisible in mobile Code list",
+          "url": "https://github.com/anthropics/claude-code/issues/81466",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-26",
+          "summary": "用户报告桌面托管会话会被自动归档后在手机端不可见，虽然 transcript 仍存在，但跨设备继续工作的路径被切断。"
+        },
+        {
+          "title": "Session history missing after app update despite transcripts on disk",
+          "url": "https://github.com/anthropics/claude-code/issues/81076",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-25",
+          "summary": "用户升级后发现侧边栏不再显示历史会话，尽管记录仍在磁盘，导致数小时到数天的工作连续性受到影响。"
+        }
+      ],
+      "verdict": "先做本地 CLI/桌面索引器：读取现有 Agent transcript + Git 历史，生成可搜索的稳定摘要和恢复点；若用户愿意为跨 Agent/跨设备连续性付费，再扩展团队共享与合规审计。",
+      "tags": [
+        "Coding Agent",
+        "Session History",
+        "Developer Productivity",
+        "Local-first"
+      ]
+    },
+    {
+      "rank": 3,
+      "slug": "repo-native-visual-editor",
+      "title": "现有代码仓的可视化编辑与干净回写层",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 5
+      },
+      "opportunity": "做一个叠加在现有 React/Next/Vite 项目上的浏览器可视化编辑层：用户在真实页面上点选、拖拽、改样式或写自然语言指令，工具把意图精确映射到已有源码并生成小而可读的 diff/PR，而不是把项目迁进封闭画布或输出不可维护代码。",
+      "whyNow": "Agent 编码显著降低了生成前端代码的门槛，却把最后一公里问题放大：设计师和开发者仍想直接在真实页面上微调，但又不愿牺牲现有仓库、编辑器和代码质量。近期多个独立产品同时围绕“浏览器中可视化修改 → 发送给现有 Agent/代码库”出现，说明需求明确，但市场尚未收敛。",
+      "evidence": [
+        {
+          "title": "How do you know if you made something useful? — last-mile visual editor",
+          "url": "https://www.reddit.com/r/ideavalidation/comments/1uaazzw/how_do_you_know_if_you_made_something_useful/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-06-19",
+          "summary": "开发者描述自己厌倦传统可视化画布无法真正连接现有 repo、导出代码难维护，而纯 Agent 开发又失去细粒度视觉控制，因此做了 last-mile visual editor。"
+        },
+        {
+          "title": "Show HN: CSS Studio — Design by hand, code by agent",
+          "url": "https://news.ycombinator.com/item?id=47702196",
+          "sourceType": "hacker-news",
+          "summary": "工具直接运行在真实网站上完成视觉编辑，再把变化发送给既有 AI Agent 和代码库，验证了“视觉操作 + repo 原生 Agent”这一工作流。"
+        },
+        {
+          "title": "Design In The Browser",
+          "url": "https://www.producthunt.com/products/design-in-the-browser",
+          "sourceType": "product-hunt",
+          "summary": "产品允许在浏览器点选前端元素、通过视觉或自然语言修改，并把更改直接交给 Claude Code、Cursor 或 Gemini CLI，说明用户希望保留现有开发工具链。"
+        },
+        {
+          "title": "Agentation",
+          "url": "https://www.producthunt.com/products/agentation",
+          "sourceType": "product-hunt",
+          "summary": "另一个近期产品把网页上的视觉反馈和标注转换成结构化上下文交给编码 Agent，进一步验证了“视觉反馈桥接 Agent”的需求，同时也说明竞争正在升温。"
+        }
+      ],
+      "verdict": "差异化必须放在“现有 repo 的确定性源码映射 + 干净 diff”而非泛化 AI 页面编辑；先限定 React/Next 和 CSS/Tailwind，验证设计师/前端工程师是否愿意为减少手工定位与反复 prompt 付费。",
+      "tags": [
+        "Frontend",
+        "Visual Editor",
+        "Coding Agent",
+        "Git"
+      ]
+    },
+    {
+      "rank": 4,
+      "slug": "desktop-release-pipeline",
+      "title": "独立桌面应用的一站式签名、公证与更新发布流水线",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向 Tauri/Electron/原生桌面应用的小团队发布控制面：托管并轮换签名证书与密钥，自动完成 macOS codesign/notarization、安装包生成、自动更新清单和失败诊断，后续再扩展 Windows 签名与 Linux 打包。",
+      "whyNow": "独立开发者仍在反复为签名、公证、CI 密钥和更新链路投入数天甚至数周；近期 GitHub 项目也因为 ad-hoc signing 导致 macOS 权限在每次更新后被撤销。Agent 能更快写出桌面应用，却没有同步降低“让用户安全安装和更新”这一发布门槛。",
+      "evidence": [
+        {
+          "title": "Three weeks failing to notarize a Tauri app through GitHub Actions",
+          "url": "https://news.ycombinator.com/item?id=46195326",
+          "sourceType": "hacker-news",
+          "summary": "开发者描述加入 Apple Developer Program 后仍花了约三周处理 Tauri + GitHub Actions 公证问题，并付出额外 CI 成本，说明签名/认证链路对小团队仍非常脆弱。"
+        },
+        {
+          "title": "macOS permissions revoked after every Hermes.app update due to ad-hoc signing",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/49110",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-19",
+          "summary": "Hermes 用户报告每次更新后 macOS 隐私权限都会被撤销，Issue 直接要求在 CI 中采用稳定的 Developer ID 签名和 notarization。"
+        },
+        {
+          "title": "Automate macOS codesign and notarization in GitHub Actions",
+          "url": "https://github.com/justrach/codedb/issues/94",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-04-02",
+          "summary": "项目已经有签名但仍被 Gatekeeper 阻挡，因此提出把 notarization 完整自动化进 GitHub Actions 的需求。"
+        },
+        {
+          "title": "Desktop app distribution remains a gigantic and expensive hassle",
+          "url": "https://news.ycombinator.com/item?id=46497150",
+          "sourceType": "hacker-news",
+          "summary": "开发者讨论跨平台桌面分发时指出签名、打包和自动更新仍需大量平台特定脚本、证书与维护工作，尤其对独立开发者成本很高。"
+        }
+      ],
+      "verdict": "先聚焦 macOS + Tauri/Electron，把证书管理、签名、公证、DMG/ZIP、更新 manifest 和可操作错误诊断做成一条可靠流水线；在验证付费前不要扩展为完整跨平台发布平台。",
+      "tags": [
+        "macOS",
+        "Tauri",
+        "Code Signing",
+        "Desktop Apps"
+      ]
+    },
+    {
+      "rank": 5,
+      "slug": "material-aware-maker-cad",
+      "title": "面向木工与 DIY 的材料感知 Agent CAD 与切料计划",
+      "category": "maker-tools",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 3,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个不要求用户掌握传统 CAD 原语的木工/DIY 设计器：从自然语言、草图和空间尺寸出发，用真实木材规格、板材厚度、刀具与连接方式约束生成参数化模型，并自动输出 BOM、优化切料图、构建步骤和可导出的 CNC/图纸文件。",
+      "whyNow": "近期 HN 上同时出现多名开发者构建木工模拟器、书柜/柜体设计和切料优化工具，评论里有用户明确表示长期想要“选真实木料、可视化组装、直接得到采购/切割计划”的软件。传统 CAD 对实体材料和装配语义的抽象不自然，而 Agent 让更高层的设计交互变得可行。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? (August 2026) — carpentry simulator and material-aware design",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-12",
+          "summary": "开发者展示带真实木材规格、工具、BOM/切料计划和 Agent MCP 的木工模拟器；评论者明确表示长期想要能选择木料、可视化组装并直接生成采购/切割方案的软件。"
+        },
+        {
+          "title": "Ask HN: What are you working on? (July 2026) — ShopSpec",
+          "url": "https://news.ycombinator.com/item?id=48884984",
+          "sourceType": "hacker-news",
+          "summary": "开发者因为不想把时间花在传统 CAD 画盒子上，做了从书柜/柜体设计直接生成零件、切割、板材布局和构建步骤的工具，用户也提出异形空间定制书柜需求。"
+        },
+        {
+          "title": "Ask HN: What are you working on? (January 2026) — MeasureToCut",
+          "url": "https://news.ycombinator.com/item?id=46577242",
+          "sourceType": "hacker-news",
+          "summary": "DIY 项目反复跑五金店和材料浪费促使开发者做用量与切料优化工具，验证了 BOM/采购/切割这一环节有直接且可量化的痛点。"
+        },
+        {
+          "title": "OpenCutList nesting failure with dynamic component cutouts",
+          "url": "https://github.com/lairdubois/lairdubois-opencutlist-sketchup-extension/issues/924",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-02-01",
+          "summary": "成熟开源切料工具仍会在动态组件/开孔几何上出现 nesting 失败并需要人工 workaround，说明从设计语义到可制造切料结果之间仍有技术缺口。"
+        }
+      ],
+      "verdict": "用户热情强但付费能力和竞争格局需要验证；先做柜体/书架这一窄类目，支持标准板材、参数化尺寸、BOM 与优化切料，测试是否能把首次可制造方案从小时级降到分钟级。",
+      "tags": [
+        "Woodworking",
+        "CAD",
+        "Cut List",
+        "Maker"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "ai-act-compliance-ci",
+      "reason": "Article 50 透明度义务刚进入适用期，需求具有明确时间触发、高付费动机和工程化落地空间，最值得马上验证窄场景产品。"
+    },
+    "fastestMvp": {
+      "slug": "agent-session-ledger",
+      "reason": "可以从本地读取现有 transcript、JSONL 与 Git 历史开始，不需要训练模型或改变用户当前 Agent 工作流，最快能做出可用 CLI/桌面原型。"
+    },
+    "highestCommercialValue": {
+      "slug": "ai-act-compliance-ci",
+      "reason": "B2B 合规具备明确预算、重复检查和审计留证需求，若切入工程工作流而非一次性咨询，更容易形成高客单与持续收入。"
+    },
+    "needsValidation": {
+      "slug": "material-aware-maker-cad",
+      "reason": "需求表达强烈，但木工/DIY 用户是否愿意为软件持续付费、以及相比现有 CAD/切料插件的差异化是否足够，仍需直接访谈和付费实验。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-07 至 2026-08-14",
+    "sources": [
+      "Hacker News Ask/Show HN",
+      "GitHub Issues/Trending",
+      "Product Hunt",
+      "Reddit",
+      "European Commission Digital Strategy"
+    ],
+    "limitations": "X 的公开搜索受登录与索引限制，本次没有采用无法核验原帖的 X 搜索摘要作为证据；Google Trends 与 Exploding Topics 仅作为趋势辅助且没有替代真实痛点证据；Starter Story 与 Indie Hackers 本轮未出现比上述来源更强且可核验的新需求信号。"
+  }
+}

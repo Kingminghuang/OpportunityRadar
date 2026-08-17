@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-17",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-17",
+  "summary": "今天最强的机会集中在编码 Agent 的运行时基础设施：让 Agent 在等待外部事件时真正休眠并被事件唤醒、为多 Agent 并发提供统一控制面，以及为企业场景补齐敏感数据边界、BYOK 与跨会话工作溯源。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "event-driven-agent-wake-runtime",
+      "title": "编码 Agent 的事件驱动唤醒与长任务运行时",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个可嵌入 Codex、Claude Code 和自定义 coding-agent 工作流的轻量事件运行时：Agent 可以注册对构建、测试、日志、文件、Webhook、队列等事件的监听，随后真正休眠，不消耗模型轮次；事件发生时以有界、可去重的通知唤醒原会话继续执行。",
+      "whyNow": "Codex 用户已经连续提出多种几乎相同的需求：后台命令完成后自动唤醒、通用 monitor 工具、外部事件注入可见会话，以及持久自愈监控。用户明确指出当前轮询会浪费大量模型轮次和上下文成本，说明这不是抽象平台愿景，而是已经出现的重复运行时痛点。",
+      "evidence": [
+        {
+          "title": "Event-driven wakeup when background exec sessions complete",
+          "url": "https://github.com/openai/codex/issues/32188",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-10",
+          "summary": "用户要求后台测试、构建和部署完成后直接唤醒空闲线程，而不是持续轮询；动机是减少无意义模型轮次和用于监控的额外 subagent。"
+        },
+        {
+          "title": "Feature: an agent-callable monitor tool that wakes Codex on background events",
+          "url": "https://github.com/openai/codex/issues/29922",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-24",
+          "summary": "用户明确提出用 monitor 工具监听日志、文件、构建和 CI，在没有事件时完全不调用模型，只在事件到达时唤醒会话。"
+        },
+        {
+          "title": "Feature request: deliver external/async events as turns into a live session",
+          "url": "https://github.com/openai/codex/issues/33556",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-16",
+          "summary": "用户希望文件变化、Webhook 或消息能直接唤醒正在观看的可见会话，而不是只能送入不可见的 headless thread。"
+        },
+        {
+          "title": "Codex CLI: add persistent self-healing monitor workflows for long-running jobs",
+          "url": "https://github.com/openai/codex/issues/32993",
+          "sourceType": "github-issue",
+          "summary": "进一步需求已从单次 wake 扩展到 monitor → detect → diagnose → remediate → verify 的完整持久工作流，说明事件驱动长任务已形成连续需求簇。"
+        }
+      ],
+      "verdict": "先做 provider-agnostic 的本地守护进程与 MCP/CLI 适配层，聚焦 build/test/log/webhook 四类事件、一次性唤醒和去重；若能显著减少轮询 token 与 babysitter subagent，即有清晰价值。",
+      "tags": [
+        "Coding Agent",
+        "Event-driven",
+        "Monitoring",
+        "Developer Tools"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "multi-agent-control-plane",
+      "title": "多编码 Agent 的统一控制台与隔离工作区",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 5
+      },
+      "opportunity": "做一个面向 Codex、Claude Code、OpenCode 等 CLI Agent 的统一控制面：显示每个 Agent 的任务、repo/worktree、状态和最近动作，支持隔离工作区、并行运行、远程查看与结果审阅，而不替代底层 Agent。",
+      "whyNow": "随着 coding agent 支持 threads、worktrees、subagents 和长任务，用户开始明确抱怨仅靠 terminal tabs/tmux 无法回答“谁还在跑、在哪个项目、在做什么”。同时近期 HN 已出现专门为多 CLI Agent 降低认知负担并支持远程审阅的独立产品，证明机会从单一功能请求进入产品化阶段。",
+      "evidence": [
+        {
+          "title": "Feature Request: CLI Agent Dashboard / Thread View",
+          "url": "https://github.com/openai/codex/issues/30713",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-30",
+          "summary": "Codex 用户直接要求终端内置多 Agent dashboard，用于查看运行状态、所属项目/worktree 和当前任务，替代 terminal tabs、tmux 与外部工具的手工管理。"
+        },
+        {
+          "title": "Feature request: parallel Computer Use sessions for multiple Codex agents",
+          "url": "https://github.com/openai/codex/issues/20852",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-03",
+          "summary": "用户希望多个 Codex Agent 并行工作时拥有独立桌面、浏览器或 app 上下文，说明并发 Agent 的资源隔离与冲突管理已成为新的工作流瓶颈。"
+        },
+        {
+          "title": "Ask HN: What Are You Working On? (July 2026) — Baton",
+          "url": "https://news.ycombinator.com/item?id=48884984",
+          "sourceType": "hacker-news",
+          "summary": "开发者公开构建支持任意 CLI Agent 的 orchestrator，目标就是降低并行 Agent 任务的认知负担，并加入远程 SSH 运行与代码审阅。"
+        }
+      ],
+      "verdict": "不要做新的 Agent IDE；MVP 应只做“跨 CLI 进程发现 + 任务/工作区状态 + worktree 隔离 + 一键 attach/review”，先服务每天同时跑 3 个以上 Agent 的重度用户。",
+      "tags": [
+        "Multi-agent",
+        "Codex",
+        "Worktree",
+        "CLI"
+      ]
+    },
+    {
+      "rank": 3,
+      "slug": "coding-agent-policy-firewall",
+      "title": "编码 Agent 的本地数据边界与模型路由防火墙",
+      "category": "security-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 3,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个位于 coding-agent 与文件系统/模型 API 之间的本地 policy gateway：用可版本化规则硬性阻止敏感路径读取或上传，记录实际发送的数据，并按仓库/团队策略把请求路由到企业 LiteLLM、私有模型或允许的云模型。",
+      "whyNow": "当前需求同时来自两个方向：个人/团队要求对敏感文件做真正可执行的 deny，而不是依赖 AGENTS.md 约定；企业又要求在 Agent Window 中使用内部模型、LiteLLM 或 BYOK，但实际集成仍不稳定。两者组合成了明确的“数据边界 + 模型路由”控制层机会。",
+      "evidence": [
+        {
+          "title": "Feature Request: .codexignore/.aiignore file or ignoring paths in config.toml",
+          "url": "https://github.com/openai/codex/issues/24993",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-29",
+          "summary": "用户明确要求可靠阻止 Agent 读取敏感数据，并指出仅在 AGENTS.md 写规则或靠 hook 拦截并不可靠，且已有多个重复需求。"
+        },
+        {
+          "title": "Feature Request: Support custom third-party LLMs (BYOK) for core Agent sessions",
+          "url": "https://github.com/microsoft/vscode/issues/317683",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-21",
+          "summary": "VS Code 用户说明企业因数据隐私政策无法使用默认模型，希望用内部微调模型、Ollama/vLLM 或其他 API 驱动 Agent。"
+        },
+        {
+          "title": "Agent/Ask/Plan not switching properly with customendpoint BYOK model",
+          "url": "https://github.com/microsoft/vscode/issues/326797",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-21",
+          "summary": "企业用户通过 LiteLLM proxy 使用自有模型时，VS Code Agent 模式仍出现模式与模型路由问题，说明 BYOK 在真实企业链路中尚未稳定。"
+        },
+        {
+          "title": "Critical data separation issue: CLAUDE_CONFIG_DIR not honored",
+          "url": "https://github.com/anthropics/claude-code/issues/81278",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-26",
+          "summary": "用户报告多账号环境下配置目录未正确隔离，可能造成不同账号之间的配置与敏感数据混合，进一步验证本地数据边界的价值。"
+        }
+      ],
+      "verdict": "安全产品要避免只做提示词规则；MVP 必须以 OS/代理层可执行策略为核心：路径 deny、请求审计、模型 allowlist 与 LiteLLM/OpenAI-compatible 路由，先验证企业开发团队是否愿意为统一策略付费。",
+      "tags": [
+        "Agent Security",
+        "DLP",
+        "BYOK",
+        "Enterprise"
+      ]
+    },
+    {
+      "rank": 4,
+      "slug": "agent-handoff-provenance",
+      "title": "本地、云端与后台 Agent 的 Handoff 工作溯源",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 5
+      },
+      "opportunity": "做一个独立于具体 Agent 厂商的 handoff/provenance 层：当任务在本地、worktree、cloud、ACP/background agent 之间切换时，持续维护可追溯的任务状态、来源会话、Git 变化、PR/评论和未完成事项，并能生成结构化 handoff。",
+      "whyNow": "Agent 产品已经支持越来越多 local/cloud/background 模式，但任务状态并没有同步成统一事实源。用户明确报告 UI handoff 与 agent tool 能力不一致、后台 session 在 app 中不可见、云端 PR/评论没有回流到原会话。问题已经从“保存聊天记录”升级为“跨执行环境保持任务连续性与审计链”。",
+      "evidence": [
+        {
+          "title": "Codex Desktop: agent handoff tool lacks parity with the Handoff UI",
+          "url": "https://github.com/openai/codex/issues/35283",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-25",
+          "summary": "Codex Desktop 用户指出 UI 可以在 Local 与 Worktree 间完整 handoff，但 agent-facing handoff 工具无法完成同等操作，造成自动化路径能力缺口。"
+        },
+        {
+          "title": "Show ACP/exec-spawned sessions in Codex app",
+          "url": "https://github.com/openai/codex/issues/16398",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-04-01",
+          "summary": "通过 ACP 或 codex_mcp 启动的后台工作虽有 JSONL，但不会出现在 Codex app，用户无法统一审阅 diff、对话和后台 Agent 的实际动作。"
+        },
+        {
+          "title": "Cloud agent activity on GitHub.com is not reflected in the originating session",
+          "url": "https://github.com/microsoft/vscode/issues/302107",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-03-16",
+          "summary": "VS Code Agent Sessions 研究中发现，Agent 在 GitHub.com 创建 PR、评论和后续提交后，这些活动不会回到原始 session，直接破坏任务时间线。"
+        },
+        {
+          "title": "Session Bridge - Structured Context Preservation for Long-Running Agent Sessions",
+          "url": "https://github.com/openai/codex/issues/24810",
+          "sourceType": "github-issue",
+          "summary": "用户已实现并开源结构化 handoff，把决策、产物和进行中状态持久化到长期存储，验证跨 session 连续性的实际需求。"
+        }
+      ],
+      "verdict": "需求强但与已有 session-ledger 类工具接近；先验证跨 local/cloud/background 的 Git/PR provenance 是否足够独立成为付费切口，否则应并入更大的 Agent 工作账本产品。",
+      "tags": [
+        "Handoff",
+        "Provenance",
+        "GitHub",
+        "Agent Sessions"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "event-driven-agent-wake-runtime",
+      "reason": "同一核心痛点在 Codex 中出现多个独立、相互引用的 feature request，且节省 token、减少 babysitter subagent 和支持长任务的价值可以直接量化。"
+    },
+    "fastestMvp": {
+      "slug": "multi-agent-control-plane",
+      "reason": "第一版只需发现本地 CLI 进程、读取 cwd/worktree/session 元数据并提供统一 attach/review 界面，不必修改底层 Agent 推理或协议。"
+    },
+    "highestCommercialValue": {
+      "slug": "coding-agent-policy-firewall",
+      "reason": "企业隐私、敏感路径隔离和 BYOK/内部模型路由都有明确合规与采购动机，若能以可执行策略替代提示词约定，商业价值最高。"
+    },
+    "needsValidation": {
+      "slug": "agent-handoff-provenance",
+      "reason": "痛点真实，但与 session browser、工作账本和厂商原生 handoff 的边界容易重叠，需要验证用户是否会单独为跨执行环境 provenance 付费。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "优先扫描 2026-08-10 至 2026-08-17；近 7 天可核验的新需求信号偏少，因此补充了 2026-03 至 2026-07 的高相关、仍未解决的公开需求作为重复痛点证据。",
+    "sources": [
+      "GitHub Issues",
+      "Hacker News Ask HN",
+      "Product Hunt",
+      "Reddit",
+      "Google Trends / Exploding Topics"
+    ],
+    "limitations": "本轮最强信号主要来自 GitHub Issues 与可索引的 Hacker News。X 直接搜索受登录与索引限制，未采用无法核验原帖的摘要；Product Hunt、Reddit、Starter Story、Indie Hackers 与趋势来源本轮没有提供比上述需求簇更强的新证据，因此未为了凑数量而加入弱机会。"
+  }
+}

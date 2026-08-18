@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-18",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-18",
+  "summary": "今天最强的信号从“让 Agent 更强”转向“让 Agent 更可用”：可靠的移动审批、可测量的工具发现与选用率，以及把跨渠道收入和事故现场整理成可信证据；同时，桌面工作流的演示式技能录制开始出现独立产品形态。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "coding-agent-mobile-approval-bridge",
+      "title": "编码 Agent 的可靠移动审批与 Attention Bridge",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {"total": 23, "demand": 5, "payment": 4, "mvp": 5, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个跨 Codex、Claude Code 等本地编码 Agent 的移动 Attention Bridge：只在任务真正需要人工输入、审批、完成或卡住时发送可靠通知，在手机上展示足够的命令/文件/diff 上下文，并用结构化按钮完成准确审批；重点是 delivery、state 和 approval correctness，不做完整远程 IDE。",
+      "whyNow": "近期 Product Hunt 已出现专门把 Claude Code/Codex 放到手机上的 Port22，创作者直接源于“离开电脑后任务空等 20 分钟审批”的痛点；同时 Codex 和 Claude Code 在 6–7 月仍持续出现审批状态不同步、移动推送丢失和缺少 actionable approval 的问题，说明需求已从“想要通知”升级为“需要可靠的人机 attention channel”。",
+      "evidence": [
+        {"title": "Port22: Claude Code, Codex & more on your phone", "url": "https://www.producthunt.com/products/port22", "sourceType": "product-hunt", "summary": "产品作者明确表示长 Agent 任务会在自己离开电脑后因一次文件审批空等约 20 分钟，因此做了可查看工作/卡住状态并在手机上点击真实审批选项的 companion；这是直接的产品化需求证据。"},
+        {"title": "Claude Code mobile push notifications silently dropped ~50% of the time", "url": "https://github.com/anthropics/claude-code/issues/82374", "sourceType": "github-issue", "publishedAt": "2026-07-29", "summary": "用户报告移动 PushNotification 大量静默丢失，而且客户端仍返回 success，说明“通知已发送”与“用户真的收到 attention”之间缺少可靠交付语义。"},
+        {"title": "Codex Remote Control push notifications not delivered on iOS", "url": "https://github.com/openai/codex/issues/32908", "sourceType": "github-issue", "publishedAt": "2026-07-14", "summary": "Codex Remote Control 的任务完成和审批事件在前台可见，但后台 iOS push 不到达；用户明确期望 completion/approval 都能可靠通知。"},
+        {"title": "Mobile shows Codex thread as Thinking while desktop is waiting for approval", "url": "https://github.com/openai/codex/issues/27006", "sourceType": "github-issue", "publishedAt": "2026-06-08", "summary": "同一线程手机端显示仍在 Thinking，而桌面端实际已经等待审批，证明跨端 attention state 同步本身是独立可靠性问题，而不仅是缺一个通知按钮。"}
+      ],
+      "verdict": "先做本地 daemon + iOS/Android companion 的窄 MVP，只处理 needs-input/approval/done/stuck 四类状态，要求通知有 delivery ack、可重试且审批按钮来自真实会话；如果不能把“用户回来才发现 Agent 卡住”的时间显著降下来，就没有独立价值。",
+      "tags": ["Coding Agent", "Mobile", "Approval", "Human-in-the-loop"]
+    },
+    {
+      "rank": 2,
+      "slug": "agent-tool-discovery-benchmark",
+      "title": "Agent 工具可发现性与选用率测试台",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {"total": 22, "demand": 5, "payment": 4, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个面向 CLI、API、MCP server 和 Agent Skill 作者的“Agent tool SEO/benchmark”工具：在多模型、多 coding agent 上用无品牌提示运行真实任务，测量工具是否被发现、是否被选中、何时被 DIY 绕过，并自动指出 schema、description、examples、progressive disclosure 和上下文负载问题。",
+      "whyNow": "过去两天 HN 已出现专门测“Agent 实际选择哪些开发工具”的 SurvivalIndex，而此前 Ask HN 也直接询问如何知道 Agent 会不会选自己的工具；与此同时 Hermes 等大型 Agent 项目正在为 50–100 个工具带来的 schema 上下文浪费和 deferred-tool 不可见问题重构 discovery。工具分发正在从“人能搜到”变成“Agent 会不会主动调用”。",
+      "evidence": [
+        {"title": "Show HN: SurvivalIndex – which developer tools do AI agents choose?", "url": "https://news.ycombinator.com/item?id=47284175", "sourceType": "hacker-news", "summary": "项目用标准化 repo 和无工具名提示测 Agent 实际选用率，早期结果显示 Claude Code 在 20 个类别中有 12 个倾向 Custom/DIY；不同模型对同一工具的选择也显著不同，证明“被 Agent 选中”可独立测量。"},
+        {"title": "Ask HN: How do you know if AI agents will choose your tool?", "url": "https://news.ycombinator.com/item?id=47127532", "sourceType": "hacker-news", "summary": "开发者直接询问如何模拟和比较 Agent 是否会选择自己的工具而不是竞品/自建方案，评论集中讨论描述、示例、上下文可见性和训练数据对工具选择的影响。"},
+        {"title": "Hermes RFC: On-demand tool/skill/MCP discovery", "url": "https://github.com/NousResearch/hermes-agent/issues/34038", "sourceType": "github-issue", "summary": "Hermes 典型会话只使用 103 个注册工具中的 3–5 个，却需要预加载大量 schema，因此提出 on-demand discovery；这说明工具数量增长已经把“发现性”和“上下文成本”变成运行时问题。"},
+        {"title": "Hermes: tool schemas consume 83% of every API request", "url": "https://github.com/NousResearch/hermes-agent/issues/67273", "sourceType": "github-issue", "summary": "用户报告完整工具加载下 schema 占 API 请求 token 预算的 83.1%，请求 per-session filtering/lazy loading；证明工具发现与上下文优化有直接成本压力。"}
+      ],
+      "verdict": "最快 MVP 是一个开源 benchmark runner：输入 MCP/CLI/API 的 agent-facing 描述，跨 3 个模型跑 20–50 个任务，输出 discover/pick/success/DIY rate 和上下文成本；若开发工具作者愿意把它放进 release CI，才扩展成持续监测产品。",
+      "tags": ["MCP", "Developer Tools", "Agent Discovery", "Benchmark"]
+    },
+    {
+      "rank": 3,
+      "slug": "subscription-revenue-reconciliation-ledger",
+      "title": "Stripe + App Store + Google Play 的订阅收入对账账本",
+      "category": "fintech-tools",
+      "decision": "deep-dive",
+      "score": {"total": 22, "demand": 5, "payment": 5, "mvp": 4, "competition": 3, "acquisition": 5},
+      "opportunity": "做一个面向小型订阅 SaaS/移动应用的只读收入 reconciliation ledger：把 Stripe、Apple App Store 和 Google Play 的订阅、退款、争议、平台抽成、税费和结算周期统一成可追溯事件，再同步到 Google Sheets/仓库；同时保留“当时报告的数字”和后续更正，避免历史数据被静默改写。",
+      "whyNow": "本周 Product Hunt 上 SyncStaq 的讨论暴露了两个更深的问题：团队真实工作不是“把 Stripe 导进 Sheets”，而是计算佣金/分成并处理退款；而使用 Stripe + Apple + Google IAP 的团队明确表示单一渠道只覆盖约三分之一收入、三套结算周期对不上。Stripe AI/MCP 的真实 issue 也显示缺少 subscription schedules、charges 和 pagination 会让未来收入、失败支付和 100 条以上记录静默缺失。",
+      "evidence": [
+        {"title": "SyncStaq: Stripe billing data, always current in Google Sheets", "url": "https://www.producthunt.com/products/syncstaq", "sourceType": "product-hunt", "summary": "创作者称访谈的 6 个团队中有 4 个独立提到佣金/合作伙伴分成以及净掉费用和退款的痛点；评论进一步提出 Stripe+Apple+Google IAP 跨周期对账和历史退款重写已报数字的问题。"},
+        {"title": "Stripe MCP connector missing subscription schedules, charges and pagination", "url": "https://github.com/stripe/ai/issues/357", "sourceType": "github-issue", "publishedAt": "2026-04-07", "summary": "真实用户指出 connector 缺失导致 15 个计划订阅、€38,250 预期收入不可见，失败/Radar 支付也不能查询，且超过 100 条记录会静默截断，直接影响收入和现金流报告。"},
+        {"title": "Stripe AI issues: missing pagination support across list/search tools", "url": "https://github.com/stripe/ai/issues/393", "sourceType": "github-issue", "publishedAt": "2026-04-17", "summary": "独立 issue 再次指出缺少 cursor pagination 会让数据集超过单页后不完整，支持“财务数据不能容忍静默缺行”的需求。"}
+      ],
+      "verdict": "不要做泛化 ETL；先做 Stripe + Apple + Google 三轨只读 ledger，支持 append-only adjustment、payout period mapping、refund/dispute clawback 和 board-report snapshot，直接验证财务/Founder 是否愿意为“数字不再对不上”付费。",
+      "tags": ["Subscription", "Revenue Ops", "Reconciliation", "Google Sheets"]
+    },
+    {
+      "rank": 4,
+      "slug": "incident-evidence-enricher",
+      "title": "SRE 告警到可执行 Incident Evidence 的自动补全层",
+      "category": "devops",
+      "decision": "watch",
+      "score": {"total": 20, "demand": 4, "payment": 5, "mvp": 4, "competition": 3, "acquisition": 4},
+      "opportunity": "做一个叠加在现有 PagerDuty/Azure Monitor/Datadog 告警之后的 incident evidence enricher：不让 LLM 决定是否触发 pager，而是在确定性告警已经产生后，自动收集相关 logs、metrics、traces、最近 deploy diff、依赖状态和相似事件，生成带来源的时间线与第一版 RCA 假设并写回 ticket。",
+      "whyNow": "今天 HN 的 LogClaw 讨论再次把问题聚焦到“被叫醒时只有 something is wrong、没有上下文”；同时 Microsoft SRE Agent 的近期 issue 仍在处理 alerts consolidation、incident filtering、datasource integration 等基础工作流摩擦。AI SRE 已经拥挤，但“保留确定性告警、只自动补齐首轮证据”是更窄、更可信的切口。",
+      "evidence": [
+        {"title": "Show HN: LogClaw – Open-source AI SRE that auto-creates tickets from logs", "url": "https://news.ycombinator.com/item?id=47353981", "sourceType": "hacker-news", "summary": "创作者明确因付费使用 Datadog 后仍会被只有“something is wrong”而无上下文的告警叫醒而做产品；讨论集中在如何把低信噪比日志转成可行动的 triage 上。"},
+        {"title": "Microsoft SRE Agent issues", "url": "https://github.com/microsoft/sre-agent/issues", "sourceType": "github-issue", "summary": "近期公开 issue 包含告警合并、incident response plan 过滤、ServiceNow datasource、monitor-to-resource mapping 等，说明事故现场的信号归并与上下文拼装仍有大量工作流缺口。"},
+        {"title": "Azure SRE Agent community repository", "url": "https://github.com/microsoft/sre-agent", "sourceType": "other", "summary": "微软已把 AI SRE 做成独立产品并公开 incident routing、alert merging、live report 等能力，证明付费/平台投入存在，也意味着新产品必须避开通用 AI SRE 正面竞争。"}
+      ],
+      "verdict": "先做“现有告警后 60 秒内生成 evidence packet”的 read-only MVP：接一种告警源 + OpenTelemetry + GitHub deploy history；如果不能显著降低 on-call 首轮搜日志/找变更的时间，就不要扩展成 AI SRE 平台。",
+      "tags": ["SRE", "Incident Response", "Observability", "Evidence"]
+    },
+    {
+      "rank": 5,
+      "slug": "desktop-skill-demonstration-recorder",
+      "title": "桌面工作流的演示式 Agent Skill 录制与漂移修复",
+      "category": "automation-tools",
+      "decision": "watch",
+      "score": {"total": 20, "demand": 4, "payment": 3, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个本地优先的 teach-by-demonstration recorder：用户在 macOS/Windows 上演示一次跨 App 工作流，工具记录语义 UI 事件、窗口/文件上下文和关键验证点，产出可检查的 Agent Skill；运行失败或 UI 漂移时自动定位失败步骤并请求一次补充演示，而不是重新录整条流程。",
+      "whyNow": "昨天 HN 的 Understudy 以“演示一次，让桌面 Agent 学会跨浏览器/原生 App/终端流程”获得集中讨论；与此同时 open-record-replay 已把真实桌面操作录成结构化事件并打包成 Skill 输入，证明这个交互原语正在独立成型。真正未验证的空隙不是录制本身，而是技能随 UI/环境变化后的 drift detection、局部重教和成功路径记忆。",
+      "evidence": [
+        {"title": "Show HN: Understudy – Teach a desktop agent by demonstrating a task once", "url": "https://news.ycombinator.com/item?id=47353957", "sourceType": "hacker-news", "summary": "Understudy 的核心卖点是用户演示一次跨原生 App、浏览器、shell 和消息工具的任务，系统从视频与语义事件提取意图并生成可复用技能；讨论直接围绕示范式学习和环境变化后的恢复展开。"},
+        {"title": "Open Record/Replay", "url": "https://github.com/humblebanana/open-record-replay", "sourceType": "other", "summary": "开源项目明确针对文件选择器、菜单、弹窗、拖拽和多 App 工作流“难以写成 prompt”的问题，把真实鼠标/键盘/UI 事件录成 session.json/events.jsonl 并打包给 Agent 创建 Skill。"},
+        {"title": "Daytona issue: computer-use interaction model", "url": "https://github.com/daytonaio/daytona/issues/4445", "sourceType": "github-issue", "summary": "computer-use 工具请求从纯像素交互走向更分层的 browser/desktop interaction model，说明仅靠坐标 replay 不足以支撑稳定桌面自动化。"}
+      ],
+      "verdict": "先不要做完整桌面 Agent；只做 recorder + semantic anchors + replay verifier + failed-step re-teach。若用户能用一两次局部补充演示修复 UI 漂移，并比重新写脚本/提示词省 50% 以上时间，再考虑产品化。",
+      "tags": ["Computer Use", "Teach-by-demonstration", "Agent Skills", "Local-first"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {"slug": "coding-agent-mobile-approval-bridge", "reason": "需求来自近期产品化信号和跨 Codex/Claude Code 的重复可靠性问题，MVP 很小且价值可直接用“减少 Agent 空等时间”衡量。"},
+    "fastestMvp": {"slug": "agent-tool-discovery-benchmark", "reason": "无需控制生产系统，先用标准 repo、提示词和 agent-facing schema 跑离线 benchmark 就能测 discover/pick/success rate，并快速形成公开报告。"},
+    "highestCommercialValue": {"slug": "subscription-revenue-reconciliation-ledger", "reason": "收入、退款、结算和分成属于直接财务工作流，错误数字有明显业务成本，且可从只读数据接入开始，付费动机比纯效率工具更明确。"},
+    "needsValidation": {"slug": "desktop-skill-demonstration-recorder", "reason": "演示式学习的兴趣正在上升，但录制能力已经有新进入者；首先要验证用户真正愿意为 drift repair/局部重教而不是“录一次 demo”付费。"}
+  },
+  "scanNotes": {
+    "coverageWindow": "主扫描 2026-08-16 至 2026-08-18；对重复痛点必要时扩展到 2026 年 6–7 月及 8 月初的 GitHub Issues 作为支持证据。",
+    "sources": ["Hacker News Ask/Show HN", "Product Hunt", "GitHub Issues / repositories"],
+    "limitations": "本轮强可核验信号主要来自 Hacker News、Product Hunt 和 GitHub；未把无法在源站核验原帖的 X 搜索摘要、纯趋势数据或缺乏具体用户痛点的发布信息作为证据。部分产品页的抓取/展示时间与实际发布日期可能存在滞后，因此未用相对时间作为关键结论。"
+  }
+}

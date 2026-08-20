@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-20",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-20",
+  "summary": "今天最强的信号从“Agent 能不能执行”转向“执行结果能不能被真实世界证明”：公开用户反复遇到工具返回成功但页面、数据库或外部对象没有真正改变；同时，MCP 新协议版本与多语言 SDK 让工具 schema 的静默失真成为可测试的兼容性问题。硬件、媒体和科研工作流也在出现类似的“Agent 生成更快，但验证、上下文和可复现性跟不上”的机会。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-side-effect-postcondition-gate",
+      "title": "Agent 外部动作的 Destination Proof 与 Postcondition Gate",
+      "category": "developer-infrastructure",
+      "decision": "deep-dive",
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个包在 Agent 副作用工具调用外面的结果验证层：发送消息、提交表单、写数据库、更新 CRM 等动作不能只凭 tool/API 的 success 就标记完成，而要由开发者声明可验证的 postcondition，在真正的目标系统或用户可见渲染面读回结果；同时记录幂等键、前置状态和可核验的 outcome receipt，验证失败时阻止 Agent 宣告 done 或盲目重试。",
+      "whyNow": "近期 Product Hunt 的 Agent 安全讨论里出现了多个独立的近失误：有人让 Agent 发评论，连续三次都报告成功，但内容其实仍留在编辑器草稿中；另一个用户发现错误地把“目标页没看到”当成失败会触发重复提交。GitHub 上 agent-browser 和 Hermes 也有同型问题：点击、切换 frame 或数据库 create 命令返回成功，但真实页面/持久化状态没有发生预期变化。随着 Agent 开始发送、预订、收费和修改生产状态，tool success 与 business outcome 的差距正在变成运行时可靠性问题。",
+      "evidence": [
+        {
+          "title": "Your agent does something wrong. How far does it reach before anyone notices?",
+          "url": "https://www.producthunt.com/p/pushary/your-agent-does-something-wrong-how-far-does-it-reach-before-anyone-notices",
+          "sourceType": "product-hunt",
+          "summary": "讨论中用户给出本周真实近失误：Agent 连续三次宣告评论发布成功，但三条都仍在 composer 中；随后多人总结必须“在 destination 验证”，并指出错误的缺失判断又可能造成重复提交。"
+        },
+        {
+          "title": "React SPA button clicks don't trigger onClick handlers",
+          "url": "https://github.com/vercel-labs/agent-browser/issues/1011",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-03-24",
+          "summary": "agent-browser 的 click 命令返回 Done，但 React onClick 没有触发、页面状态完全不变，直接证明命令级成功不能代表用户可见动作成功。"
+        },
+        {
+          "title": "Feature Request: Proper iframe context isolation for snapshot, eval, and screenshot",
+          "url": "https://github.com/vercel-labs/agent-browser/issues/318",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-01-29",
+          "summary": "frame 命令报告成功，但后续 snapshot/eval/screenshot 仍作用于父页面；这是另一种“控制面成功、真实作用域错误”的静默结果偏差。"
+        },
+        {
+          "title": "hermes kanban create reports success but row never lands in DB",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/57967",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-03",
+          "summary": "Hermes kanban 在 COMMIT 失败时仍可能打印 Created 和 task_id，真实数据库却没有该行；报告者最终采用 create 后直接 read-back 验证再重试的 workaround。"
+        }
+      ],
+      "verdict": "先做一个小型 SDK/代理层，只支持浏览器表单 + 一个 API/数据库 adapter：每类动作必须声明成功的可观察 postcondition、幂等策略和 canonical destination。若能在真实 Agent 流程中稳定抓出 false-success/false-absence 并避免重复副作用，就有比通用 observability 更直接的价值。",
+      "tags": ["AI Agents", "Postconditions", "Reliability", "Verification"]
+    },
+    {
+      "rank": 2,
+      "slug": "mcp-contract-regression-ci",
+      "title": "MCP 工具契约兼容性与 Schema Regression CI",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 5,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向 MCP server/SDK 作者的契约测试 CLI 与 GitHub Action：启动真实 server，快照 tools/list，校验 input/output JSON Schema，在指定 protocol version、SDK 版本和严格客户端矩阵上执行 tools/call，并检测 schema 被静默清空、数组/对象序列化错误、客户端整批拒绝、协议升级后的字段/能力不兼容。",
+      "whyNow": "MCP 在 2026-07-28 发布了新协议版本，工具 schema 与请求元数据等语义继续演进，而大量已发布 server 仍运行旧 SDK。8 月的新 TypeScript SDK issue 显示，把新版文档里的 z.object() 写法带回常见 v1 版本后，工具参数 schema 会静默变成空对象或 tools/list 崩溃；PHP SDK 也出现空 properties 被序列化成数组、导致严格客户端拒绝整个工具列表的问题。错误通常不会在 server 启动时暴露，而是在某个 Agent 客户端调用时才出现。",
+      "evidence": [
+        {
+          "title": "passing z.object() as inputSchema on v1 fails silently or cryptically",
+          "url": "https://github.com/modelcontextprotocol/typescript-sdk/issues/2627",
+          "sourceType": "github-issue",
+          "summary": "开发者用多个 v1 SDK 版本复现：看似合理的 inputSchema 会被静默清空或让 tools/list 崩溃，错误信息无法指向真正原因，并称因此损失了大半天排查时间。"
+        },
+        {
+          "title": "registerTool() silently drops inputSchema for z.discriminatedUnion()",
+          "url": "https://github.com/modelcontextprotocol/typescript-sdk/issues/1643",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-03-08",
+          "summary": "SDK 会把 discriminated union 工具参数静默降成空 properties，模型完全收不到参数定义且没有编译期或运行时警告。"
+        },
+        {
+          "title": "Tool serializes empty inputSchema.properties as [] instead of {}",
+          "url": "https://github.com/modelcontextprotocol/php-sdk/issues/405",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-27",
+          "summary": "PHP SDK 把空 JSON Schema properties 序列化为数组，违反 JSON Schema，对严格客户端会导致整个 tools/list 被拒绝。"
+        },
+        {
+          "title": "MCP 2026-07-28 specification changelog",
+          "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/changelog.mdx",
+          "sourceType": "other",
+          "publishedAt": "2026-07-28",
+          "summary": "最新 MCP 协议版本调整了会话、请求元数据、工具/列表语义和 schema 细节，使多版本 client/server 兼容性成为持续维护面，而不是一次性升级问题。"
+        }
+      ],
+      "verdict": "最快 MVP 只支持 TypeScript MCP server：运行 tools/list 的 JSON Schema lint、两三个 SDK 版本和一个严格 reference client，再执行最小真实 tools/call。若 MCP 作者愿意把它作为 release CI，而不是只在本地偶尔跑一次，再扩展到 Python/PHP/Java 与协议矩阵。",
+      "tags": ["MCP", "Contract Testing", "JSON Schema", "CI"]
+    },
+    {
+      "rank": 3,
+      "slug": "agent-pcb-fabrication-readiness-gate",
+      "title": "AI 生成 PCB 的 Fabrication Readiness Gate",
+      "category": "hardware-tools",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 4,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "做一个不生成 PCB、只负责“能不能下单”的 repo-native 验证层：针对 AI/Agent 修改的 KiCad 项目生成语义化 schematic/PCB diff，组合官方 ERC/DRC、BOM/MPN/库存与制造文件完整性检查，并在 PR 或 release 前给出带证据的 fabrication-readiness gate，让硬件团队审的是设计意图和制造风险而不是难读的文本坐标 diff。",
+      "whyNow": "AI PCB 生成正从 demo 变成可直接输出 Gerber/BOM 的工具，同时硬件团队仍公开抱怨 GitHub 对 KiCad 的文本 diff 不能回答“设计到底改了什么”，review 需要本地打开 KiCad、截屏和跨工具讨论。近期 KiHub、kicad-happy、kicad_skills 等项目已经开始把视觉 diff、ERC/DRC、SPICE、BOM 和 GitHub merge gate 产品化，既验证需求，也说明通用硬件 review 正快速拥挤。AI 让硬件改动生成得更快后，制造前确定性验证可能成为更窄的付费楔子。",
+      "evidence": [
+        {
+          "title": "I'm building KiHub: visual reviews and checks for KiCad projects in Git",
+          "url": "https://www.reddit.com/r/KiCad/comments/1tzbbuv/im_building_kihub_visual_reviews_and_checks_for/",
+          "sourceType": "reddit",
+          "summary": "KiCad 开发者明确描述 GitHub 文本 diff 对原理图/PCB 不可读，硬件 review 仍依赖本地 KiCad、截图和人工比对，因此构建 visual/semantic diff 与 release-readiness 工作流。"
+        },
+        {
+          "title": "Cherry Blossom — Build PCBs with a prompt",
+          "url": "https://www.trycherryblossom.com/",
+          "sourceType": "other",
+          "summary": "近期产品已经把自然语言直接转成 schematic、PCB、BOM 与可制造 Gerber，说明 Agent 生成硬件设计的速度正在快速上升，也放大下单前验证的重要性。"
+        },
+        {
+          "title": "KiCad Design Review GitHub Action",
+          "url": "https://github.com/marketplace/actions/kicad-design-review",
+          "sourceType": "other",
+          "summary": "现成 GitHub Action 已提供 schematic/PCB、SPICE、derating、EMC、thermal、DFM 与 PR review，证明 CI 型硬件设计验证已有明确产品形态，同时也是强竞争信号。"
+        },
+        {
+          "title": "kicad_skills — containerised circuit-design toolkit",
+          "url": "https://github.com/sabas0ba/kicad_skills",
+          "sourceType": "other",
+          "summary": "项目把 KiCad ERC/DRC、设计语义 diff、制造包和 CI gate 统一成 Agent 可调用 CLI，并明确指出 PCB 文件的文本 diff 会因坐标变化产生大量噪声。"
+        }
+      ],
+      "verdict": "不要做另一个完整 KiCad review 平台；先验证一个更窄的“AI 变更 → fabrication evidence pack → 下单门禁”，重点测 MPN/BOM、Gerber、ERC/DRC 与语义 diff 是否能在真实板子下单前抓到昂贵错误。若 KiHub/kicad-happy 已解决目标用户 80% 的问题，则保持观察或直接放弃。",
+      "tags": ["KiCad", "PCB", "Hardware", "Design Review"]
+    },
+    {
+      "rank": 4,
+      "slug": "local-media-agent-context-index",
+      "title": "本地媒体库的 Agent Context Index",
+      "category": "creator-tools",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 2,
+        "acquisition": 5
+      },
+      "opportunity": "做一个面向视频编辑器、播客团队和内容机构的本地媒体语义索引层：把视频、音频、照片与会议文件转成带时间戳和来源的检索 API/MCP，让 Claude、Codex 或编辑 Agent 能找到确切片段并把 source range 交给 Premiere/Final Cut/FFmpeg，而不是再做一个独立聊天式媒体搜索 UI。",
+      "whyNow": "Clipto 在 8 月 19 日发布 MCP 版本时明确说，自最初产品上线后最反复出现的用户请求就是“Claude 能不能用我的媒体库”“Agent 能不能用我自己的素材剪视频”；上线后已有用户把本地媒体目录连到 Codex，通过自然语言直接找到中文视频中的具体时间戳。同时 Edit Mind、Invenio 等 2026 新产品都从“素材太多、靠人工拖 timeline 找片段”的创作者痛点出发做本地语义搜索。需求被验证，但竞争已经非常密集，因此更可能成立的是开放的 Agent context/index 基础层，而不是又一个完整媒体管理器。",
+      "evidence": [
+        {
+          "title": "Clipto MCP — let agents source clips from terabytes of local media",
+          "url": "https://www.producthunt.com/products/clipto-ai",
+          "sourceType": "product-hunt",
+          "publishedAt": "2026-08-19",
+          "summary": "Maker 表示最持续的用户请求是让 Claude/ChatGPT/Agent 直接理解和使用本地媒体；同页近期用户已验证 Codex 能从本地视频按自然语言找到带时间戳的具体片段。"
+        },
+        {
+          "title": "Edit Mind — search videos like you'd describe to a friend, 100% local",
+          "url": "https://www.producthunt.com/products/edit-mind-3",
+          "sourceType": "product-hunt",
+          "summary": "创作者因自己积累大量视频后难以查找而做本地语义索引；产品面向创作者、视频编辑、记者与制作公司，说明痛点不局限于个人照片管理。"
+        },
+        {
+          "title": "Invenio — local AI search for Mac video & photo libraries",
+          "url": "https://www.producthunt.com/products/invenio",
+          "sourceType": "product-hunt",
+          "summary": "Maker 描述自己在多个外置硬盘中寻找某个镜头或会议片段常要手工 scrub 数小时，因此做完全本地、可直接拖入 Premiere/Final Cut 的搜索工具。"
+        }
+      ],
+      "verdict": "只观察“Agent context/index”这一窄层：优先做 timestamp/source provenance、外置盘/NAS、稳定 MCP/API 和 NLE handoff；不要复制 Clipto/Edit Mind/Invenio 的完整 UI。若创作者更愿意直接买现有产品而不是需要一个开放索引层，就不应进入。",
+      "tags": ["Media Search", "MCP", "Local-first", "Video Editing"]
+    },
+    {
+      "rank": 5,
+      "slug": "research-agent-reproducibility-ledger",
+      "title": "科研 Agent 的可复现实验账本与发布检查",
+      "category": "research-tools",
+      "decision": "watch",
+      "score": {
+        "total": 18,
+        "demand": 4,
+        "payment": 3,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "做一个叠加在现有 Jupyter/R/Claude Code/Codex 工作流上的 reproducibility ledger：每次分析自动记录输入数据 hash、代码版本、环境/包、Agent tool activity、生成图表与关键结论的来源关系；发布前在干净环境执行最小 rerun，并在缺数据、缺代码、环境不可恢复或结果漂移时阻止把研究包标记为 reproducible。",
+      "whyNow": "科研 Agent 已经能运行真实 R/Python/Stata 分析，但可复现性仍受数据版本、依赖、长任务和跨工具上下文影响。2026 的 SocSci-Repro-Bench 已把 54 篇论文拆成 221 个真实复现任务，显示 coding agents 对完整论文级复现仍有显著失败差异；同时 Open Science、Ressearch AI 等近期产品都把 immutable artifacts、provenance、环境和可复现发布包作为核心能力。需求方向成立，但完整 AI research workbench 竞争较强，更可能留下的是可插拔的验证/发布层。",
+      "evidence": [
+        {
+          "title": "Support git-annex repositories for scientific data management",
+          "url": "https://github.com/jj-vcs/jj/issues/9157",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-03-21",
+          "summary": "科研用户描述多 TB 数据、DataLad/git-annex 与长时间计算组合下的真实版本控制摩擦，并明确把目标定义为可复现、版本化的数据分析流水线。"
+        },
+        {
+          "title": "Open Science — local-first AI research workbench",
+          "url": "https://github.com/aipoch/open-science",
+          "sourceType": "other",
+          "summary": "活跃开源产品已把 immutable artifact versions、checksums、producer code、环境清单、输入引用与 provenance recovery 做成核心能力，验证了 Agent 科研中的可追溯/可复现需求，也构成直接竞争。"
+        },
+        {
+          "title": "SocSci-Repro-Bench",
+          "url": "https://github.com/malizad/SocSci-Repro-Bench",
+          "sourceType": "other",
+          "summary": "2026 基准包含 54 篇论文、221 个真实复现任务；不同 coding agent 的论文级成功率和运行失败率仍明显不同，说明“能运行代码”不等于研究结果可以可靠复现。"
+        },
+        {
+          "title": "Ressearch AI reproducible research changelog",
+          "url": "https://ressearchai.app/changelog",
+          "sourceType": "other",
+          "publishedAt": "2026-08-10",
+          "summary": "近期产品版本专门加入 immutable 输入/输出、代码与环境、可复现 ZIP/GitHub 发布包，以及缺失证据时阻止发布，说明 reproducibility gate 正形成明确产品原语。"
+        }
+      ],
+      "verdict": "保持观察，不做 all-in-one research assistant；若要验证，只做 CLI/GitHub Action 型 publish gate：从一个现有 Notebook/脚本项目生成 run manifest，并在干净容器复跑关键结果。只有实验室愿意把它加到论文/报告发布流程并为团队审计付费，才值得扩展。",
+      "tags": ["Research", "Reproducibility", "Provenance", "AI Agents"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "agent-side-effect-postcondition-gate",
+      "reason": "跨浏览器、数据库和真实 Agent 用户都出现了同型 false-success，而且一旦动作开始触达客户、生产或付费系统，验证缺口会直接转化为业务风险。"
+    },
+    "fastestMvp": {
+      "slug": "mcp-contract-regression-ci",
+      "reason": "可以先从一个 TypeScript CLI/GitHub Action 开始，对 tools/list JSON Schema 和少量 SDK/client 矩阵做确定性契约测试，不需要训练模型或建立复杂运行时。"
+    },
+    "highestCommercialValue": {
+      "slug": "agent-side-effect-postcondition-gate",
+      "reason": "它保护的是发送、写入、收费等真实副作用；若能阻止一次静默失败或重复执行，价值比单纯的日志/可观测性更容易直接量化。"
+    },
+    "needsValidation": {
+      "slug": "agent-pcb-fabrication-readiness-gate",
+      "reason": "硬件下单错误代价高，但 KiHub、kicad-happy 与其他 KiCad review 工具已经快速覆盖大量能力，需要验证“AI 变更的制造前 evidence gate”是否还有独立付费空间。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "优先扫描 2026-08-19 至 2026-08-20 的新信号；为验证重复痛点与竞争格局，扩展到 2026 年近几个月的公开 issue、产品与项目。",
+    "sources": [
+      "Product Hunt",
+      "GitHub Issues / Repositories",
+      "Reddit",
+      "Hacker News",
+      "Indie Hackers",
+      "Starter Story",
+      "Exploding Topics",
+      "Google Trends"
+    ],
+    "limitations": "X 的原帖公开索引与登录限制使本轮无法稳定核验足够新的原始帖子，因此没有把搜索摘要作为证据。Hacker News、Starter Story、Indie Hackers、Exploding Topics 与 Google Trends 本轮未提供比已选候选更强的候选级直接需求证据，主要用于交叉扫描或趋势排除；趋势信号没有替代用户痛点证据。"
+  }
+}

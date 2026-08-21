@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-21",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-21",
+  "summary": "今天最强的模式是“隐性状态与权益丢失”：独立音乐人的版税可能因登记/匹配问题长期漏收，Agent 沙箱会在生命周期切换时丢工作区或会话状态，而摄像头和移动设备自动化也频繁出现“标称支持、实际不可用”或静默失败。小而有价值的机会集中在持续核验、恢复和兼容性证明层。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "music-royalty-leakage-auditor",
+      "title": "独立音乐人的版税漏收审计与 Claim Workflow",
+      "category": "music-rights-tools",
+      "decision": "deep-dive",
+      "score": {"total": 23, "demand": 5, "payment": 5, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个面向独立音乐人、小型厂牌和 publishing administrator 的版税漏收审计器：导入 Spotify/CSV 目录，与 The MLC 的公开/批量数据核对作品注册、录音匹配、未认领份额和重复记录，按“缺什么、去哪修、修完后如何复查”生成可执行 Claim/Matching 队列，并按月监控状态变化。",
+      "whyNow": "今天的 Show HN 工具引发了明显的即时使用需求：有 DIY 音乐人称跨地区追版税几乎像一份全职工作，另有用户现场查到朋友可能存在数千美元待处理金额。更关键的是 The MLC 官方已明确计划从 2027 年开始对达到最低持有期的剩余未认领累积版税启动 market-share 分配，使“先找出、再修复登记/匹配问题”出现了具体时间压力。",
+      "evidence": [
+        {
+          "title": "Show HN: Check if any of the $656M in unclaimed royalties at The MLC is yours",
+          "url": "https://news.ycombinator.com/item?id=49375237",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-21",
+          "summary": "作者发布自助目录检查工具后，评论区有独立音乐人称国际 publishing 收款导航“几乎是一份全职工作”，也有用户称为朋友查到数千美元潜在待处理金额；工具上线数小时即处理大量曲目，验证了即时需求，但金额估算本身仍需谨慎。"
+        },
+        {
+          "title": "The MLC: Unclaimed Accrued Royalties",
+          "url": "https://www.themlc.com/unclaimed-accrued-royalties",
+          "sourceType": "other",
+          "summary": "The MLC 官方说明剩余未认领累积版税包含 unmatched 与 unclaimed 两类，并计划自 2027 年开始通过 market-share 流程分配达到最低持有期的剩余金额，首先涉及 2021 usage。"
+        },
+        {
+          "title": "The MLC Matching Tool",
+          "url": "https://help.themlc.com/en/support/what-is-the-matching-tool",
+          "sourceType": "other",
+          "summary": "官方 Matching Tool 专门处理自动匹配后仍未能关联到作品的录音；成员需要主动搜索、选择并提交匹配，且 DSP usage 数据每月刷新，天然形成持续复查工作流。"
+        },
+        {
+          "title": "The MLC Claiming Tool",
+          "url": "https://help.themlc.com/en/support/what-is-the-claiming-tool",
+          "sourceType": "other",
+          "summary": "官方 Claiming Tool 用于处理作品中的未认领份额；该流程与目录登记、重复作品和权利份额数据共同构成独立音乐人容易漏掉的人工维护面。"
+        }
+      ],
+      "verdict": "值得深挖，但不要把粗略“欠款估算”当核心卖点；MVP 应聚焦可核验的目录状态审计、修复路径和月度复查。若 15–20 位有真实目录的音乐人中能稳定发现可操作的 registration/matching/claim 问题，并有人愿意为持续监控或一次性清理付费，商业价值很直接。",
+      "tags": ["Music Royalties", "The MLC", "Rights Management", "Indie Musicians"]
+    },
+    {
+      "rank": 2,
+      "slug": "agent-sandbox-durable-workspace",
+      "title": "Agent 沙箱的持久工作区与可移植恢复层",
+      "category": "agent-infrastructure",
+      "decision": "deep-dive",
+      "score": {"total": 21, "demand": 5, "payment": 4, "mvp": 3, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个跨 E2B、Modal、Kubernetes Agent Sandbox 等运行环境的持久化/恢复层：声明哪些 workspace、HOME、包缓存、工具配置和 Agent session 状态必须存活，在 sleep/restart/recycle 前生成可验证快照，恢复时做路径/版本/完整性检查，并在状态已丢失时明确 fail closed，而不是让 Agent 继续假装原环境仍存在。",
+      "whyNow": "近期多个独立项目都在补同一基础设施缺口：TanStack AI 明确提出 provider-agnostic 的 workspace save/restore；Kubernetes Agent Sandbox 用户要求保留 workspace 之外的 HOME、全局包和工具配置；OpenHands 则记录了 cloud sandbox recycle 后 ACP session 无法恢复，因为关键状态仍放在会被擦除的沙箱文件系统。今天又出现 TakoVM 这类专门面向 Agent 的 serverless filesystem 项目，说明“Agent compute 可以短命，但工作状态必须耐久”正在形成独立产品层。",
+      "evidence": [
+        {
+          "title": "TanStack AI: persist sandbox workspace/filesystem data across lifecycle",
+          "url": "https://github.com/TanStack/ai/issues/1029",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-31",
+          "summary": "项目明确指出稳定 sandbox ID 并不足够，因为本地磁盘往往是临时的；要求跨 provider 的 workspace save/restore、snapshot 或 durable filesystem 能力。"
+        },
+        {
+          "title": "Kubernetes Agent Sandbox: multi-path persistent storage",
+          "url": "https://github.com/kubernetes-sigs/agent-sandbox/issues/773",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-09",
+          "summary": "用户指出只挂载 /workspace 会导致 apt/pip/npm 全局安装、HOME 配置、shell 历史等在 pod restart/hibernate/eviction 后丢失，并提出声明式多路径持久化。"
+        },
+        {
+          "title": "OpenHands ACP conversations cannot resume after sandbox restart",
+          "url": "https://github.com/OpenHands/OpenHands/issues/14260",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-01",
+          "summary": "OpenHands 记录了 Claude Code/Codex/Gemini CLI 的 ACP 会话在 cloud sandbox recycle 后无法原生恢复：session id 和各 Agent 自己的 session 文件都位于会被擦除的沙箱文件系统。"
+        },
+        {
+          "title": "Show HN: TakoVM – Serverless file systems for agents",
+          "url": "https://news.ycombinator.com/item?id=49382104",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-21",
+          "summary": "当天新项目直接把 serverless filesystem 定位到 Agent 工作负载，作为机会证明：短生命周期 compute 与持久 Agent 文件状态的解耦正在被产品化。"
+        }
+      ],
+      "verdict": "值得深挖，但不能重做云沙箱平台。最小楔子应是 provider-agnostic 的 persistence manifest + snapshot/restore verifier + state-lost diagnosis；如果用户必须迁移 compute 才能使用，或主流 sandbox provider 已统一暴露足够稳定的 durable workspace API，则独立层价值会快速下降。",
+      "tags": ["Agent Sandbox", "Durability", "Filesystem", "Developer Infrastructure"]
+    },
+    {
+      "rank": 3,
+      "slug": "frigate-camera-compatibility-assistant",
+      "title": "Frigate 摄像头购买兼容性与配置生成器",
+      "category": "home-automation",
+      "decision": "watch",
+      "score": {"total": 21, "demand": 5, "payment": 3, "mvp": 5, "competition": 4, "acquisition": 4},
+      "opportunity": "做一个面向 Frigate 用户和家庭安防安装者的“买前兼容性 + 配置生成”数据库：按具体型号/固件记录主辅码流、RTSP/HTTP-FLV、ONVIF PTZ、双向语音、PoE、autotracking 等真实可用能力，允许用户上传 probe 结果，并基于 Frigate 版本生成带已知限制的 go2rtc/ffmpeg 配置。",
+      "whyNow": "Frigate 的兼容性已经不是“支持 RTSP 就行”：用户近期仍在询问哪些相机能同时稳定提供高低码流和 PoE；官方 autotracking 文档甚至明确提醒，即便 ONVIF 产品数据库宣称所需能力，部分相机仍可能不响应。另有 Dahua 用户遇到厂商 App 支持双向语音、Frigate 却因缺少标准 backchannel 无法使用。今天 Show HN 又出现专门用于挑选 Frigate-compatible IP cameras 的数据查看器，说明购买前兼容性判断正在被独立工具化。",
+      "evidence": [
+        {
+          "title": "Show HN: A data viewer for choosing Frigate-compatible IP cameras",
+          "url": "https://news.ycombinator.com/item?id=49380653",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-21",
+          "summary": "当天出现专门服务 Frigate 相机选型的数据查看器，证明“买之前确认真实兼容能力”已经有人独立产品化。"
+        },
+        {
+          "title": "Frigate discussion: Camera recommendations for 2026?",
+          "url": "https://github.com/blakeblackshear/frigate/discussions/23663",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-07-08",
+          "summary": "用户明确询问能同时供 Frigate 使用低码流检测与高码流录像、且必须支持 PoE 的相机，因为现有 Reolink 工作流无法满足需求。"
+        },
+        {
+          "title": "Frigate autotracking compatibility documentation",
+          "url": "https://github.com/blakeblackshear/frigate/blob/dev/docs/docs/configuration/autotracking.md",
+          "sourceType": "other",
+          "summary": "官方文档说明 autotracking 依赖特定 ONVIF RelativeMove/FOV 能力，并警告部分相机即使在 ONVIF 数据库中声称支持，也可能实际不响应。"
+        },
+        {
+          "title": "Frigate discussion: 2-Way-Talk doesn't work on Dahua camera",
+          "url": "https://github.com/blakeblackshear/frigate/discussions/23301",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-24",
+          "summary": "用户的 Dahua 相机在厂商 App 中可双向语音，但 Frigate 无法使用；诊断指向 RTSP stream 不提供标准 backchannel，体现“厂商功能存在”并不等于 Frigate 兼容。"
+        }
+      ],
+      "verdict": "MVP 很快：先做 50–100 个常见型号的 feature matrix、社区 probe 导入和配置生成。最大未知是付费意愿——Frigate 社区可能更期待免费数据库，因此先观察是否能通过 affiliate、一次性买前报告或安装商 Pro 工具变现，再决定是否深挖。",
+      "tags": ["Frigate", "IP Camera", "Home Automation", "Compatibility"]
+    },
+    {
+      "rank": 4,
+      "slug": "mobile-agent-device-session-doctor",
+      "title": "移动 App Agent 的设备会话健康与证据层",
+      "category": "mobile-developer-tools",
+      "decision": "watch",
+      "score": {"total": 19, "demand": 5, "payment": 4, "mvp": 3, "competition": 2, "acquisition": 5},
+      "opportunity": "做一个叠加在 mobile-mcp、agent-device 或自建 iOS/Android automation 之上的设备会话 watchdog：统一稳定 device identity，主动探测 simulator/emulator/physical device 健康，给 screenshot/tap/recording 设置 timeout 与 postcondition，发现 stale/dead session 时重连或明确失败，并自动打包 screenshot、accessibility tree、logcat/syslog 和设备状态作为 Agent 可消费证据。",
+      "whyNow": "移动 Agent 自动化正在出现同一类“控制面成功、设备面失败”问题：mobile-mcp 的 iOS Simulator 命令可无 timeout 地卡住数十秒到数分钟并冻结整个 MCP；Android screen recording 又会因为 adb id 与底层工具 id 不一致而返回 success 却没有产物。Codex 自身也有 Simulator 临时截图路径消失的问题。与此同时，agent-device 已把跨平台 Agent device automation 做成成熟开源工具，说明需求存在，但也压缩了通用自动化产品的竞争空隙。",
+      "evidence": [
+        {
+          "title": "mobile-mcp: iOS Simulator agent commands stall and freeze the MCP server",
+          "url": "https://github.com/mobile-next/mobile-mcp/issues/358",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-15",
+          "summary": "顺序 screenshot/list_elements/tap 等命令常卡 20–30 秒甚至数分钟；因为没有客户端 timeout，一次 stall 就会让整个 MCP server 对 Agent 看似冻结。"
+        },
+        {
+          "title": "mobile-mcp: Android device-id mismatch and screen-recording false success",
+          "url": "https://github.com/mobile-next/mobile-mcp/issues/359",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-15",
+          "summary": "adb device id 与 mobilecli 的 AVD name 不一致导致多项工具 device-not-found；更严重的是 start_screen_recording 会返回成功但实际没有录制，形成静默 false-success。"
+        },
+        {
+          "title": "Codex: Xcode Simulator dragged screenshot path disappears",
+          "url": "https://github.com/openai/codex/issues/25637",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-01",
+          "summary": "Codex macOS app 接收 Simulator 的临时 screenshot thumbnail 后保留了会消失的临时文件路径，等模型读取时附件已不存在，体现移动开发上下文采集链路的生命周期脆弱性。"
+        },
+        {
+          "title": "agent-device: mobile app automation and verification for AI coding agents",
+          "url": "https://github.com/callstack/agent-device",
+          "sourceType": "other",
+          "summary": "成熟开源项目已提供 iOS/Android 等多平台的 CLI/MCP/Node API、自动化和验证能力，既证明 Agent-device 工作流需求，也意味着新产品必须聚焦可靠性诊断而不是重做 automation API。"
+        }
+      ],
+      "verdict": "先观察而不是立刻深挖：痛点很具体，但 agent-device 等项目正在快速覆盖底层能力。只有当一个独立 watchdog 能跨多个 automation backend 稳定检测 hang、stale session 与 false-success，并显著减少 Agent 重试/人工介入，才有独立产品空间。",
+      "tags": ["Mobile Automation", "AI Agents", "iOS", "Android"]
+    },
+    {
+      "rank": 5,
+      "slug": "search-api-quality-regression-ci",
+      "title": "Agent Web Search 的生产 Query Regression CI",
+      "category": "ai-search-infrastructure",
+      "decision": "watch",
+      "score": {"total": 18, "demand": 4, "payment": 4, "mvp": 4, "competition": 2, "acquisition": 4},
+      "opportunity": "做一个面向依赖 Tavily、Exa、Bing/Google 类 Search API 的 Agent 团队的 workload-specific regression CI：从生产查询抽样形成私有 query corpus，持续重放并检查空结果率、domain filter 违规、source/citation 质量、延迟和成本，在 provider、参数或模型变化后生成语义 diff，并支持多 Search API shadow comparison。",
+      "whyNow": "今天 Show HN 出现专门比较 Search API“返回了哪些来源”的 Sourcery，说明 Agent 搜索质量正在从主观体验转成可 benchmark 的工程问题。真实用户也报告 Tavily include_domains 会偶发返回指定域之外的结果，以及相同配置偶发空结果；另一方面 Exa 等厂商已经公开维护 search benchmark，证明类别成立，却也意味着“又一个公开排行榜”竞争空隙很小。剩余楔子更像每个团队自己的生产 query regression suite。",
+      "evidence": [
+        {
+          "title": "Show HN: Sourcery – Benchmark for search APIs on the sources they return",
+          "url": "https://news.ycombinator.com/item?id=49379725",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-21",
+          "summary": "当天新项目把不同 Search API 返回的来源质量作为独立 benchmark，对“Agent 搜索结果是否稳定可用”形成当前产品化信号。"
+        },
+        {
+          "title": "Tavily: include_domains does not reliably filter results",
+          "url": "https://github.com/tavily-ai/tavily-python/issues/173",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-05-27",
+          "summary": "用户复现 include_domains=[gov.uk] 时偶发返回其他域名，说明硬约束也可能发生静默质量回归，适合被自动 regression test 捕获。"
+        },
+        {
+          "title": "Tavily: intermittent empty results despite identical Playground settings",
+          "url": "https://github.com/tavily-ai/tavily-python/issues/143",
+          "sourceType": "github-issue",
+          "publishedAt": "2025-12-16",
+          "summary": "付费 Growth 用户报告相同 API 配置约每 20–30 次出现一次空结果，而 Playground 同 query 正常，说明生产搜索存在间歇性、难手工复现的可靠性问题；此项为较早的交叉验证证据。"
+        },
+        {
+          "title": "Exa open benchmarks for evaluating search APIs",
+          "url": "https://github.com/exa-labs/benchmarks",
+          "sourceType": "other",
+          "summary": "Search API 厂商已经公开维护多种搜索评测，证明 provider 质量比较是成熟需求，也意味着新产品不能只做公共 benchmark，而要聚焦私有 workload 的持续回归。"
+        }
+      ],
+      "verdict": "保持观察。MVP 很小，但公开 benchmark 已有厂商投入，真正需要验证的是团队是否愿意为“自己的生产 query corpus + CI gate + 多 provider shadow replay”付费；如果用户只在选型时跑一次 benchmark，这更适合作为开源工具而不是持续 SaaS。",
+      "tags": ["Search API", "Agent Search", "Evaluation", "Regression Testing"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {"slug": "music-royalty-leakage-auditor", "reason": "今天出现了最强的直接用户痛点与金额价值信号，而且 The MLC 的 2027 market-share 分配计划给修复未匹配/未认领状态带来明确时间窗口。"},
+    "fastestMvp": {"slug": "frigate-camera-compatibility-assistant", "reason": "可直接用官方文档、社区配置和用户 probe 结果建立首版 feature matrix，不需要训练模型或控制硬件；先做只读选型查询与配置生成即可产生价值。"},
+    "highestCommercialValue": {"slug": "music-royalty-leakage-auditor", "reason": "产品价值可以直接绑定“找回或避免漏收的真实版税”，比纯效率工具更容易形成一次性审计、持续监控或面向小厂牌/管理员的付费方案。"},
+    "needsValidation": {"slug": "search-api-quality-regression-ci", "reason": "需求技术上成立，但 Exa 等厂商已有免费 benchmark；需要先验证团队是否会为私有生产 query 的持续回归、跨 provider shadow 测试和 CI gate 单独付费。"}
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-19 至 2026-08-21；对重复痛点使用 2025-12 至 2026-07 的 GitHub 历史证据交叉验证",
+    "sources": ["Hacker News Show HN", "GitHub Issues / Discussions", "The MLC 官方工具与数据", "产品/项目官方文档"],
+    "limitations": "Reddit 的当日索引召回较弱；X、Starter Story、Indie Hackers 与 Google Trends 未获得可稳定核验且强于上述证据的原始需求信号。部分 Hacker News item 在后续抓取时遇到限流，但已在当日 Show HN 列表中核验标题与链接；趋势和产品发布本身没有被用来替代真实用户痛点。"
+  }
+}

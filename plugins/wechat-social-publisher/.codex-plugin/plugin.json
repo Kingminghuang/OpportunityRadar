@@ -1,0 +1,18 @@
+{
+  "name": "wechat-social-publisher",
+  "version": "0.1.0",
+  "description": "从 Opportunity Radar 报告生成有来源的正文文章、社交贴文、卡片图片，并创建微信公众号贴图草稿。",
+  "author": {
+    "name": "Opportunity Radar"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "微信社交贴文工作流",
+    "shortDescription": "从 OP 选题生成有来源的文章正文与微信贴图草稿",
+    "longDescription": "给定机会 slug 时先按 topic-researcher 组装选题数据（日报 opportunity + GitHub Deep Dive 研究），再写 500–700 字正文文章（article.json），随后拆成 Post Brief、社交卡片和微信公众号 newspic 草稿；默认只预览或写入草稿箱，不发布。",
+    "developerName": "Opportunity Radar",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "给定一个机会 slug：先用 topic-researcher 从日报与 GitHub Deep Dive issue 组装选题数据，再用 article-writer 写一篇 500-700 字的正文文章，然后生成一组有来源的微信公众号贴图草稿，先输出本地预览，不要发布。"
+  }
+}

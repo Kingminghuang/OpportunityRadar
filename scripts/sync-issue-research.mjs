@@ -22,8 +22,8 @@ const metadataSchema = z
     path: ['opportunityId']
   });
 
-const researchMarker = /^\s*<!-- opportunity-radar:research ([^\r\n]+?) -->[ \t]*(?:\r?\n)?/;
-const requiredResearchHeadings = [
+export const researchMarker = /^\s*<!-- opportunity-radar:research ([^\r\n]+?) -->[ \t]*(?:\r?\n)?/;
+export const requiredResearchHeadings = [
   '研究结论',
   '用户与问题',
   '证据',
@@ -56,7 +56,7 @@ export function createOpportunityId(originReport, originSlug) {
   return `${originReport}--${originSlug}`;
 }
 
-function parseResearchIssue(issue) {
+export function parseResearchIssue(issue) {
   const body = typeof issue.body === 'string' ? issue.body : '';
   const match = body.match(researchMarker);
   if (!match) {

@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-22",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-22",
+  "summary": "今天最强的信号集中在“配置看起来正确、运行时却不是那回事”：编码 Agent 的规则/权限语义会在角色、客户端和版本间静默漂移，MCP 连接也会因服务重启和多 Agent 生命周期失去真实状态；与此同时，移动发布素材、局域网大文件传输和 e-ink UI 仍存在可验证的专用工作流缺口。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-effective-policy-gate",
+      "title": "编码 Agent 指令与权限配置的 Effective Policy Gate",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个面向 Codex、Claude Code、Cursor 等 coding agents 的配置/规则验证器：解析 AGENTS.md、CLAUDE.md、角色配置、approval/sandbox 设置及其继承关系，给出每个角色/客户端的“最终有效策略”，并用小型运行时 probe 验证关键规则是否真的加载和执行；升级前后生成语义 diff，对静默忽略、权限放宽和规则冲突直接阻断。",
+      "whyNow": "过去 24 小时 Codex 连续出现三个不同层面的策略失真：自定义子 Agent 的 model_instructions_file 被静默丢弃、旧 approval policy 在升级后被直接移除并改变安全语义、以及 Agent 在已读 opt-in 验证规则后仍扩大授权创建额外测试工程。Claude Code 过去也有大量“规则已加载但不执行”的重复报告，说明用户需要验证 effective behavior，而不只是维护更多 Markdown 规则。",
+      "evidence": [
+        {
+          "title": "Custom-agent model_instructions_file is silently ignored while parent base instructions are inherited",
+          "url": "https://github.com/openai/codex/issues/40042",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-22",
+          "summary": "Codex 0.149 alpha 的自定义子 Agent 会正确选择角色，却静默忽略角色级 model_instructions_file 并继承父 Agent 基础指令；用户明确要求拒绝无效字段或提供可检查的诊断。"
+        },
+        {
+          "title": "Retiring approval_policy=\"untrusted\" without deprecation weakens the execution-approval boundary",
+          "url": "https://github.com/openai/codex/issues/39973",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-21",
+          "summary": "Codex 0.149.0 移除旧 approval policy 后，按错误提示简单删除配置会让 trusted project 落到语义更弱的 on-request；官方文档当时仍把旧值列为有效，暴露升级时安全配置语义漂移。"
+        },
+        {
+          "title": "Agent repeatedly creates unrequested validation projects despite opt-in rules",
+          "url": "https://github.com/openai/codex/issues/40033",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-21",
+          "summary": "用户两次复现 Agent 在仓库明确规定“新增测试需 opt-in”后仍扩大授权创建额外测试/验证工程，且事后能正确复述规则，说明“规则存在”与“执行时被强制遵守”之间有缺口。"
+        },
+        {
+          "title": "Claude Code agents skip mandatory project instructions despite clear rules",
+          "url": "https://github.com/anthropics/claude-code/issues/49192",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-04-16",
+          "summary": "Claude Code 用户报告多个会话反复跳过 CLAUDE.md 中强制的 step-zero 流程，并给出数百美元的错误 Agent 消耗案例；作者直接要求可验证的 pre-task instruction enforcement。"
+        }
+      ],
+      "verdict": "值得深挖，但产品不能只是 AGENTS.md linter；MVP 应聚焦“解析最终有效配置 + 升级语义 diff + 关键规则运行时 probe”。若无法比直接读配置文件更可靠地证明实际生效状态，就没有独立价值。",
+      "tags": [
+        "Coding Agent",
+        "Policy",
+        "Configuration",
+        "CI"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "mcp-connection-lifecycle-supervisor",
+      "title": "MCP 开发连接的热重载与生命周期 Supervisor",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个稳定驻留的本地 MCP supervisor/proxy：Agent 客户端只连接一个固定端点，supervisor 负责下游 stdio/HTTP MCP server 的启动、健康检查、自动重连、session-id 重建、工具列表刷新和共享租约；开发服务器热重载时不要求重启 Codex/Claude 会话，多子 Agent 也尽量复用同一后端进程而不是复制昂贵 server fleet。",
+      "whyNow": "仅过去一天 Codex 就出现“本地 MCP server 重启后当前会话永远无法重连”和“每个 subagent 重启一套 stdio server 且结束后不回收”的报告；同类自动重连问题在 Claude Code 从年初持续到 8 月，涉及 SSE、Streamable HTTP、stdio 和 VS Code 扩展。当前 HN 项目体验里也出现 MCP 工具列表短暂可见后立即失效、必须删除并重新连接的实际故障。",
+      "evidence": [
+        {
+          "title": "MCP connection is not re-established after a local server restart",
+          "url": "https://github.com/openai/codex/issues/39990",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-21",
+          "summary": "本地 MCP 开发服务器因 Vite/应用热重载重启后，Codex 当前会话的 tools 持续不可用，只有重启 Codex 才恢复；用户明确请求自动 retry 或 /mcp reconnect。"
+        },
+        {
+          "title": "MCP stdio servers are re-spawned per subagent and never closed",
+          "url": "https://github.com/openai/codex/issues/39982",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-21",
+          "summary": "Codex 多 subagent 会重复启动同一 stdio MCP server，子 Agent 结束后进程仍驻留；用户观察到单个 supervisor 下重复 fleet 持续累积，且外部工具因缺少明确 lease/ownership 无法安全回收。"
+        },
+        {
+          "title": "HTTP MCP transport does not auto-reinitialize after server restart",
+          "url": "https://github.com/anthropics/claude-code/issues/60949",
+          "sourceType": "github-issue",
+          "summary": "Claude Code 在本地 HTTP MCP server 重启后保留失效 session id，/mcp 仍显示 connected，但 tools 实际全部失败；只能完全退出并重启会话，说明 stale transport state 是跨客户端重复问题。"
+        },
+        {
+          "title": "Ask HN: What are you working on? — live MCP tool reload failure",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "summary": "一名用户试用 Sawdust 的 MCP server 时看到工具列表闪现后立刻变成“no tools available / couldn’t reload tools”；作者修复后仍要求用户完全移除并重新连接，体现当前 MCP 开发体验对生命周期错误非常脆弱。"
+        }
+      ],
+      "verdict": "值得深挖，切口是“稳定连接与 server lifecycle”，不是再做 MCP gateway/权限系统。首版只做 localhost stdio + Streamable HTTP、自动重连和真实 health/lease 状态；若客户端很快原生补齐可靠 reconnect，则应停止。",
+      "tags": [
+        "MCP",
+        "Developer Tools",
+        "Local-first",
+        "Reliability"
+      ]
+    },
+    {
+      "rank": 3,
+      "slug": "privacy-safe-app-store-demo-fixtures",
+      "title": "移动 App 发布素材的隐私安全 Demo Fixture 与截图流水线",
+      "category": "mobile-development",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 5
+      },
+      "opportunity": "做一个面向 iOS/Android 发布素材的 deterministic demo-data harness：开发者用 YAML/JSON 定义匿名假用户、消息、订单等展示状态，App 在 screenshot/demo mode 下无需连接真实生产数据即可渲染；再按设备、locale 和场景矩阵自动捕获 App Store/Google Play 截图与预览，并对产物做 PII/真实账号泄漏检查。",
+      "whyNow": "当前 HN 上一名准备发布成熟 App 2.0 的开发者明确表示，为 App Store screenshot/previews 单独搭建匿名假用户 test server 是“a pain, but it has to be done”。此前移动开发者反复抱怨截图在设备尺寸和本地化组合下数量爆炸、Fastlane snapshot 不稳定；也已有开发者因为截图痛点做云设备自动化产品，说明工作流真实，但竞争较多。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? — App Store screenshots require an anonymized test server",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "summary": "成熟 App 的开发者在准备 2.0 发布时，为避免真实用户隐私泄露，必须专门搭建带匿名假用户的测试服务器来生成 App Store 截图和预览，并明确称这个流程很痛苦。"
+        },
+        {
+          "title": "I built a tool that automates app store screenshot capture and design",
+          "url": "https://www.reddit.com/r/reactnative/comments/1rvx7gq/i_built_a_tool_that_automates_app_store/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-03-17",
+          "summary": "React Native 开发者称自己连续两年询问社区“上架最难的部分”，截图都占主导；现有 Fastlane snapshot、XCUITest 和手工流程都让其持续痛苦，因此做了云设备自动截图产品。"
+        },
+        {
+          "title": "How to create App Store screenshots for any decent sized project?",
+          "url": "https://www.reddit.com/r/iOSProgramming/comments/1q311ls/how_to_create_app_store_screenshots_for_any/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-01-03",
+          "summary": "iOS 开发者希望有可自动化的截图采集流程，因为 iPhone/iPad、横竖屏和多语言会迅速产生组合爆炸，并指出 Fastlane snapshot 在分辨率等方面不够可靠。"
+        },
+        {
+          "title": "I automated my App Store screenshots with a Python script",
+          "url": "https://www.reddit.com/r/iOSProgramming/comments/1t7bn9q/i_automated_my_app_store_screenshots_with_a/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-05-08",
+          "summary": "开发者因 4 种语言 × 8 张截图 × iPhone/iPad 形成 64 张维护负担而自写 Python + Fastlane 流水线，验证可重复、本地化的截图生产是持续工程工作而非一次性设计。"
+        }
+      ],
+      "verdict": "先观察并做窄验证；不要与现成 screenshot designer 正面竞争，真正楔子应是“隐私安全、可版本化的 demo state + 一键多 locale capture”。若团队只需要模板美化而非稳定假数据环境，就不成立。",
+      "tags": [
+        "iOS",
+        "Android",
+        "App Store",
+        "Privacy",
+        "Release Engineering"
+      ]
+    },
+    {
+      "rank": 4,
+      "slug": "resumable-lan-transfer",
+      "title": "局域网大文件传输的可续传与增量同步层",
+      "category": "productivity",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 5,
+        "payment": 3,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个 LocalSend 般易用、但具备 rsync/Syncthing 级恢复能力的跨平台局域网传输工具：文件/块级断点续传、目录增量 diff、hash 校验、失败后只补缺口，并支持两台机器直连网线/无互联网环境；核心是“几百 GB 传到 99% 断线也不重来”。",
+      "whyNow": "当前 HN 开发者因为 Dukto 不支持 resume、LocalSend 直连网线和续传体验不足而开始做新工具 Tensou；LocalSend 自己的公开 issue 从 2024 至今仍反复要求 interrupted transfer resume、incremental folder updates 和大批量文件确认。需求重复且具体，但免费竞品多、个人付费意愿仍是主要不确定性。",
+      "evidence": [
+        {
+          "title": "Ask HN: What are you working on? — Tensou local transfer",
+          "url": "https://news.ycombinator.com/item?id=49233423",
+          "sourceType": "hacker-news",
+          "summary": "开发者明确因现有 Dukto/LocalSend 在跨平台、直连 LAN 和断点续传上的缺口而开发 Tensou；其目标同时覆盖 resume、rsync 式 folder sync 和跨平台大文件性能。"
+        },
+        {
+          "title": "LocalSend: Support for batch file resume function",
+          "url": "https://github.com/localsend/localsend/issues/2824",
+          "sourceType": "github-issue",
+          "publishedAt": "2025-11-14",
+          "summary": "用户指出批量传几百个文件时连接中断会导致整批从头重传，明确提出 per-file acknowledgment、hash 检查和断线后只重传未完成文件。"
+        },
+        {
+          "title": "LocalSend: Support Incremental Updates for File Transfers",
+          "url": "https://github.com/localsend/localsend/issues/2127",
+          "sourceType": "github-issue",
+          "publishedAt": "2024-12-10",
+          "summary": "用户反复传同一大目录时已有文件仍被重新发送，且中断要从头开始；rsync/Syncthing 虽能增量同步但不够简单，说明“简单 UX + 可靠增量”之间仍有产品空隙。"
+        }
+      ],
+      "verdict": "需求强但商业化不确定，先 watch。值得验证的不是“另一个 AirDrop”，而是大目录/不稳定网络/网线直连场景下的可靠性；若目标用户普遍只接受免费开源，则更适合 OSS + Pro/团队附加功能。",
+      "tags": [
+        "File Transfer",
+        "Local-first",
+        "Cross-platform",
+        "Networking"
+      ]
+    },
+    {
+      "rank": 5,
+      "slug": "eink-ui-refresh-lab",
+      "title": "E-Ink Web UI 的刷新/鬼影测试与设计实验室",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {
+        "total": 18,
+        "demand": 4,
+        "payment": 3,
+        "mvp": 3,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向 e-ink Web/embedded UI 开发者的 refresh-aware profiler/test lab：记录 DOM/帧变化和 dirty regions，按面板 profile 模拟高延迟、灰阶限制、partial/full refresh 与 ghosting budget，检测 streaming text、滚动、动画、retroactive reflow 等高风险模式，并可把关键场景下发到真实设备做 screenshot/refresh-time 回归。",
+      "whyNow": "今天 HN 有开发者为 e-ink 手机专门开发 Lemmy/OpenRouter Web 前端，明确不知道如何把 refresh 当作一等设计约束，尤其指出 LLM streaming、滚动和 ghosting 是最差场景；评论中的实际 e-ink 开发者也强调必须减少中间状态、在语义边界刷新。与此同时，近期 PineNote 和 ESPHome 项目仍在处理 waveform、partial refresh、ghosting 和刷新耗时导致 watchdog 等硬件差异。",
+      "evidence": [
+        {
+          "title": "Ask HN: In your experience, what are sound conventions for e-ink UI development?",
+          "url": "https://news.ycombinator.com/item?id=49213660",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-08-22",
+          "summary": "e-ink 手机用户计划做浏览器版 Lemmy/OpenRouter 客户端，明确请求实战设计方法：LLM streaming 需分块刷新、滚动会加剧 ghosting、浏览器又无法直接控制硬件刷新。"
+        },
+        {
+          "title": "CVER PineNote: typing without flashing and clearing ghosting on idle",
+          "url": "https://github.com/CVERInc/pinenote",
+          "sourceType": "other",
+          "summary": "PineNote 项目展示同一 UI 操作在 A2/GC16 waveform 下必须权衡闪屏、延迟与 ghosting，并通过“交互中快速刷新、空闲时全局清理”实现可用体验，说明 refresh 策略本身就是 UI 逻辑。"
+        },
+        {
+          "title": "Waveshare e-paper watchdog triggers reboot on refresh in ESPHome 2026.7.4",
+          "url": "https://github.com/esphome/esphome/issues/18238",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-10",
+          "summary": "ESPHome 用户升级后多个 Waveshare e-paper 设备在 4–10 秒刷新阶段触发 watchdog 重启，说明不同软件版本/面板的刷新时序会直接成为运行时可靠性问题。"
+        },
+        {
+          "title": "Waveshare partial refresh ghosting fix",
+          "url": "https://github.com/waveshareteam/e-Paper/pulls",
+          "sourceType": "other",
+          "summary": "Waveshare 官方仓库近期仍有针对特定面板 partial refresh ghosting 的修复 PR，表明刷新行为高度依赖驱动和面板型号，通用 UI 预览难以暴露真实问题。"
+        }
+      ],
+      "verdict": "先 watch；这是清晰但较窄的开发者工具机会。先验证 host-side profiler 能否在真实设备测试前发现大部分坏交互，以及硬件厂商/应用开发者是否愿意为 panel profile 与自动回归测试付费。",
+      "tags": [
+        "E-Ink",
+        "Frontend",
+        "Embedded",
+        "Developer Tools"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "agent-effective-policy-gate",
+      "reason": "最新 24 小时同时出现配置被静默忽略、升级后安全语义改变和已读规则仍被扩大授权三种故障；团队一旦把 Agent 放到高权限自动化中，就需要可验证的 effective policy 而不是“相信配置文件生效”。"
+    },
+    "fastestMvp": {
+      "slug": "agent-effective-policy-gate",
+      "reason": "第一版可以只解析 Codex/Claude 的规则与配置、生成最终继承/优先级视图，再加入少量 marker probe；无需自建模型、云基础设施或复杂 UI。"
+    },
+    "highestCommercialValue": {
+      "slug": "agent-effective-policy-gate",
+      "reason": "它直接连接团队安全、Agent 治理和升级变更风险，付费理由比个人效率工具更强；一旦能阻止静默权限放宽或规则失效，可进入团队/企业预算。"
+    },
+    "needsValidation": {
+      "slug": "eink-ui-refresh-lab",
+      "reason": "痛点技术上非常具体，但目标开发者群体较小；最先要验证的是 host-side 仿真/分析能否足够预测真实 panel 的 ghosting/刷新问题，以及用户是否愿意为这种测试层付费。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-20 至 2026-08-22，优先使用过去 24–48 小时的新信号，并用较早的重复 Issue 交叉验证长期痛点。",
+    "sources": [
+      "GitHub Issues",
+      "Hacker News",
+      "Reddit",
+      "Product Hunt"
+    ],
+    "limitations": "本轮高质量需求主要来自 GitHub Issues、Hacker News 与 Reddit；Product Hunt 的近期发布更多作为竞争/趋势背景。X、Starter Story、Google Trends 与 Indie Hackers 未获得足够稳定、可核验且优于上述来源的新需求证据，因此未把搜索摘要或不可访问内容计入机会证据。"
+  }
+}

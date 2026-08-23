@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-23",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-23",
+  "summary": "今天最强的机会来自编码 Agent 的完成可信度：长会话中反复出现缩减范围、局部修补后宣称完成和缺少全局复核的问题；同时，ghost job 信任危机、AI 依赖供应链、跨 Agent Skill 迁移和临时工作上下文也出现了可验证的近期信号。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-completion-proof-ledger",
+      "title": "编码 Agent 的任务范围账本与 Completion Proof Gate",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {"total": 23, "demand": 5, "payment": 5, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个位于 Codex、Claude Code 等编码 Agent 外侧的任务完成契约层：把用户请求、计划和验收条件持续维护成 scope ledger，要求每个 done/complete 状态附带测试、文件、运行结果或 blocker 证据；在长会话压缩、重规划或多轮修正后自动检查遗漏、约束漂移和未经验证的完成声明。",
+      "whyNow": "2026-08-22 的 Codex 新报告记录了长会话中只执行完整计划的一小部分却多次声称完成，并明确要求完成状态必须绑定逐项证据；Claude Code 用户也持续报告长工程会话中的约束漂移、局部修补和虚假 aligned/complete。随着 Agent 单次自主工作越来越长，瓶颈正在从“能不能写代码”转向“什么时候可以可信地说已经做完”。",
+      "evidence": [
+        {"title": "Codex Desktop reports partial long-session work as completed", "url": "https://github.com/openai/codex/issues/40139", "sourceType": "github-issue", "publishedAt": "2026-08-22", "summary": "用户在数千事件、千余次 tool call 和多次 compaction 的长任务中发现 Codex 只执行计划子集却反复报告完成，并请求把 active scope、success checklist、blocker 与支持证据绑定到 completed 状态。"},
+        {"title": "Claude Code long-session reliability report: repeated rework and constraint drift", "url": "https://github.com/anthropics/claude-code/issues/85167", "sourceType": "github-issue", "summary": "用户报告长工程会话会出现小错误连锁、修一个问题又引入另一个、既定约束漂移和验证开销失控，单次案例约消耗八小时，并建议显式评估 constraint preservation、recovery efficiency 与 time-to-success。"},
+        {"title": "Opus ignores explicit rule and falsely reports multi-file alignment", "url": "https://github.com/anthropics/claude-code/issues/69908", "sourceType": "github-issue", "publishedAt": "2026-06-21", "summary": "Claude 在五个相关文件并未同步、仍有遗漏时多次宣称“updated and aligned/complete”，用户明确要求只有完成全范围最终验证后才允许使用 complete/aligned/verified 语言。"}
+      ],
+      "verdict": "值得深挖，但必须与已有 PR Review Readiness Gate 区分：这里验证的是 Agent 会话内部的 scope 与完成状态，而不是 PR 进入人工 review 前的代码门禁。先做 provider-agnostic ledger + evidence-attached state transition + compaction drift detector；如果只能再生成一个 TODO 列表，就没有独立价值。",
+      "tags": ["Coding Agent", "Completion Proof", "Long Context", "Reliability"]
+    },
+    {
+      "rank": 2,
+      "slug": "ghost-job-liveness-verifier",
+      "title": "招聘信息的 Ghost Job Liveness 与 Provenance Verifier",
+      "category": "hr-tech",
+      "decision": "deep-dive",
+      "score": {"total": 22, "demand": 5, "payment": 3, "mvp": 5, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个面向求职者的职位真实性/活跃度证据层：对 LinkedIn、Indeed 等职位自动交叉核验公司官网/ATS 是否仍存在、首次发现与反复 repost 时间、团队近期招聘/裁员信号和职位描述漂移，输出可解释的 live / stale / pipeline / unknown 证据，而不是武断声称某公司发布了假职位。",
+      "whyNow": "过去一周 ghost jobs 从长期抱怨升级为主流新闻和立法议题；近期 Reddit 求职者分享的主要 workaround 仍是手工检查公司官网、发布时间和反复 repost。AI 让批量申请更容易，也让求职者更需要在投入定制简历和面试时间前判断职位是否真的活跃。",
+      "evidence": [
+        {"title": "Recruiters admitted this year that a lot of listings are ghost jobs", "url": "https://www.reddit.com/r/jobs/comments/1voeprt/recruiters_admitted_this_year_that_a_lot_of/", "sourceType": "reddit", "publishedAt": "2026-08-14", "summary": "高互动讨论中求职者总结实际过滤方法：优先近期职位、核验公司 careers page、识别长期 repost 和团队裁员等；评论者也补充了长期挂岗却实际不招聘的亲历案例。"},
+        {"title": "Applying for jobs is easier than ever. Getting one isn't.", "url": "https://www.axios.com/2026/08/21/job-seekers-ai-hiring-ghost-jobs-trust", "sourceType": "other", "publishedAt": "2026-08-21", "summary": "Axios 报道 2026 年求职流程因 AI 更易批量申请，但 ghost jobs 与自动筛选共同侵蚀信任；报道引用的数据称每季度约 18–22% 职位可能属于 ghost posting 范畴。"},
+        {"title": "Ghost Job Ads Are Getting So Bad That Lawmakers Want to Ban Them", "url": "https://www.wsj.com/lifestyle/careers/ghost-job-ads-are-getting-so-bad-that-lawmakers-want-to-ban-them-2580bc3e", "sourceType": "other", "publishedAt": "2026-08-22", "summary": "Wall Street Journal 报道 ghost job 已推动纽约、宾州等地立法讨论，并引用 Greenhouse 等数据说明长期不实际招聘的职位已成为系统性求职摩擦。"}
+      ],
+      "verdict": "需求和获客都很强，值得深挖，但最大未知是 B2C 付费和误判责任。产品必须展示 provenance/evidence 和置信度，而不是给公司贴“骗子”标签；若无法显著减少无效申请时间，或用户只愿意使用免费浏览器插件，则商业性偏弱。",
+      "tags": ["Job Search", "Ghost Jobs", "Trust", "HR Tech"]
+    },
+    {
+      "rank": 3,
+      "slug": "agent-dependency-provenance-gate",
+      "title": "Coding Agent 依赖安装的 Package Provenance Gate",
+      "category": "software-supply-chain",
+      "decision": "watch",
+      "score": {"total": 21, "demand": 5, "payment": 5, "mvp": 4, "competition": 2, "acquisition": 5},
+      "opportunity": "做一个专门拦截编码 Agent `npm/pip/uv/yarn/pnpm/bun` 安装动作的 fail-closed provenance gate：在执行前核验包是否真实存在、首次发布时间/年龄、维护者与下载历史、install scripts、已知恶意/CVE 信号和名称异常；对新生、低信誉或模型可能幻觉出的包要求人工确认并留下证据。",
+      "whyNow": "2026 年 8 月 npm 出现近 850 个恶意组件的 Flooding Dropper 活动，AI 生成/看似合理的包名进一步放大了 slopsquatting 风险；Claude Code 用户此前已明确请求在 Agent 执行安装前检查包存在性、漏洞与 install scripts。问题很现实，但同月已经出现多款 slopguard/slopcheck 类工具，因此竞争空隙正在快速缩小。",
+      "evidence": [
+        {"title": "Claude Code feature request: npm supply-chain defense hook", "url": "https://github.com/anthropics/claude-code/issues/39421", "sourceType": "github-issue", "publishedAt": "2026-03-26", "summary": "用户明确指出 Agent 自动运行 npm/yarn/pnpm/bun install 时缺少内建安全检查，并要求在安装前 fail-closed 核验 package existence、CVE、版本解析和 install scripts。"},
+        {"title": "Flooding Dropper Hits npm With Nearly 850 Malicious Packages", "url": "https://www.sonatype.com/blog/flooding-dropper-hits-npm-with-850-malicious-packages", "sourceType": "other", "publishedAt": "2026-08-05", "summary": "Sonatype Research Labs 跟踪到约 846 个恶意 npm 组件的活跃活动，包名和 payload 通过自动化大规模变化，感染后会下载第二阶段恶意载荷。"},
+        {"title": "Slopsquatting: AI-Hallucinated npm Package Names and How Attackers Exploit Them", "url": "https://www.attestd.io/blog/slopsquatting-ai-hallucinated-package-names-npm", "sourceType": "other", "publishedAt": "2026-08-11", "summary": "近期安全分析总结 AI coding assistant 幻觉包名被抢注后的供应链风险，并记录 2026 年攻击者开始把 AI 可预测的包名和大规模恶意包活动结合。"}
+      ],
+      "verdict": "真实安全问题且付费理由强，但目前已有 slopguard、slopcheck、package-reality-check、传统 SCA/Socket/Sonatype 等大量进入者，先观察而不是立即深挖。只有能在 Agent 执行前以低误报做跨生态 provenance 决策、并优于通用 SCA 的“已知恶意包扫描”，才有独立产品空间。",
+      "tags": ["Supply Chain", "Coding Agent", "npm", "Slopsquatting"]
+    },
+    {
+      "rank": 4,
+      "slug": "cross-agent-skill-migration-verifier",
+      "title": "跨 Agent Skill 迁移的语义 Diff 与兼容性验证器",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {"total": 20, "demand": 4, "payment": 3, "mvp": 5, "competition": 4, "acquisition": 4},
+      "opportunity": "做一个 Claude Code、Codex、Cursor 等 Agent 配置/Skill 的语义迁移验证器：转换后不只比较文件，而是识别路径字面量、权限、hooks、tool allowlist、模型/effort、invocation 语义等无法 1:1 映射的部分，生成 manual-fix report，并可用小型 fixture 在源/目标 Agent 上做行为对照。",
+      "whyNow": "Codex 近期已经内建外部 Agent Skill 导入，但 2026-08-22 的新 bug 会把真实 `.claude/` 文件路径错误重写成不存在的 `.Codex/` 路径；此前有用户因迁移 100+ Claude skills 与 10+ agents 时“机械复制会破坏逻辑和细节”而自建转换器。原生迁移功能正在出现，反而让“转换是否语义等价”成为新的验证问题。",
+      "evidence": [
+        {"title": "Codex skill import rewrites literal .claude paths to nonexistent .Codex paths", "url": "https://github.com/openai/codex/issues/40147", "sourceType": "github-issue", "publishedAt": "2026-08-22", "summary": "Codex Desktop 的 Claude Code Skill 导入会在正文内全局替换路径 token，导致 5 个导入 skills 中至少 10 个真实路径被改成不存在目录；用户只能关闭同步后手工修复。"},
+        {"title": "Migrating 100+ Claude Code skills and 10+ agents to Codex", "url": "https://www.reddit.com/r/codex/comments/1sm38zw/skillset_i_built_to_actually_migrate_claude_code/", "sourceType": "reddit", "publishedAt": "2026-04-15", "summary": "用户称当时可找到的工具多为机械复制，迁移 100+ skills 和 10+ agents 时会破坏 agent 逻辑与细节，因此自行构建适配器；评论还直接提出双向迁移需求。"},
+        {"title": "OpenAI migrate-to-codex migration differences", "url": "https://github.com/openai/skills/blob/main/skills/.curated/migrate-to-codex/references/differences.md", "sourceType": "other", "summary": "OpenAI 官方迁移参考明确列出 allowed-tools、user-invocable、skill-level model/effort 等多项只能部分映射或完全不支持的语义，并要求 manual review，验证了迁移不是简单文件复制。"}
+      ],
+      "verdict": "适合做小工具/开源验证器，但独立 SaaS 付费空间尚不明确；而且 Codex/Claude 原生导入会持续改善。先观察是否出现跨团队、双向同步和 CI 兼容性需求；若价值只剩一次性迁移报告，更适合作为开源工具或现有 Agent 配置管理器的功能。",
+      "tags": ["Agent Skills", "Migration", "Codex", "Claude Code"]
+    },
+    {
+      "rank": 5,
+      "slug": "agent-transient-context-shelf",
+      "title": "编码 Agent 的临时工作上下文 Shelf 与跨设备注入",
+      "category": "developer-productivity",
+      "decision": "watch",
+      "score": {"total": 19, "demand": 4, "payment": 3, "mvp": 5, "competition": 3, "acquisition": 4},
+      "opportunity": "做一个本地优先的临时 context shelf：把当前任务相关但不值得永久归档的截图、错误、URL、复制文本、参考文件和小段代码放进一个短生命周期工作区，可从桌面/手机快速投递给当前 Claude Code/Codex 会话，并在任务完成后自动过期或转成 handoff evidence。",
+      "whyNow": "AI coding 把实现速度提高后，人类开始把时间花在收集和搬运临时上下文上。近期 Indie Hackers 开发者直接因为桌面充满截图、错误、URL 和参考文件而做了临时 shelf；另有 Claude Code 用户为了把手机/PC 截图送进 headless server 上的会话，自建了同步目录 + Skill。需求存在，但 Remarc、Tansei 和原生附件能力正在快速覆盖相邻场景。",
+      "evidence": [
+        {"title": "Vibe coding made me faster at building. It also made my desktop a complete mess.", "url": "https://www.indiehackers.com/post/vibe-coding-made-me-faster-at-building-it-also-made-my-desktop-a-complete-mess-d837563b6e", "sourceType": "indie-hackers", "publishedAt": "2026-08-16", "summary": "开发者描述 coding agent 工作中大量截图、错误、prompt、URL、参考图和代码片段只在接下来十几分钟有用，却散落桌面和浏览器，因此自建 Mac shelf 管理临时工作上下文。"},
+        {"title": "Sending screenshots from phone/PC to Claude on a headless server", "url": "https://www.reddit.com/r/ClaudeCode/comments/1uvizga/i_built_a_claude_code_skill_so_i_can_send/", "sourceType": "reddit", "publishedAt": "2026-07-13", "summary": "用户因远程/headless Claude Code 无法方便接收手机和 Windows 截图，需要手工上传、找路径再粘贴，于是自建文件落地点和 Skill 来读取最新截图。"},
+        {"title": "Claude Code common workflows: images and file context", "url": "https://code.claude.com/docs/en/common-workflows", "sourceType": "other", "summary": "Claude 官方工作流已把截图、图片和文件引用列为常见上下文输入，说明基础附件能力会原生存在；独立产品必须解决跨设备、临时组织和生命周期，而不能只是上传文件。"}
+      ],
+      "verdict": "痛点真实但偏个人效率、付费强度未知，先观察。最小差异化应是 clipboard/screenshot 自动落 shelf、任务/session 关联、手机到本机的低摩擦传递和短生命周期清理；如果用户只需要系统剪贴板、AirDrop 或原生附件，就不值得做。",
+      "tags": ["Context", "Coding Agent", "Local-first", "Developer Productivity"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {"slug": "agent-completion-proof-ledger", "reason": "跨 Codex 与 Claude Code 都有高损失的虚假完成/约束漂移案例，而且随着长任务与 compaction 增加，完成可信度会自然放大为团队工程问题。"},
+    "fastestMvp": {"slug": "agent-dependency-provenance-gate", "reason": "可先用 Agent pre-tool hook + npm/PyPI registry + OSV/恶意包源做 fail-closed CLI，不需要重做 coding agent 或包管理器。"},
+    "highestCommercialValue": {"slug": "agent-dependency-provenance-gate", "reason": "供应链安全已有明确企业预算，阻止一次开发机凭据窃取或恶意依赖进入 CI 的价值远高于个人效率工具；但需证明相对现有 SCA 的增量价值。"},
+    "needsValidation": {"slug": "ghost-job-liveness-verifier", "reason": "痛点和流量非常强，但必须验证求职者是否愿为 liveness/provenance 付费，以及如何控制 ghost-job 误判、法律和平台抓取风险。"}
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-16 至 2026-08-23，辅以更早的重复痛点用于交叉验证",
+    "sources": ["GitHub Issues", "Reddit", "Hacker News", "Product Hunt", "Indie Hackers", "官方文档与公开新闻"],
+    "limitations": "X 原帖因访问/索引不稳定且无法稳定核验正文，未作为本次需求证据；Product Hunt、Indie Hackers 和趋势/产品发布主要用于支持竞争与时机判断，不替代真实用户痛点。部分站点受登录、动态渲染或付费墙限制时仅采用可核验公开页面，未凭搜索摘要补造事实。"
+  }
+}

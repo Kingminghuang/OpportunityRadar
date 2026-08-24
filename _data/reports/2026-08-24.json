@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-24",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-24",
+  "summary": "今天最强的新机会来自移动应用年龄保障合规：Apple 与 Google 正在把年龄信号、家长同意和重大变更通知推向开发者，但跨商店语义、测试与状态机明显分裂；同时，公共视频字幕可靠获取、臃肿外设驱动替代、Spot GPU 容量故障切换和车辆数据可移植性也出现了可验证需求。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "cross-store-age-assurance-adapter",
+      "title": "跨 App Store 年龄信号与家长同意适配/测试层",
+      "category": "compliance-tools",
+      "decision": "deep-dive",
+      "score": {"total": 22, "demand": 5, "payment": 5, "mvp": 4, "competition": 3, "acquisition": 5},
+      "opportunity": "做一个面向 iOS/Android 应用团队的年龄保障适配与测试 SDK：把 Apple Declared Age Range、PermissionKit、App Store Server Notifications 与 Google Play Age Signals、重大变更/家长批准状态归一化为统一状态机和测试 fixture，输出 age band、verification source、guardian consent、required action，并提供跨地区/账号状态的回归测试。",
+      "whyNow": "Texas SB 2420 已在 2026 年 6 月进入执行阶段，Google 7 月宣布把 Play Age Signals API 扩展到全球开发者并在年内逐步覆盖用户；Apple 的年龄保障 API 也持续迭代。近期 Apple Developer Forums 仍集中出现 regulated region 下 eligibility 恒为 false、可否拒绝分享等实现语义不清的问题，说明开发者负担已从读法规转向把两套商店状态正确落地和测试。",
+      "evidence": [
+        {"title": "Apple Developer Forums — Declared Age Range implementation questions", "url": "https://developer.apple.com/forums/tags/declared-age-range", "sourceType": "other", "summary": "当前论坛标签下有大量实现问题；近期开发者报告 Texas/Brazil 测试中 isEligibleForAgeFeatures 持续为 false、regulated region 用户仍可拒绝分享等行为与文档预期难以对齐，显示真实集成和测试摩擦。"},
+        {"title": "Apple: Update for Apps Distributed in Texas", "url": "https://developer.apple.com/news/?id=sg176nne", "sourceType": "other", "publishedAt": "2026-06-03", "summary": "Apple 明确要求相关开发者处理 Declared Age Range、重大变更家长同意和撤销同意通知，并建议用 sandbox 验证实现；多条状态需要应用侧正确编排。"},
+        {"title": "Google Play expands Age Signals API globally", "url": "https://android-developers.googleblog.com/2026/07/google-play-age-signals-api-safer-experiences.html", "sourceType": "other", "publishedAt": "2026-07-29", "summary": "Google 宣布向所有 Play 开发者开放 Age Signals API，并从澳大利亚、加拿大开始扩展、计划 2026 年底全球覆盖，增加了跨平台统一年龄信号处理的紧迫性。"}
+      ],
+      "verdict": "值得深挖，切口应是“跨商店状态归一化 + deterministic test matrix”，而不是法律意见。必须明确保留 Apple/Google 原始信号和地区语义，不能把统一抽象伪装成合规结论；若 k-ID 等现有平台已能低成本覆盖目标团队，则竞争空隙会明显缩小。",
+      "tags": ["Age Assurance", "App Store", "Google Play", "Compliance", "Developer Tools"]
+    },
+    {
+      "rank": 2,
+      "slug": "public-video-transcript-reliability-gateway",
+      "title": "公共视频字幕的可靠获取与 Provenance Gateway",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {"total": 21, "demand": 4, "payment": 4, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个面向研究、教育和 AI 内容工具的公共视频 transcript gateway：对 YouTube/TED 等来源提供多路径获取、缓存、批处理、稳定错误语义和来源证明，显式返回 manual/auto-generated、language、provider、fetchedAt、cache status，并在单一抓取路径失效时可观测地降级，而不是只返回一段不可追溯文本。",
+      "whyNow": "最新 Ask HN 仍有人直接询问如何方便地获取并阅读 TED/YouTube transcript；与此同时，近期一个 YouTube Transcript API 的开发者讨论显示，真正困难的不是 REST endpoint，而是数据中心 IP 被封、批量任务可靠性、缓存与 caption provenance。官方 YouTube Data API 又要求调用者对视频具备编辑权限，无法覆盖“任意公开视频 transcript”这一常见产品需求。",
+      "evidence": [
+        {"title": "Ask HN: Anyone set up ways to easily obtain and read transcripts from Ted, YT?", "url": "https://news.ycombinator.com/item?id=49405684", "sourceType": "hacker-news", "publishedAt": "2026-08-23", "summary": "用户明确表示自己更容易吸收文字而非视频/音频，并询问是否已有方便获取 TED、YouTube transcript 的工作流，说明最终用户侧仍存在低摩擦获取需求。"},
+        {"title": "I built a YouTube Transcript API for developers — looking for feedback", "url": "https://www.reddit.com/r/indiehackers/comments/1vgc5aa/i_built_a_youtube_transcript_api_for_developers/", "sourceType": "reddit", "publishedAt": "2026-08-05", "summary": "开发者和评论者把 hosted server 被 YouTube 阻断、批量异步、缓存成本，以及 manual/auto-generated caption provenance 视为核心问题；作者也确认可靠性与成本控制比 API endpoint 本身更难。"},
+        {"title": "YouTube Data API — captions.download", "url": "https://developers.google.com/youtube/v3/docs/captions/download", "sourceType": "other", "publishedAt": "2026-06-01", "summary": "官方 captions.download 要求 OAuth 且调用者拥有编辑该视频的权限，意味着公开任意视频的 transcript 获取不能直接依赖官方 API，形成了长期但合规边界敏感的基础设施缺口。"}
+      ],
+      "verdict": "值得深挖，但必须把价值放在 reliability、batch、provenance 和可解释降级，不是再包装一个抓字幕 endpoint。首要验证平台条款、抓取方式稳定性和单位请求成本；如果只能依赖高成本代理轮换，或现有 API 已满足目标用户，商业空间会快速收缩。",
+      "tags": ["Video", "Transcripts", "API", "Provenance", "Developer Tools"]
+    },
+    {
+      "rank": 3,
+      "slug": "cross-brand-peripheral-config-layer",
+      "title": "跨品牌外设的本地配置与 Profile 可移植层",
+      "category": "desktop-tools",
+      "decision": "watch",
+      "score": {"total": 20, "demand": 5, "payment": 3, "mvp": 3, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个本地优先的跨品牌鼠标/键盘/耳机配置层：用可版本控制的文本 profile 统一表达按键映射、DPI、轮询率、EQ/基础灯效和 per-app profile，再由 Logitech、Razer、Corsair 等 provider adapter 下发；重点是无需账号、低后台占用、可备份迁移，而不是重做厂商商城和云服务。",
+      "whyNow": "OpenLogi 近期以“无需 Logitech 账号、无 telemetry、TOML 配置、直连 HID++”获得明显关注，说明用户愿意替换官方控制软件；2026 年 Razer 与 Logitech 社区仍持续出现 Synapse/G HUB 崩溃、后台常驻、登录要求和 profile 失效的高互动抱怨。单品牌替代正在出现，但多品牌家庭/工作站仍需要多个常驻程序。",
+      "evidence": [
+        {"title": "OpenLogi — local-first alternative to Logitech Options+", "url": "https://github.com/AprilNEA/OpenLogi", "sourceType": "other", "summary": "活跃开源项目直接绕过 Logitech Options+，用 HID++ 提供按钮、DPI、SmartShift 和 per-app profile，本地 TOML、无账号无 telemetry，验证“轻量本地外设控制”有真实采用。"},
+        {"title": "Why is Razer Synapse so bad and are there any decent alternatives?", "url": "https://www.reddit.com/r/razer/comments/1vkwpw2/why_is_razer_synapse_so_bad_and_are_there_any/", "sourceType": "reddit", "publishedAt": "2026-08-10", "summary": "高互动用户因 Synapse 状态/profile 异常需要反复重启，并主动寻找能同时管理耳机和鼠标的替代软件，显示问题不是单纯隐私偏好。"},
+        {"title": "I'll legit never buy another Logitech device again because of G Hub", "url": "https://www.reddit.com/r/LogitechG/comments/1utci04/ill_legit_never_buy_another_logitech_device_again/", "sourceType": "reddit", "publishedAt": "2026-07-11", "summary": "用户称 G HUB 崩溃会导致鼠标灵敏度异常、启动慢且持续更新，甚至影响硬件购买决策；评论也提到连接、选择和 profile 等长期问题。"}
+      ],
+      "verdict": "需求很强但先观察：用户对免费开源替代的偏好会压低付费，跨厂商协议/固件兼容又显著抬高维护成本。最小验证应只支持两家品牌和鼠标核心能力，证明一个统一 profile 能减少常驻软件与迁移摩擦；若必须逆向大量私有协议才能达到基本覆盖，不适合作为小团队产品。",
+      "tags": ["Peripherals", "Local-first", "Desktop", "Privacy", "Open Source"]
+    },
+    {
+      "rank": 4,
+      "slug": "gpu-spot-failover-checkpoint-broker",
+      "title": "Spot GPU 容量发现、Checkpoint 与跨云故障切换层",
+      "category": "ai-infrastructure",
+      "decision": "watch",
+      "score": {"total": 19, "demand": 4, "payment": 5, "mvp": 3, "competition": 3, "acquisition": 4},
+      "opportunity": "做一个面向可 checkpoint 训练/批处理任务的 GPU capacity broker：持续比较多云 spot 可用性和价格，按 GPU/region/时间约束选择实例，在 reclaim 通知或容量不足时先保存 checkpoint，再自动恢复到另一容量池；产品重点是任务连续性，不是再做一个 GPU 列表网站。",
+      "whyNow": "最新 Ask HN 用户直接报告 H100 Spot 池几乎总是满，并转向 DigitalOcean MI350/MI355；评论中特别看重两小时 reclaim window 让训练任务能 checkpoint。DigitalOcean 8 月刚把新一代 Spot GPU 推向 public preview，而 NVIDIA 也上线跨云合作伙伴的 Compute Match，说明容量发现本身正在商品化，剩余价值更可能在可恢复调度。",
+      "evidence": [
+        {"title": "Where are people finding GPU capacity?", "url": "https://news.ycombinator.com/item?id=49403759", "sourceType": "hacker-news", "publishedAt": "2026-08-23", "summary": "用户称所查 H100 Spot 池基本总是满，只能尝试 MI350/MI355；评论明确把两小时 reclaim window 和训练 checkpoint 视为关键体验。"},
+        {"title": "DigitalOcean: 7 Best AI Workloads for Spot GPU Instances in 2026", "url": "https://www.digitalocean.com/resources/articles/spot-gpu-instances", "sourceType": "other", "publishedAt": "2026-08-20", "summary": "DigitalOcean 新 Spot GPU 强调容量按闲置供应变化、实例可被回收，以及 fault-tolerant/checkpointable workload 最适合该模式，直接验证故障恢复是使用 Spot 的核心约束。"},
+        {"title": "Total stock out of H100 VMs in North America", "url": "https://www.reddit.com/r/googlecloud/comments/1uf3b6k/total_stock_out_of_h100_vms_in_north_america/", "sourceType": "reddit", "publishedAt": "2026-06-25", "summary": "Google Cloud 用户报告多个美国区域 H100 连续无容量，评论同时观察到 Runpod/Lambda/Azure 紧张，说明容量碎片和跨供应商切换是实际问题。"},
+        {"title": "NVIDIA Compute MatchMake System", "url": "https://computematch.nvidia.com/", "sourceType": "other", "summary": "NVIDIA 已提供跨认证云合作伙伴按 GPU、地区和日期浏览/预订容量的 marketplace，意味着单纯“聚合容量”竞争激烈，产品必须进一步解决可执行迁移和恢复。"}
+      ],
+      "verdict": "先观察而非立即深挖：付费价值高，但容量 marketplace 已迅速拥挤，真正难点是让 PyTorch/Slurm/Kubernetes 等真实训练任务安全 checkpoint 并跨 AMD/NVIDIA/云环境恢复。只有在单一 workload family 上把中断损失显著降低，才有独立产品价值。",
+      "tags": ["GPU", "Spot", "Checkpoint", "Multi-cloud", "AI Infrastructure"]
+    },
+    {
+      "rank": 5,
+      "slug": "vehicle-data-personal-vault",
+      "title": "跨车厂车辆数据的个人数据仓与本地桥接层",
+      "category": "automotive-tools",
+      "decision": "watch",
+      "score": {"total": 18, "demand": 4, "payment": 3, "mvp": 3, "competition": 3, "acquisition": 5},
+      "opportunity": "做一个用户拥有的车辆数据 personal vault：从支持的 OEM/Android Automotive/导出文件持续摄取 trip、charging、battery、location 等数据，本地或自托管保存为稳定 schema，支持 CSV/Parquet/API/Home Assistant，并在换车、OEM API 缩减或第三方服务退出时保留历史和自动化。",
+      "whyNow": "Aximote 当前已经证明跨车厂驾驶数据分析有用户和付费市场，但其 Product Hunt 用户直接追问换车后历史可否带走、能否 CSV 导出；Google Play 用户也把“导出自己的个人数据”被放在订阅层后视为问题。与此同时，Polestar 社区为了 Home Assistant 和更深传感器数据持续逆向 API，且官方可用字段会变化，强化了“把数据从厂商应用解耦出来”的长期需求。",
+      "evidence": [
+        {"title": "Aximote In-Car App — data portability and CSV export discussion", "url": "https://www.producthunt.com/products/aximote-in-car-app", "sourceType": "product-hunt", "summary": "Product Hunt 评论直接询问换车后三年 trip history 能否带走、是否支持用于报税的 CSV export；maker 回应已支持多车辆并加入 CSV，说明可移植性是明确用户需求。"},
+        {"title": "Aximote: Car Data — Google Play reviews", "url": "https://play.google.com/store/apps/details?id=com.carlytics.apps", "sourceType": "other", "publishedAt": "2026-07-14", "summary": "近期用户认可 OEM 原生应用数据不足，但也批评导出个人数据需要高阶订阅；另有用户要求更深 battery/SoH 等指标，反映数据所有权和深度访问需求。"},
+        {"title": "Reverse-engineered Polestar API and Home Assistant integration", "url": "https://www.reddit.com/r/homeassistant/comments/1ri39e3/update_ive_reverseengineered_the_polestar_api_and/", "sourceType": "reddit", "publishedAt": "2026-03-01", "summary": "高互动社区项目通过逆向 Polestar/Volvo 云接口暴露大量车辆数据，作者称厂商也认识到技术用户对集成能力的需求，验证 Home Assistant/开放数据出口的强社区动机。"},
+        {"title": "New Journey Log app", "url": "https://www.reddit.com/r/Polestar/comments/1uq7cxh/new_journey_log_app/", "sourceType": "reddit", "publishedAt": "2026-07-07", "summary": "开发者因找不到合适的 Journey Log 分析方式而做纯本地 CSV/XLSX 导入工具，并处理重叠数据去重，说明本地、简单、用户自持历史数据也有独立需求。"}
+      ],
+      "verdict": "有真实需求但目前只观察。Aximote、DIMO、TeslaMate/品牌社区工具已覆盖大量价值，最大风险是 OEM API 权限和 ToS 不稳定；更可行的切口可能是“导出文件 + 官方/允许接口优先的本地长期数据仓”，而不是承诺对所有品牌实时控制。首先要验证用户是否愿意为数据可移植性本身付费。",
+      "tags": ["Connected Car", "Data Portability", "Local-first", "Home Assistant", "Automotive"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {"slug": "cross-store-age-assurance-adapter", "reason": "法规已进入实际执行和全球 rollout 阶段，Apple/Google 的 API 与状态语义明显分裂，且开发者论坛出现当前实现困惑；团队为降低合规工程风险有直接预算。"},
+    "fastestMvp": {"slug": "public-video-transcript-reliability-gateway", "reason": "可先用现有抓取器、缓存和异步队列做薄层，最快验证用户是否愿意为稳定错误语义、batch 和 provenance 而不是单次 transcript 付费。"},
+    "highestCommercialValue": {"slug": "cross-store-age-assurance-adapter", "reason": "受监管地区的应用必须处理年龄与家长同意状态，属于上线阻断型问题；若能成为跨平台 SDK/测试层，B2B 付费理由比消费型工具更强。"},
+    "needsValidation": {"slug": "vehicle-data-personal-vault", "reason": "用户想要可移植车辆数据的证据明确，但跨车厂实时获取受 OEM API、许可和稳定性约束，且现有 Aximote/DIMO/社区工具较强，需要先验证可合法覆盖的车型与独立付费意愿。"}
+  },
+  "scanNotes": {
+    "coverageWindow": "重点扫描 2026-08-17 至 2026-08-24 的当前信号，并使用更早但仍直接相关的用户帖子/官方文档做交叉验证。",
+    "sources": ["Hacker News Ask/Show HN", "Product Hunt", "Reddit", "GitHub", "Apple Developer News/Forums", "Google/Android Developer documentation", "Google Play reviews", "Indie Hackers", "Starter Story", "Exploding Topics"],
+    "limitations": "X 的公开搜索未获得足够稳定且可核验的原帖，因此未把搜索摘要作为证据；Google Trends 对这些窄开发者主题缺少可直接解释的近期量级信号。Product Hunt 当前榜单存在抓取日期/缓存差异，只有能够由产品页、仓库或独立用户反馈交叉验证的信号才进入机会。趋势和产品发布仅作为支持，所有入选项至少包含直接用户痛点、开发者实现摩擦或官方平台约束证据。"
+  }
+}

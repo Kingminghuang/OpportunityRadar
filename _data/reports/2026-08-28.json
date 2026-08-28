@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-28",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-28",
+  "summary": "今天最强的新信号集中在 AI/Agent 基础设施的‘兼容性与失败可见性’：多模型 API 虽宣称兼容，却在 structured output、tool call 和新 endpoint 上出现静默语义丢失；同时多个 Agent/CLI 的流式请求会在网络或 provider 错误后无限重试并长期显示 thinking。多渠道 Agent 消息适配、旋转 refresh token 并发恢复和自由职业逾期应收款也出现了可验证的重复痛点。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "llm-capability-regression-gate",
+      "title": "多模型 API 能力兼容性与路由回归 Gate",
+      "category": "ai-infra",
+      "decision": "deep-dive",
+      "score": {"total": 23, "demand": 5, "payment": 5, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个面向 LLM gateway、Agent runtime 和多模型应用的 capability contract CI：持续探测每个 provider/model/endpoint 对 structured output、tool calling、parallel tools、streaming event、modalities 和新旧 API 的真实支持，维护版本化能力矩阵；路由或 SDK/模型升级前自动跑 canary，遇到字段被静默丢弃或语义不兼容时 fail closed，而不是等生产请求才发现。",
+      "whyNow": "过去两周出现了多起‘表面兼容、实际语义不兼容’的新案例：Gemini 新模型只走 Interactions API，旧 Gemini client 选择后直接失效；Claude-compatible 请求经 Codex 路由时 structured-output schema 被静默丢弃；xAI 的 OpenAI-compatible Responses 路径对 MCP tool schema 和 parallel tool calls 也出现差异。模型和 endpoint 的能力分叉正在超过静态 provider adapter 的更新速度。",
+      "evidence": [
+        {"title": "Home Assistant #180388 — Gemini 3.5 Transcribe requires Interactions API", "url": "https://github.com/home-assistant/core/issues/180388", "sourceType": "github-issue", "publishedAt": "2026-08-27", "summary": "用户配置仅支持 Google Interactions API 的新模型后，现有 Gemini conversation integration 无法工作，语音命令会静默失去理解能力；暴露 model capability 与 endpoint contract 不匹配。"},
+        {"title": "CLIProxyAPI #5280 — Claude-to-Codex translation silently drops structured-output schema", "url": "https://github.com/router-for-me/CLIProxyAPI/issues/5280", "sourceType": "github-issue", "publishedAt": "2026-08-27", "summary": "Claude-compatible 请求转换到 Codex 时 `output_config.format` 被静默丢失，调用仍继续但 structured output 约束消失，属于比硬错误更危险的语义回归。"},
+        {"title": "oh-my-pi #8698 — Grok OpenAI-compatible Responses diverges on tools and parallel calls", "url": "https://github.com/can1357/oh-my-pi/issues/8698", "sourceType": "github-issue", "publishedAt": "2026-08-16", "summary": "用户报告 xAI 的 OpenAI-compatible `/v1/responses` 对有效 MCP tool schema 返回 400，并在后续并行工具调用中出现丢失，说明兼容 URL 不代表行为兼容。"},
+        {"title": "n8n #27128 — Deep Research model incompatible with standard Gemini node", "url": "https://github.com/n8n-io/n8n/issues/27128", "sourceType": "github-issue", "publishedAt": "2026-03-17", "summary": "n8n 用户可在 UI 选择 Gemini Deep Research 模型，但标准 Gemini node 使用错误 API 路径后返回 400；维护者被要求支持或主动过滤 incompatible models。"}
+      ],
+      "verdict": "最值得深挖。MVP 不做新的通用 gateway，只做 OpenAI Responses、Anthropic Messages、Gemini Interactions 三条路径的 capability probes + snapshot/diff + CI gate；如果现有 gateways 已能持续验证‘真实行为而非配置声明’，独立产品空间会显著缩小。",
+      "tags": ["LLM Gateway", "Compatibility", "Structured Output", "CI"]
+    },
+    {
+      "rank": 2,
+      "slug": "llm-stream-liveness-gate",
+      "title": "Agent / LLM 流式请求的 Retry Budget 与 Liveness Gate",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {"total": 22, "demand": 5, "payment": 4, "mvp": 5, "competition": 4, "acquisition": 4},
+      "opportunity": "做一个可嵌入 Agent CLI、桌面端和 LLM SDK 的流式请求可靠性层：把 connecting、streaming、retrying、provider-down、cancelled 等状态显式化，统一 inactivity timeout、terminal-event 检测、指数退避、最大尝试/最大耗时/最大成本预算，并在超限后给出可恢复错误而不是无限显示 thinking；同时生成每次 retry 的原因和最终状态 receipt。",
+      "whyNow": "仅 8 月就有 OpenCode 和 Gemini CLI 用户重复报告：上游 headers timeout、429 或 stream error 后客户端进入无上限自动重试，UI 长时间只显示 thinking/spinner，用户无法判断模型正在推理还是网络/服务已经失败。MCP Python SDK 也出现重连时错误重置 retry counter 导致无限循环，说明问题跨 LLM 和工具流式 transport 存在。",
+      "evidence": [
+        {"title": "OpenCode #45514 — Headers timeout silently retries for 20+ minutes", "url": "https://github.com/anomalyco/opencode/issues/45514", "sourceType": "github-issue", "publishedAt": "2026-08-27", "summary": "上游 Headers Timeout Error 后桌面端持续显示 thinking 超过 20 分钟，并静默重试；用户无法区分模型推理和网络故障，明确要求 backoff、最大次数和可见状态。"},
+        {"title": "OpenCode #41848 — stream errors can retry forever without max attempts", "url": "https://github.com/anomalyco/opencode/issues/41848", "sourceType": "github-issue", "publishedAt": "2026-08-11", "summary": "用户报告流式错误没有最大 retry 次数，客户端可以无限循环并长期停在 Thinking，要求 bounded retry policy。"},
+        {"title": "Gemini CLI #28339 — 429 retry/fallback loop leaves spinner indefinitely", "url": "https://github.com/google-gemini/gemini-cli/issues/28339", "sourceType": "github-issue", "publishedAt": "2026-07-09", "summary": "Gemini CLI 在 rate-limit retry/fallback 路径中可能无限显示 spinner 且不向用户暴露终止错误，体现 liveness state 缺失。"},
+        {"title": "MCP Python SDK #2393 — reconnect resets retry counter and creates infinite loop", "url": "https://github.com/modelcontextprotocol/python-sdk/issues/2393", "sourceType": "github-issue", "publishedAt": "2026-04-05", "summary": "Streamable HTTP reconnect 会重置尝试计数，使本应有界的重试变成无限循环，说明 retry budget 需要跨重连生命周期保持。"}
+      ],
+      "verdict": "最快可做 MVP：先提供 TypeScript/Python wrapper，默认 3 个维度有界——尝试次数、墙钟时间、估算成本——并输出可观察状态机；若各 SDK/CLI 很快原生统一提供 bounded retry 和真实状态，这更适合作为开源中间件而非独立 SaaS。",
+      "tags": ["LLM Streaming", "Reliability", "Retry", "Agent Runtime"]
+    },
+    {
+      "rank": 3,
+      "slug": "agent-channel-fidelity-ci",
+      "title": "Agent 多渠道消息适配器的 Delivery Fidelity CI",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {"total": 22, "demand": 5, "payment": 4, "mvp": 4, "competition": 4, "acquisition": 5},
+      "opportunity": "做一个针对 Slack、Telegram、Discord 等 Agent channel adapters 的契约/回归测试台：定义统一 message envelope，并用真实或 sandbox fixture 验证普通文本、reply/thread、forward、文件/图片/音频、长消息分块、429 重试、交互按钮、删除/归档目标和去重；输出渠道能力矩阵与 delivery receipt，避免消息在 adapter 边界被静默丢内容。",
+      "whyNow": "Agent 正快速从 terminal 扩展到团队消息渠道，但同一项目近期已经连续出现 Slack forward 内容丢失、Telegram channel post 附件丢失、Discord 分块消息遇到 429 后丢尾部等问题；另一个多渠道 Agent 项目也明确提出 channel adapters 已独立演化、需要严格 interface contract 和 parity test。多渠道接入正在从‘能发消息’升级成可靠性交付问题。",
+      "evidence": [
+        {"title": "Hermes Agent #96384 — Slack forwards silently drop forwarded text and files", "url": "https://github.com/NousResearch/hermes-agent/issues/96384", "sourceType": "github-issue", "publishedAt": "2026-08-27", "summary": "标准 Slack Forward 消息因 subtype/flag 处理不完整而把真正的 forwarded text/files 静默丢掉，Agent 随后像没有收到内容一样继续运行。"},
+        {"title": "Hermes Agent #52126 — Telegram channel attachments are silently dropped", "url": "https://github.com/NousResearch/hermes-agent/issues/52126", "sourceType": "github-issue", "publishedAt": "2026-06-24", "summary": "Telegram channel post 使用不同 update 字段，现有 adapter 只处理普通 message，导致文件附件被静默忽略。"},
+        {"title": "Hermes Agent #44468 — Discord 429 can drop the rest of a chunked response", "url": "https://github.com/NousResearch/hermes-agent/issues/44468", "sourceType": "github-issue", "publishedAt": "2026-06-10", "summary": "Discord standalone send 在长消息分块过程中遇到 429 后没有可靠重试，剩余 chunks 被直接丢失，形成 partial delivery。"},
+        {"title": "LettaBot #682 — channel adapters need a strict interface contract", "url": "https://github.com/letta-ai/lettabot/issues/682", "sourceType": "github-issue", "publishedAt": "2026-04-12", "summary": "维护者指出 Slack/Telegram/Discord adapters 独立演化导致 feature parity gaps，明确提出统一 contract 以便在生产前捕获能力缺口。"}
+      ],
+      "verdict": "值得深挖，但不要再造消息 gateway。首版只做 adapter conformance harness + replay fixtures + parity matrix；若主流 Agent channel frameworks 很快自带完整 contract test suite，这个方向应转为上游工具。",
+      "tags": ["Slack", "Telegram", "Discord", "Agent Reliability"]
+    },
+    {
+      "rank": 4,
+      "slug": "oauth-refresh-race-lab",
+      "title": "旋转 Refresh Token 的 OAuth 并发与恢复测试台",
+      "category": "identity-tools",
+      "decision": "watch",
+      "score": {"total": 21, "demand": 5, "payment": 4, "mvp": 4, "competition": 4, "acquisition": 4},
+      "opportunity": "做一个面向桌面 App、Agent runtime 和多进程客户端的 OAuth reliability testkit：可模拟 single-use/rotating refresh token、多个窗口/worker 并发刷新、401 同时触发二次刷新、token rotation 后进程崩溃但尚未持久化、多设备会话以及 scope/audience 变化；用确定性 oracle 验证锁、原子持久化、旧 token 失效和恢复路径，并输出不泄露 token 的诊断 trace。",
+      "whyNow": "Codex 8 月连续出现 rotated refresh token 未持久化、登录后首个交互立即 401 的新问题；其他项目也报告并发 OAuth refresh 会让 single-use rotating token 相互撤销，Vercel AI 的 MCP transport 还出现 SSE GET 与 POST 同时 401 时重复刷新。随着 Agent/桌面应用同时开多个窗口、后台任务和 MCP 连接，传统‘单请求刷新一次’假设越来越不成立。",
+      "evidence": [
+        {"title": "Codex #41171 — refresh token is invalidated immediately after sign-in", "url": "https://github.com/openai/codex/issues/41171", "sourceType": "github-issue", "publishedAt": "2026-08-27", "summary": "Windows Desktop 在高级账户安全场景中完成登录后，首次交互即因 refresh token invalidated 返回 401，暴露 token lifecycle 与本地会话状态不一致。"},
+        {"title": "Codex #40267 — rotated refresh token is not persisted before session resume", "url": "https://github.com/openai/codex/issues/40267", "sourceType": "github-issue", "publishedAt": "2026-08-23", "summary": "macOS 用户报告新 refresh token 在旋转后未持久化到 auth state，原 token 很快失效，线程 resume 随后触发退出登录。"},
+        {"title": "open-wearables #1433 — concurrent refresh can revoke a healthy OAuth connection", "url": "https://github.com/the-momentum/open-wearables/issues/1433", "sourceType": "github-issue", "publishedAt": "2026-08-11", "summary": "多个并发请求同时用 single-use rotating refresh token 刷新时，其中一个成功后会让其他请求持有的旧 token 失效，可能错误地把健康连接标记为需重新授权。"},
+        {"title": "Vercel AI #15465 — MCP transport can refresh OAuth twice on parallel 401s", "url": "https://github.com/vercel/ai/issues/15465", "sourceType": "github-issue", "publishedAt": "2026-05-20", "summary": "Streamable HTTP 的 SSE GET 和 POST 可同时收到 401 并各自触发 refresh，导致重复轮换和竞态，说明 token refresh 需要连接级协调。"}
+      ],
+      "verdict": "先观察。技术问题清晰且可构造测试，但 OAuth SDK/身份厂商已有成熟基础能力；先做开源 failure-injection suite，验证桌面/Agent 团队是否愿意把它放进 CI，再判断是否存在商业控制面。",
+      "tags": ["OAuth", "Identity", "Desktop Apps", "Concurrency"]
+    },
+    {
+      "rank": 5,
+      "slug": "freelance-receivables-escalation",
+      "title": "自由职业逾期应收款的证据账本与升级催收 Workflow",
+      "category": "fintech-tools",
+      "decision": "watch",
+      "score": {"total": 18, "demand": 4, "payment": 4, "mvp": 4, "competition": 2, "acquisition": 4},
+      "opportunity": "做一个不替代 invoicing/accounting 的 overdue receivables workflow：导入现有发票和沟通记录，持续记录到期日、承诺付款日期、提醒、利息/补偿规则和 proof-of-payment；超过阈值后生成带时间线和附件索引的 demand pack，并按用户选择移交 collection、small claims 或律师，同时明确区分事实证据与司法辖区规则。",
+      "whyNow": "近期自由职业社区仍反复出现相同问题：多人同时管理客户后会丢失付款状态；客户不断承诺‘马上付’却拖延数周或数月；跨州/跨国争议金额又常低于雇律师的经济门槛。已有创业者开始做 jurisdiction-aware escalation，说明需求真实，但也意味着这个市场并非空白。",
+      "evidence": [
+        {"title": "r/Freelancers — Handling difficult clients and months-late payment", "url": "https://www.reddit.com/r/Freelancers/comments/1vwckha/handling_difficult_clients/", "sourceType": "reddit", "publishedAt": "2026-08-23", "summary": "自由职业者同时管理多个客户时难以跟踪付款状态，一家客户拖延数月，最终在其引用法定利息与补偿后才付款；直接体现逾期追踪与升级沟通成本。"},
+        {"title": "r/Freelancers — client repeatedly promises to pay a late invoice", "url": "https://www.reddit.com/r/Freelancers/comments/1smgbba/handling_clients_late_invoice/", "sourceType": "reddit", "publishedAt": "2026-04-15", "summary": "用户连续追讨逾期发票、收到多次付款承诺仍不到账，并需要 late-fee 与 proof-of-payment 工作流。"},
+        {"title": "r/whatdoIdo — $6,000 cross-state freelance invoice dispute", "url": "https://www.reddit.com/r/whatdoIdo/comments/1uvqy8n/new_to_being_freelance_consultant_and_my_client/", "sourceType": "reddit", "publishedAt": "2026-07-13", "summary": "顾问面对约 $6,000 的跨州应收款争议，担心律师成本接近追回金额；反映‘证据整理→正式 demand→低成本升级渠道’的实际需求。"},
+        {"title": "r/SaaS — building jurisdiction-aware overdue invoice escalation", "url": "https://www.reddit.com/r/SaaS/comments/1s22j3t/freelance_invoice_headache/", "sourceType": "reddit", "publishedAt": "2026-03-26", "summary": "已有创业者针对 freelancer late-payment 建立自动 reminder、利息和 jurisdiction-aware escalation 工具，既验证需求，也说明竞争空间有限。"}
+      ],
+      "verdict": "先观察。真实痛点明确，但 invoicing、collections 和法律模板市场竞争高，且司法辖区复杂；只有‘证据账本 + 低成本升级 handoff’能明显减少追回时间并获得真实付费，才值得继续。",
+      "tags": ["Freelancers", "Accounts Receivable", "Collections", "Workflow"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {"slug": "llm-capability-regression-gate", "reason": "近期多个 provider/model 同时出现 endpoint 与语义能力分叉，且 structured-output/tool-call 的静默丢失会直接污染生产结果；需求强、团队预算清晰，也适合用 canary CI 快速验证。"},
+    "fastestMvp": {"slug": "llm-stream-liveness-gate", "reason": "可以先作为现有 TypeScript/Python SDK 的薄 wrapper 实现 bounded retry、可见状态机和 receipt，不需要自建模型 gateway 或复杂后端。"},
+    "highestCommercialValue": {"slug": "llm-capability-regression-gate", "reason": "多模型 gateway、Agent 平台和企业 AI 团队都需要在模型/SDK/路由升级前验证真实能力；一次静默 structured-output 或 tool-use 回归就可能影响大量生产请求。"},
+    "needsValidation": {"slug": "freelance-receivables-escalation", "reason": "逾期应收痛点真实，但市场已有 invoicing/collections/法律模板和新型 escalation 工具；必须先验证用户是否愿意为独立的证据账本与升级 handoff 额外付费。"}
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-21 至 2026-08-28",
+    "sources": ["GitHub Issues", "Hacker News", "Reddit", "Product Hunt"],
+    "limitations": "本次主要采用可直接核验原文的 GitHub Issues、Hacker News 和 Reddit 信号；Product Hunt 用于辅助观察产品化趋势。X、Starter Story、Exploding Topics、Google Trends 与 Indie Hackers 未获得足够稳定且可核验的新增原始需求证据，因此未把仅有搜索摘要或趋势页面的信号纳入候选结论。"
+  }
+}

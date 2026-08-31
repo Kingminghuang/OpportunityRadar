@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-31",
+  "timezone": "Asia/Shanghai",
+  "title": "每日机会扫描 — 2026-08-31",
+  "summary": "今天最强的新信号集中在 Agent runtime 的‘可证明终止与可恢复状态’：长任务会陷入无进展轮询或错误续写，session/history 会被坏 tool call、错误结束标记或回放格式污染，而多 provider 配置又可能与真实 dispatch 路径发生静默漂移。",
+  "categories": ["opportunities"],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-progress-budget-guard",
+      "title": "Agent 长任务的 Progress Budget 与 Runaway Loop Guard",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 24,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 5,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个可嵌入 Coding Agent / Agent runtime 的 progress watchdog：同时限制 step、wall-clock、token/cost 和重复工具调用，给轮询类任务建立 progress fingerprint 与退避策略；当连续无实质进展时由 runtime 强制中止或切换策略，并保留可恢复的 termination receipt，而不是依赖模型自己意识到‘陷入循环’。",
+      "whyNow": "8 月 30 日出现了多组不同失败模式但高度一致的信号：DeepSeek Harness 用户实测一个 turn 跑到 72 步且 30+ 步重复轮询；Hermes 的错误 truncation 判定会触发连续 4 次无意义 continuation；DeepSeek Harness 还存在 reasoning-only stop 被错误当作正常完成的情况。共同问题不是某个模型质量差，而是 Agent loop 缺少客观的‘有进展/可交付/该终止’契约。",
+      "evidence": [
+        {
+          "title": "DeepSeek Harness #5072 — 长任务陷入循环且没有轮次预算/无进展检测",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/5072",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "用户在等待 electron-builder 等后台任务时观察到单 turn 72 步、30+ 步重复轮询，模型连续多轮承认自己陷入循环却仍无法停止；明确要求步骤预算、重复检测和无进展检测。"
+        },
+        {
+          "title": "Hermes Agent #98406 — false truncation recovery itself becomes a retry loop",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/98406",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "正确的 finish_reason=stop 被误判成 length 后，系统连续注入 continuation，最终在 4 次重试后失败；恢复机制反而放大原本不存在的故障。"
+        },
+        {
+          "title": "DeepSeek Harness #5113 — reasoning-only stop silently counts as completed",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/5113",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "25/25 次复现 reasoning block 存在但没有用户可见文本和 tool call 时，runtime 仍把 turn 标为 completed；用户只看到 thinking 停止却没有最终答案。"
+        },
+        {
+          "title": "DeepSeek Harness #2802 — broken streamed tool call triggers repeated doomed retries",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/2802",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-17",
+          "summary": "tool name 在 streamed delta 合并后变成空字符串，Agent 连续改变调用格式重试 5+ 次，最终 8 步消耗约 66.5K input tokens 仍没有生成文件，显示 runtime 对不可恢复错误缺少快速终止条件。"
+        }
+      ],
+      "verdict": "最值得深挖。MVP 不做完整 Agent framework，只做一个 SDK/sidecar：progress fingerprint、budget policy、polling backoff、deliverable completion oracle 和 termination receipt；如果主流 Agent runtime 很快原生提供等价的 bounded-progress contract，则转为开源规范/测试套件。",
+      "tags": ["Agent Runtime", "Runaway Loop", "Budget", "Reliability", "Observability"]
+    },
+    {
+      "rank": 2,
+      "slug": "agent-session-replay-integrity-gate",
+      "title": "Agent Session / History 的 Replay Integrity Gate",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个专门验证 Agent session/history 可持久化、可恢复、可迁移的 integrity layer：写入前校验 tool-call/message 结构，回放前做 schema/identity/liveness 检查，对 provider-specific history 做 canonical normalization，并能把损坏 session 定位到第一个 poison event，提供 repair preview 而不是整段会话报废。",
+      "whyNow": "近两天出现了多种‘当前 turn 看似成功、下一次 resume/replay 才爆炸’的案例：Responses 转换会把空 function_call.name 写入 history；无效 JSON tool arguments 会被持久化并让后续每次 replay 都 400；Hermes 的 state.db 会把仍活跃的 gateway session 短暂标为 ended 并反复自愈。随着 Agent 会话越来越长、跨设备和后台续跑，session log 正从调试记录变成关键持久化资产。",
+      "evidence": [
+        {
+          "title": "new-api #7094 — Responses conversion writes empty function_call.name and breaks replay",
+          "url": "https://github.com/QuantumNous/new-api/issues/7094",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "Responses 转换把空 function_call.name 写入 history；问题不是当前请求立即失败，而是后续 session replay 被污染的历史结构击穿。"
+        },
+        {
+          "title": "DeepSeek Harness #5132 — malformed tool-call JSON poisons every later replay",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/5132",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "模型流式生成了包含非法 JSON arguments 的 tool call，runtime 当场接受并写入 session；之后每次请求重放这条历史都会被 vLLM 严格校验拒绝，整个会话永久失效。"
+        },
+        {
+          "title": "Hermes Agent #98495 — live session is repeatedly marked ended in state.db",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/98495",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "同一天两个 gateway profile 的仍活跃 session 被 state.db 错误写入 end_reason，系统之后依赖 self-heal 反复重新打开，说明不同 session truth source 会发生 liveness 漂移。"
+        },
+        {
+          "title": "Codex #41595 — continue/resume conversation failure",
+          "url": "https://github.com/openai/codex/issues/41595",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "Codex CLI 用户在最新版本报告 continue conversation/session resume 异常，进一步说明长会话恢复路径本身正在成为高频可靠性表面。"
+        }
+      ],
+      "verdict": "值得深挖。首版可做 CLI + library，对 JSONL/SQLite/session events 做 pre-commit validation、replay dry-run、poison-event bisect 和 canonical export；若不同 Agent 的 session 格式过度私有且变化太快，产品应退回 provider-specific repair tooling。",
+      "tags": ["Session", "Replay", "History", "Durability", "Agent Runtime"]
+    },
+    {
+      "rank": 3,
+      "slug": "llm-config-runtime-drift-detector",
+      "title": "多模型 Agent 的 Config-to-Runtime Drift Detector",
+      "category": "ai-infra",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向 LLM gateway 与 Agent runtime 的配置执行一致性检查器：启动时和每次真实调用时输出‘声明配置 → 解析后配置 → 实际 transport/endpoint/model/role/schema’链路，自动比较 drift；如果用户声明 Responses 却实际走 Chat Completions、provider-specific role 被错误带入另一协议或 transport fallback 改变计费/语义，则 fail closed 或显式告警。",
+      "whyNow": "8 月 30 日 Hermes 用户报告 `transport: codex_responses` 被静默忽略，runtime 实际创建 chat-completions client，并因此把 Responses 风格的 `final` role 发给不支持该 role 的 endpoint；同日 Hermes 还出现正确 stop 被 provider-specific heuristic 改写成 length，new-api 则在 Responses conversion 中生成不合法的 function_call history。多 provider 抽象层已经从简单参数翻译发展成‘配置、解析、运行、回放’多阶段语义漂移问题。",
+      "evidence": [
+        {
+          "title": "Hermes Agent #98787 — configured codex_responses is silently dispatched as chat_completions",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/98787",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "用户明确配置 codex_responses，但日志证明 runtime 创建的是 chat_completion_stream_request；错误路径还发送了 chat-completions 不支持的 `final` role，并造成额外 token 消耗。"
+        },
+        {
+          "title": "Hermes Agent #98406 — provider heuristic rewrites a correct stop into length",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/98406",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "provider-specific normalization 把真实 finish_reason=stop 改写成 length，导致 runtime 后续执行错误恢复路径，证明归一化层本身可能产生语义 drift。"
+        },
+        {
+          "title": "new-api #7094 — Responses conversion emits invalid function-call history fields",
+          "url": "https://github.com/QuantumNous/new-api/issues/7094",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "跨协议 Responses conversion 把空 function_call.name 写入历史并破坏 replay，说明转换层不仅影响当前请求，还会把 drift 固化到后续 session。"
+        },
+        {
+          "title": "DeepSeek Harness #5113 — provider stop semantics are misclassified by normalized content shape",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/discussions/5113",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "reasoning block 让 normalized content 数组非空，于是 runtime 把没有用户可见 deliverable 的 stop 当作正常完成，体现 provider stream → normalized event → agent completion 之间的语义错配。"
+        }
+      ],
+      "verdict": "值得深挖，但要与通用 gateway/eval 区分。MVP 聚焦‘声明值与真实 dispatch 的证据链’：runtime receipt、wire-level capture、semantic diff 和 CI gate，而不是做新的模型路由器。",
+      "tags": ["LLM Gateway", "Config Drift", "Responses API", "Compatibility", "CI"]
+    },
+    {
+      "rank": 4,
+      "slug": "agent-context-boundary-linter",
+      "title": "Agent 工作区的 Context Boundary 与 Foreign-Config Linter",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 5,
+        "competition": 3,
+        "acquisition": 3
+      },
+      "opportunity": "做一个本地 Agent workspace context linter：解析 cwd、repo root、父目录和 home 下的 AGENTS.md/CLAUDE.md/.rules 等配置文件，生成实际会注入模型的 context graph，并在跨工具配置被意外继承、home 目录污染 repo、同名规则冲突或秘密路径被纳入 context 前告警。",
+      "whyNow": "Hermes 8 月 30 日报告在 cwd=$HOME 时会把 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md` 等其他 Agent 的配置注入 tool results，形成明确的 cross-agent context contamination；同时不同 Coding Agent 都在快速扩展 repo/user/global instruction 机制，配置层级越来越难靠人工推理。当前信号很明确但独立来源仍偏少，因此先观察。",
+      "evidence": [
+        {
+          "title": "Hermes Agent #98529 — foreign Claude/Codex config files leak into Hermes context",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/98529",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "当 Hermes 以用户 home 为 cwd 时，SubdirectoryHintTracker 会把 Claude/Codex 等其他 Agent 的配置文件注入 tool results，正是模块原本声称要避免的 cross-agent context contamination。"
+        },
+        {
+          "title": "Claude Code #90772 — long workflow asks for explicit context clearing/control",
+          "url": "https://github.com/anthropics/claude-code/issues/90772",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-30",
+          "summary": "用户在长链式 skill workflow 中明确要求 mid-session context.clear 与模型/effort 控制，反映 context 生命周期已成为自动化工作流中的显式管理对象。"
+        }
+      ],
+      "verdict": "观察。MVP 很小且容易验证，但目前强需求主要集中在 coding-agent power users；需要再找到跨 Claude/Codex/OpenCode/IDE 的独立污染或规则冲突案例后再提升优先级。",
+      "tags": ["Context", "AGENTS.md", "CLAUDE.md", "Workspace", "Lint"]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "agent-progress-budget-guard",
+      "reason": "需求最强且跨两个独立 Agent runtime 重复出现；无进展循环直接消耗用户时间、token/配额并可能让无人值守任务永久卡死。"
+    },
+    "fastestMvp": {
+      "slug": "agent-progress-budget-guard",
+      "reason": "可以先做 wrapper/sidecar，只需要捕获 step/tool/event、计算进展指纹并执行预算策略，不必重写 Agent framework。"
+    },
+    "highestCommercialValue": {
+      "slug": "agent-session-replay-integrity-gate",
+      "reason": "一旦长会话或后台 Agent 的 history 被污染，可能造成整段 session 无法恢复；对企业 Agent 平台而言属于数据持久性与业务连续性风险。"
+    },
+    "needsValidation": {
+      "slug": "agent-context-boundary-linter",
+      "reason": "技术楔子清晰但当前独立需求证据不足，需要验证跨多个 Agent 产品是否普遍存在配置继承/污染问题。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-30 至 2026-08-31，必要时补充 2026-08-17 以来的重复信号",
+    "sources": ["GitHub Issues / Discussions", "Hacker News Ask HN", "Reddit public results", "Public Web Search"],
+    "limitations": "本次最强可核验需求主要来自 GitHub Issues/Discussions。Hacker News Ask HN 有当日工具/Agent 相关讨论，但未形成比上述 GitHub 证据更强的重复痛点；Reddit、X、Product Hunt、Starter Story、Exploding Topics、Google Trends 与 Indie Hackers 的最新公开索引在本次扫描中没有稳定返回足够强、可直接核验且独立的同类需求，因此未用弱搜索摘要充当核心证据。"
+  }
+}

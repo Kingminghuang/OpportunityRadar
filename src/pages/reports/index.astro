@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { loadReports } from '../../lib/site-content';
 import { sitePath } from '../../lib/reports';
 
-const reports = loadReports();
+const reports = loadReports('developer');
 const base = import.meta.env.BASE_URL;
 ---
 

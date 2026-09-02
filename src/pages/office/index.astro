@@ -1,10 +1,10 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { decisionLabel, reportHref, sitePath } from '../lib/reports';
-import { createOpportunityId } from '../lib/research';
-import { loadReports, loadResearch } from '../lib/site-content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { decisionLabel, reportHref, sitePath, trackLabel } from '../../lib/reports';
+import { createOpportunityId } from '../../lib/research';
+import { loadReports, loadResearch } from '../../lib/site-content';
 
-const reports = loadReports('developer');
+const reports = loadReports('office');
 const base = import.meta.env.BASE_URL;
 const latest = reports[0];
 const researchByOpportunityId = new Map(loadResearch().map((research) => [research.metadata.opportunityId, research]));
@@ -20,22 +20,22 @@ const categories = [...new Set(records.map((record) => record.category))].sort()
 const decisions = ['deep-dive', 'watch', 'skip'] as const;
 ---
 
-<BaseLayout title="Opportunity Radar — 每日机会扫描">
+<BaseLayout title={`${trackLabel('office')} — Opportunity Radar 白领办公机会扫描`}>
   <section class="hero">
     <span class="hero-dot hero-dot-pink" aria-hidden="true"></span>
     <span class="hero-dot hero-dot-yellow" aria-hidden="true"></span>
     <span class="hero-dot hero-dot-mint" aria-hidden="true"></span>
     <div class="hero-copy">
-      <p class="eyebrow">DAILY OPPORTUNITY INTELLIGENCE</p>
-      <h1>把真实需求，<br />变成下一个机会。</h1>
-      <p>从公开讨论中的明确痛点出发，建立一个可追溯、可筛选的创业机会工作区。</p>
+      <p class="eyebrow">WHITE-COLLAR DAILY INTELLIGENCE</p>
+      <h1>从办公日常，<br />发现下一个机会。</h1>
+      <p>从销售、市场、财会、法律、HR 与通用办公的真实工作流痛点出发，建立一个可追溯、可筛选的 B2B 机会工作区。</p>
       <div class="hero-actions">
-        {latest && <a class="button" href={sitePath(base, `reports/${latest.slug}/`)}>阅读最新扫描 <span aria-hidden="true">→</span></a>}
-        <a class="button-secondary" href="#radar">浏览机会雷达</a>
+        {latest && <a class="button" href={sitePath(base, `office/reports/${latest.slug}/`)}>阅读最新扫描 <span aria-hidden="true">→</span></a>}
+        <a class="button-secondary" href="#radar">浏览白领机会雷达</a>
       </div>
     </div>
-    <aside class="workspace-preview" aria-label="今日雷达快照">
-      <div class="workspace-topbar"><span class="workspace-icon">⌁</span><strong>今日雷达</strong><span class="workspace-date">{latest?.date}</span></div>
+    <aside class="workspace-preview" aria-label="今日白领雷达快照">
+      <div class="workspace-topbar"><span class="workspace-icon">⌁</span><strong>今日白领雷达</strong><span class="workspace-date">{latest?.date}</span></div>
       <div class="workspace-summary"><span>已扫描信号</span><strong>{records.length.toString().padStart(2, '0')}</strong><small>优先机会</small></div>
       <div class="workspace-items">
         {records.slice(0, 3).map((record, index) => (
@@ -53,14 +53,14 @@ const decisions = ['deep-dive', 'watch', 'skip'] as const;
   <section class="section radar-section" id="radar" aria-labelledby="overview-heading">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">THE RADAR</p>
-        <h2 id="overview-heading">机会雷达</h2>
+        <p class="eyebrow">THE OFFICE RADAR</p>
+        <h2 id="overview-heading">白领机会雷达</h2>
       </div>
       <p>{records.length} 条扫描记录 · {reports.length} 份日报</p>
     </div>
 
-    <div class="database-toolbar" aria-label="机会筛选">
-      <div class="database-label"><span class="database-icon">▦</span>所有机会</div>
+    <div class="database-toolbar" aria-label="白领机会筛选">
+      <div class="database-label"><span class="database-icon">▦</span>所有白领机会</div>
       <div class="filters">
       <label><span>日期</span>
         <select data-filter="date"><option value="">全部时间</option>{reports.map((report) => <option value={report.date}>{report.date}</option>)}</select>
@@ -86,7 +86,7 @@ const decisions = ['deep-dive', 'watch', 'skip'] as const;
           data-score={record.score.total}
           data-decision={record.decision}
         >
-          <a class="opportunity-card-main" href={reportHref(base, record.reportSlug, record.slug)}>
+          <a class="opportunity-card-main" href={reportHref(base, record.reportSlug, record.slug, 'office')}>
             <div class="card-meta"><span class="property-tag">{record.category}</span><span>{record.date}</span></div>
             <h3>{record.title}</h3>
             <div class="card-footer"><strong>{record.score.total}<small>/25</small></strong><span class:list={{ decision: true, deep: record.decision === 'deep-dive' }}>{decisionLabel(record.decision)}</span></div>
@@ -95,11 +95,11 @@ const decisions = ['deep-dive', 'watch', 'skip'] as const;
         </article>
       ))}
     </div>
-    <p class="empty-state" data-empty-state hidden>没有符合当前条件的机会记录。</p>
+    <p class="empty-state" data-empty-state hidden>没有符合当前条件的白领机会记录。</p>
   </section>
 
   <section class="section category-section" aria-labelledby="category-heading">
-    <div class="section-heading"><div><p class="eyebrow">SIGNAL MAP</p><h2 id="category-heading">分类分布</h2></div></div>
+    <div class="section-heading"><div><p class="eyebrow">OFFICE SIGNAL MAP</p><h2 id="category-heading">职能分布</h2></div></div>
     <div class="category-grid">
       {categories.map((category) => <div data-category={category}><span>{category}</span><strong>{records.filter((record) => record.category === category).length}</strong><small>条机会记录</small></div>)}
     </div>

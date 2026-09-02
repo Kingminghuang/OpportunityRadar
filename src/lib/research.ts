@@ -3,6 +3,7 @@ import type { Heading } from 'mdast';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
+import type { Track } from './reports';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期必须为 YYYY-MM-DD');
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug 必须为小写 kebab-case');
@@ -44,8 +45,8 @@ const researchMetadataSchema = z
     status: z.literal('research-complete'),
     siteSummary: z.string().trim().min(1)
   })
-  .refine((metadata) => metadata.opportunityId === createOpportunityId(metadata.originReport, metadata.originSlug), {
-    message: 'opportunityId 必须与 originReport 和 originSlug 匹配',
+  .refine((metadata) => opportunityIdMatchesOrigin(metadata.opportunityId, metadata.originReport, metadata.originSlug), {
+    message: 'opportunityId 必须与 originReport 和 originSlug 匹配（并带正确的轨道前缀）',
     path: ['opportunityId']
   });
 
@@ -96,8 +97,18 @@ export type ResearchIndex = z.infer<typeof researchIndexSchema>;
 
 const researchMarker = /^\s*<!-- opportunity-radar:research ([^\r\n]+?) -->[ \t]*(?:\r?\n)?/;
 
-export function createOpportunityId(originReport: string, originSlug: string): string {
-  return `${originReport}--${originSlug}`;
+export function createOpportunityId(track: Track, originReport: string, originSlug: string): string {
+  const base = `${originReport}--${originSlug}`;
+  return track === 'office' ? `office-${base}` : base;
+}
+
+export function opportunityIdTrack(opportunityId: string): Track {
+  return /^office-\d{4}-\d{2}-\d{2}--/.test(opportunityId) ? 'office' : 'developer';
+}
+
+export function opportunityIdMatchesOrigin(opportunityId: string, originReport: string, originSlug: string): boolean {
+  const base = `${originReport}--${originSlug}`;
+  return opportunityId === base || opportunityId === `office-${base}`;
 }
 
 export function parseResearchIndex(value: unknown): ResearchIndex {

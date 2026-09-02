@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createOpportunityId, parseResearchIndex, parseResearchIssue } from '../src/lib/research';
+import { createOpportunityId, opportunityIdMatchesOrigin, opportunityIdTrack, parseResearchIndex, parseResearchIssue } from '../src/lib/research';
 
 const metadata = {
   version: 1,
@@ -64,7 +64,28 @@ const issue = {
 
 describe('research issue metadata', () => {
   it('creates a stable opportunity ID from the origin report and slug', () => {
-    expect(createOpportunityId('2026-08-12', 'ai-session-manager')).toBe('2026-08-12--ai-session-manager');
+    expect(createOpportunityId('developer', '2026-08-12', 'ai-session-manager')).toBe('2026-08-12--ai-session-manager');
+  });
+
+  it('prefixes office-track opportunity IDs to avoid colliding with the developer track', () => {
+    expect(createOpportunityId('office', '2026-09-03', 'reconciliation-ledger')).toBe('office-2026-09-03--reconciliation-ledger');
+    expect(opportunityIdTrack('office-2026-09-03--reconciliation-ledger')).toBe('office');
+    expect(opportunityIdTrack('2026-08-12--ai-session-manager')).toBe('developer');
+  });
+
+  it('accepts matching office-prefixed metadata while rejecting a wrong prefix', () => {
+    const officeMetadata = {
+      version: 1,
+      opportunityId: 'office-2026-09-03--reconciliation-ledger',
+      originReport: '2026-09-03',
+      originSlug: 'reconciliation-ledger',
+      status: 'research-complete',
+      siteSummary: '财务团队是否愿意为自动对账付费。'
+    };
+    expect(parseResearchIssue({ ...issue, body: `<!-- opportunity-radar:research ${JSON.stringify(officeMetadata)} -->\n\n${completeMarkdown}` })).not.toBeNull();
+    expect(opportunityIdMatchesOrigin('office-2026-09-03--reconciliation-ledger', '2026-09-03', 'reconciliation-ledger')).toBe(true);
+    expect(opportunityIdMatchesOrigin('2026-09-03--reconciliation-ledger', '2026-09-03', 'reconciliation-ledger')).toBe(true);
+    expect(opportunityIdMatchesOrigin('office-2026-09-02--reconciliation-ledger', '2026-09-03', 'reconciliation-ledger')).toBe(false);
   });
 
   it('parses the hidden metadata and preserves the full research Markdown', () => {

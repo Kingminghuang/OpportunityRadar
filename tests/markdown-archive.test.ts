@@ -53,4 +53,12 @@ describe('renderMarkdownArchive', () => {
     expect(markdown).toContain('### 今日优先级');
     expect(markdown).toContain('### 扫描说明');
   });
+
+  it('renders office-track archives against the office source path', () => {
+    const markdown = renderMarkdownArchive({ ...report, track: 'office' });
+
+    expect(markdown).toContain('track: office');
+    expect(markdown).toContain('<!-- Generated from _data/office-reports/2026-08-12.json. Do not edit. -->');
+    expect(markdown).toContain('source: _data/office-reports/2026-08-12.json');
+  });
 });

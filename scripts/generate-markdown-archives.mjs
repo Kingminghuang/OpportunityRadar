@@ -21,12 +21,14 @@ function sourceLine(evidence) {
 
 export function renderMarkdownArchive(report) {
   const opportunitiesBySlug = new Map(report.opportunities.map((opportunity) => [opportunity.slug, opportunity]));
+  const reportsDirectoryName = report.track === 'office' ? 'office-reports' : 'reports';
   const frontMatter = [
     '---',
     `title: ${JSON.stringify(report.title)}`,
     `date: ${report.date}`,
     `timezone: ${report.timezone}`,
-    `source: _data/reports/${report.date}.json`,
+    `track: ${report.track ?? 'developer'}`,
+    `source: _data/${reportsDirectoryName}/${report.date}.json`,
     'generated: true',
     '---'
   ].join('\n');
@@ -68,7 +70,7 @@ export function renderMarkdownArchive(report) {
   });
 
   return [
-    `<!-- Generated from _data/reports/${report.date}.json. Do not edit. -->`,
+    `<!-- Generated from _data/${reportsDirectoryName}/${report.date}.json. Do not edit. -->`,
     '',
     frontMatter,
     '',
@@ -93,7 +95,13 @@ export function renderMarkdownArchive(report) {
 }
 
 export async function generateMarkdownArchives({ reportsDirectory, outputDirectory }) {
-  const entries = (await readdir(reportsDirectory)).filter((entry) => extname(entry) === '.json').sort();
+  let entries;
+  try {
+    entries = (await readdir(reportsDirectory)).filter((entry) => extname(entry) === '.json').sort();
+  } catch (error) {
+    if (error.code === 'ENOENT') return;
+    throw error;
+  }
   await mkdir(outputDirectory, { recursive: true });
 
   await Promise.all(entries.map(async (entry) => {
@@ -108,7 +116,7 @@ async function main() {
   const scriptDirectory = dirname(fileURLToPath(import.meta.url));
   const repositoryRoot = resolve(scriptDirectory, '..');
   const outputFlagIndex = process.argv.indexOf('--out');
-  const outputDirectory = outputFlagIndex === -1
+  const baseOutputDirectory = outputFlagIndex === -1
     ? join(repositoryRoot, 'dist', 'archives')
     : resolve(repositoryRoot, process.argv[outputFlagIndex + 1]);
 
@@ -116,10 +124,14 @@ async function main() {
     throw new Error('`--out` 必须指定归档输出目录');
   }
 
-  await generateMarkdownArchives({
-    reportsDirectory: join(repositoryRoot, '_data', 'reports'),
-    outputDirectory
-  });
+  const tracks = [
+    { name: 'developer', reportsDirectory: join(repositoryRoot, '_data', 'reports'), outputDirectory: baseOutputDirectory },
+    { name: 'office', reportsDirectory: join(repositoryRoot, '_data', 'office-reports'), outputDirectory: join(baseOutputDirectory, 'office') }
+  ];
+
+  for (const { reportsDirectory, outputDirectory } of tracks) {
+    await generateMarkdownArchives({ reportsDirectory, outputDirectory });
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

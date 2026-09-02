@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { loadReports } from '../../../lib/site-content';
+import { sitePath, trackLabel } from '../../../lib/reports';
+
+const reports = loadReports('office');
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={`${trackLabel('office')}日报归档 — Opportunity Radar`}>
+  <section class="page-intro">
+    <p class="eyebrow">OFFICE ARCHIVE</p>
+    <h1>白领办公机会扫描</h1>
+    <p>每一份报告都保留白领职能（销售、市场、财会、法律、HR、通用办公）的机会判断、评分与可核验证据。</p>
+  </section>
+  <section class="report-list">
+    {reports.length === 0 && <p class="empty-note">白领轨道尚未生成日报。运行 <code>automate_prompt_office.md</code> 后，日报会出现在这里。</p>}
+    {reports.map((report) => (
+      <a class="report-row" href={sitePath(base, `office/reports/${report.slug}/`)}>
+        <time datetime={report.date}>{report.date}</time>
+        <div><h2>{report.title}</h2><p>{report.summary}</p></div>
+        <span>{report.opportunities.length} 个机会 →</span>
+      </a>
+    ))}
+  </section>
+</BaseLayout>

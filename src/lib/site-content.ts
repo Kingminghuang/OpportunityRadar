@@ -1,20 +1,21 @@
-import { parseReports, type RawReport, type Report } from './reports';
+import { parseReports, type RawReport, type Report, type Track } from './reports';
 import { parseResearchIndex, type ResearchIssue } from './research';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const reportModules = import.meta.glob('../../_data/reports/*.json', {
-  eager: true,
-  import: 'default'
-}) as Record<string, unknown>;
+const reportModules = import.meta.glob(
+  ['../../_data/reports/*.json', '../../_data/office-reports/*.json'],
+  { eager: true, import: 'default' }
+) as Record<string, unknown>;
 
-export function loadReports(): Report[] {
+export function loadReports(track?: Track): Report[] {
   const rawReports: RawReport[] = Object.entries(reportModules).map(([path, data]) => ({
     path: path.replace('../../', '/'),
     data
   }));
 
-  return parseReports(rawReports);
+  const reports = parseReports(rawReports);
+  return track ? reports.filter((report) => report.track === track) : reports;
 }
 
 export function researchIndexPath(repositoryRoot = process.cwd()): string {

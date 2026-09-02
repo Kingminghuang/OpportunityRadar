@@ -17,8 +17,8 @@ const metadataSchema = z
     status: z.literal('research-complete'),
     siteSummary: z.string().trim().min(1)
   })
-  .refine((metadata) => metadata.opportunityId === createOpportunityId(metadata.originReport, metadata.originSlug), {
-    message: 'opportunityId 必须与 originReport 和 originSlug 匹配',
+  .refine((metadata) => opportunityIdMatchesOrigin(metadata.opportunityId, metadata.originReport, metadata.originSlug), {
+    message: 'opportunityId 必须与 originReport 和 originSlug 匹配（并带正确的轨道前缀）',
     path: ['opportunityId']
   });
 
@@ -52,8 +52,14 @@ function hasResearchMetadataComment(markdown) {
   return visit(tree);
 }
 
-export function createOpportunityId(originReport, originSlug) {
-  return `${originReport}--${originSlug}`;
+export function createOpportunityId(originReport, originSlug, track = 'developer') {
+  const base = `${originReport}--${originSlug}`;
+  return track === 'office' ? `office-${base}` : base;
+}
+
+export function opportunityIdMatchesOrigin(opportunityId, originReport, originSlug) {
+  const base = `${originReport}--${originSlug}`;
+  return opportunityId === base || opportunityId === `office-${base}`;
 }
 
 export function parseResearchIssue(issue) {
@@ -152,13 +158,24 @@ export function buildResearchIndex({ issues, opportunityIds, generatedAt = new D
   return { version: 1, generatedAt, research };
 }
 
-export async function loadOpportunityIds(reportsDirectory) {
-  const entries = (await readdir(reportsDirectory)).filter((entry) => entry.endsWith('.json'));
+export async function loadOpportunityIds(reportsDirectories) {
   const opportunityIds = new Set();
 
-  await Promise.all(entries.map(async (entry) => {
-    const report = JSON.parse(await readFile(join(reportsDirectory, entry), 'utf8'));
-    for (const opportunity of report.opportunities ?? []) opportunityIds.add(createOpportunityId(report.date, opportunity.slug));
+  await Promise.all(reportsDirectories.map(async (reportsDirectory) => {
+    let entries;
+    try {
+      entries = (await readdir(reportsDirectory)).filter((entry) => entry.endsWith('.json'));
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw error;
+    }
+
+    await Promise.all(entries.map(async (entry) => {
+      const report = JSON.parse(await readFile(join(reportsDirectory, entry), 'utf8'));
+      for (const opportunity of report.opportunities ?? []) {
+        opportunityIds.add(createOpportunityId(report.date, opportunity.slug, report.track));
+      }
+    }));
   }));
 
   return opportunityIds;
@@ -169,7 +186,7 @@ export async function writeResearchIndex(outputPath, index) {
   await writeFile(outputPath, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
 }
 
-export async function syncIssueResearch({ repository, token, reportsDirectory, outputPath, fetchImpl = fetch }) {
+export async function syncIssueResearch({ repository, token, reportsDirectories, outputPath, fetchImpl = fetch }) {
   if (!token) {
     console.warn('未提供 GITHUB_TOKEN；生成空的 Issue 研究索引用于本地构建。');
     const index = { version: 1, generatedAt: new Date().toISOString(), research: [] };
@@ -180,7 +197,7 @@ export async function syncIssueResearch({ repository, token, reportsDirectory, o
 
   const [issues, opportunityIds] = await Promise.all([
     fetchRepositoryIssues({ repository, token, fetchImpl }),
-    loadOpportunityIds(reportsDirectory)
+    loadOpportunityIds(reportsDirectories)
   ]);
   const index = buildResearchIndex({ issues, opportunityIds });
   await writeResearchIndex(outputPath, index);
@@ -193,7 +210,10 @@ async function main() {
   await syncIssueResearch({
     repository: process.env.GITHUB_REPOSITORY,
     token: process.env.GITHUB_TOKEN,
-    reportsDirectory: join(repositoryRoot, '_data', 'reports'),
+    reportsDirectories: [
+      join(repositoryRoot, '_data', 'reports'),
+      join(repositoryRoot, '_data', 'office-reports')
+    ],
     outputPath: join(repositoryRoot, '.opportunity-radar', 'research-index.json')
   });
 }

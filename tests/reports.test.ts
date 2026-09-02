@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentAnchor, decisionLabel, parseReports, reportHref, sitePath } from '../src/lib/reports';
+import { contentAnchor, decisionLabel, parseReports, reportHref, sitePath, trackFromPath, trackLabel } from '../src/lib/reports';
 
 const validReport = {
   path: '/_data/reports/2026-08-12.json',
@@ -82,6 +82,47 @@ describe('parseReports', () => {
     const invalidPriority = structuredClone(validReport);
     invalidPriority.data.priorities.deepDive.slug = 'missing-opportunity';
     expect(() => parseReports([invalidPriority])).toThrow(/优先级/);
+  });
+
+  it('defaults the track to developer for existing reports that omit it', () => {
+    const [report] = parseReports([validReport]);
+    expect(report.track).toBe('developer');
+  });
+
+  it('parses office-track reports with white-collar source types', () => {
+    const officeOpportunity = {
+      ...validReport.data.opportunities[0],
+      slug: 'reconciliation-ledger',
+      evidence: [
+        { ...validReport.data.opportunities[0].evidence[0], sourceType: 'role-community', url: 'https://example.com/reddit' },
+        { ...validReport.data.opportunities[0].evidence[1], sourceType: 'product-feedback', url: 'https://example.com/xero' }
+      ]
+    };
+    const office = {
+      ...validReport,
+      path: '/_data/office-reports/2026-09-03.json',
+      data: {
+        ...validReport.data,
+        date: '2026-09-03',
+        track: 'office',
+        opportunities: [officeOpportunity],
+        priorities: Object.fromEntries(
+          Object.entries(validReport.data.priorities).map(([key]) => [key, { slug: 'reconciliation-ledger', reason: '财务对账需求明确。' }])
+        )
+      }
+    };
+    const [report] = parseReports([office]);
+    expect(report.track).toBe('office');
+    expect(report.opportunities[0].evidence.map((evidence) => evidence.sourceType)).toEqual(['role-community', 'product-feedback']);
+  });
+
+  it('rejects a report whose track does not match its directory', () => {
+    const mismatched = { ...validReport, data: { ...validReport.data, track: 'office' } };
+    expect(() => parseReports([mismatched])).toThrow(/track 与所在目录不一致/);
+    expect(trackLabel('developer')).toBe('开发者');
+    expect(trackLabel('office')).toBe('白领办公');
+    expect(trackFromPath('/_data/office-reports/2026-09-03.json')).toBe('office');
+    expect(trackFromPath('/_data/reports/2026-08-12.json')).toBe('developer');
   });
 });
 

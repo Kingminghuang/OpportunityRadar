@@ -1,12 +1,12 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { contentAnchor, decisionLabel, type OpportunityRecord, type Report } from '../../lib/reports';
-import { renderResearchMarkdown } from '../../lib/render-research';
-import { createOpportunityId } from '../../lib/research';
-import { loadReports, loadResearch } from '../../lib/site-content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { contentAnchor, decisionLabel, trackLabel, type OpportunityRecord, type Report } from '../../../lib/reports';
+import { renderResearchMarkdown } from '../../../lib/render-research';
+import { createOpportunityId } from '../../../lib/research';
+import { loadReports, loadResearch } from '../../../lib/site-content';
 
 export function getStaticPaths() {
-  return loadReports('developer').map((report) => ({ params: { slug: report.slug }, props: { report } }));
+  return loadReports('office').map((report) => ({ params: { slug: report.slug }, props: { report } }));
 }
 
 const { report } = Astro.props as { report: Report };
@@ -30,13 +30,13 @@ function priorityOpportunity(slug: string): OpportunityRecord {
 }
 ---
 
-<BaseLayout title={`${report.title} — Opportunity Radar`} description={report.summary}>
+<BaseLayout title={`${report.title} — ${trackLabel('office')} Opportunity Radar`} description={report.summary}>
   <article class="report-article">
     <header>
-      <p class="eyebrow">DAILY REPORT · {report.date}</p>
+      <p class="eyebrow">OFFICE DAILY REPORT · {report.date}</p>
       <h1>{report.title}</h1>
       <p class="report-summary">{report.summary}</p>
-      <div class="report-tags">{report.opportunities.map((opportunity) => <span>{opportunity.category} · {opportunity.score.total}/25</span>)}</div>
+      <div class="report-tags"><span class="track-chip office">{trackLabel('office')}</span>{report.opportunities.map((opportunity) => <span>{opportunity.category} · {opportunity.score.total}/25</span>)}</div>
     </header>
 
     <section class="report-priorities" aria-labelledby="priorities-heading">

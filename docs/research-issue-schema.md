@@ -10,14 +10,22 @@ GitHub Issue 正文是 Opportunity Radar 深挖报告的唯一事实源。GitHub
 <!-- opportunity-radar:research {"version":1,"opportunityId":"2026-08-12--ai-session-manager","originReport":"2026-08-12","originSlug":"ai-session-manager","status":"research-complete","siteSummary":"验证重度 AI 编程用户是否愿意为会话持久化付费。"} -->
 ```
 
+白领轨道（`office`）的机会 ID 必须带 `office-` 前缀，用于与开发者轨道区分，例如：
+
+```html
+<!-- opportunity-radar:research {"version":1,"opportunityId":"office-2026-09-03--reconciliation-ledger","originReport":"2026-09-03","originSlug":"reconciliation-ledger","status":"research-complete","siteSummary":"财务团队是否愿意为自动对账付费。"} -->
+```
+
 | 字段 | 规则 |
 | --- | --- |
 | `version` | 固定整数 `1`。 |
-| `opportunityId` | 必须为 `{originReport}--{originSlug}`。 |
+| `opportunityId` | 必须为 `{originReport}--{originSlug}`（开发者轨道）或 `office-{originReport}--{originSlug}`（白领轨道）。 |
 | `originReport` | 原日报日期，格式为 `YYYY-MM-DD`。 |
 | `originSlug` | 原机会的小写 kebab-case `slug`。 |
 | `status` | 固定为 `research-complete`。 |
 | `siteSummary` | 非空、可公开显示的一句话研究结论。 |
+
+轨道由 `opportunityId` 的前缀决定：以 `office-` 开头视为白领轨道，否则视为开发者轨道。`opportunityId` 必须存在对应的日报机会（含其轨道前缀）才能通过校验。
 
 元数据无效、稳定 ID 重复或引用不存在的日报机会会使 Pages 部署失败，避免发布错误的研究内容。
 

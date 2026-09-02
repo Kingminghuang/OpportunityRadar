@@ -5,7 +5,9 @@
   "track": "developer",
   "title": "每日机会扫描 — 2026-09-02",
   "summary": "今天最强的新信号集中在 Agent/LLM 基础设施的运行时边界：工具调用延迟缺少阶段级归因，流式取消在计费与可靠性指标中语义混乱，Windows 上的 Agent daemon 又连续暴露 Unix 假设和服务归属错误；与此同时 Agent profile/skill 的安装、删除、重装与同步状态也开始需要可验证的生命周期契约。",
-  "categories": ["opportunities"],
+  "categories": [
+    "opportunities"
+  ],
   "opportunities": [
     {
       "rank": 1,
@@ -13,16 +15,47 @@
       "title": "Agent 工具调用的 Phase-level Latency Attribution 与性能回归 Gate",
       "category": "developer-tools",
       "decision": "deep-dive",
-      "score": {"total": 23, "demand": 5, "payment": 5, "mvp": 4, "competition": 4, "acquisition": 5},
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
       "opportunity": "做一个面向 Coding Agent/Agent runtime 的低侵入性能诊断层，把一次工具调用拆成 prompt/context build、sandbox/provision、hook pre/post、child process、plugin/MCP discovery、transport wait、result serialization 等阶段，输出可比较的 latency receipt；在 CLI/插件/Agent 升级前自动跑固定 workload，并对 p50/p95、空等待和阶段占比做回归门禁。",
       "whyNow": "9 月 1 日 Codex 用户用严格 call_id 配对的 A/B 测试发现 lifecycle hooks 会给简单 exec_command 增加约 17–25 秒且大部分延迟发生在 shell 已退出之后；8 月 31 日另一用户报告 codex exec 偶发约 55 秒 tail latency，并明确请求配置加载、状态库、模型列表、连接、首请求等阶段级 timing；更早的 Windows+WSL 案例则定位到 Desktop app-server 反复扫描 Windows 侧插件缓存。共同痛点不是‘Agent 慢’，而是现有日志无法快速证明时间到底消耗在哪个 runtime phase。",
       "evidence": [
-        {"title": "Codex #41942 — Lifecycle hooks add ~17–25s per exec_command on Windows", "url": "https://github.com/openai/codex/issues/41942", "sourceType": "github-issue", "publishedAt": "2026-09-01", "summary": "用户通过 hooks ON/OFF 交替 A/B 与 call_id 严格配对，测得简单命令工具边界从约 1–2 秒上升到约 18–26 秒，延迟主要落在子进程退出之后，而 hook 脚本直接运行本身仅数百毫秒。"},
-        {"title": "Codex #41762 — Intermittent ~55-second tail latency in codex exec", "url": "https://github.com/openai/codex/issues/41762", "sourceType": "github-issue", "publishedAt": "2026-08-31", "summary": "macOS 用户复现 codex exec 偶发约 54 秒长尾，并建议为配置读取、state DB、model list、连接、首请求和首响应分别增加 phase-level timing 才能定位等待来源。"},
-        {"title": "Codex #26149 — Windows+WSL plugin cache scans cause severe per-command latency", "url": "https://github.com/openai/codex/issues/26149", "sourceType": "github-issue", "publishedAt": "2026-06-03", "summary": "用户用 strace 将 Desktop+WSL 每次工具调用的慢速路径定位到反复访问 /mnt/c 下的 Codex plugin cache，说明 Agent latency 常来自模型之外的插件/文件系统/runtime 边界。"}
+        {
+          "title": "Codex #41942 — Lifecycle hooks add ~17–25s per exec_command on Windows",
+          "url": "https://github.com/openai/codex/issues/41942",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-01",
+          "summary": "用户通过 hooks ON/OFF 交替 A/B 与 call_id 严格配对，测得简单命令工具边界从约 1–2 秒上升到约 18–26 秒，延迟主要落在子进程退出之后，而 hook 脚本直接运行本身仅数百毫秒。"
+        },
+        {
+          "title": "Codex #41762 — Intermittent ~55-second tail latency in codex exec",
+          "url": "https://github.com/openai/codex/issues/41762",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-31",
+          "summary": "macOS 用户复现 codex exec 偶发约 54 秒长尾，并建议为配置读取、state DB、model list、连接、首请求和首响应分别增加 phase-level timing 才能定位等待来源。"
+        },
+        {
+          "title": "Codex #26149 — Windows+WSL plugin cache scans cause severe per-command latency",
+          "url": "https://github.com/openai/codex/issues/26149",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-06-03",
+          "summary": "用户用 strace 将 Desktop+WSL 每次工具调用的慢速路径定位到反复访问 /mnt/c 下的 Codex plugin cache，说明 Agent latency 常来自模型之外的插件/文件系统/runtime 边界。"
+        }
       ],
       "verdict": "最值得深挖。MVP 不做新的 APM 平台，只提供一个本地 tracer + 固定 agent workload runner + JSON latency receipt/GitHub Action；若主流 Agent 很快原生暴露足够细的 phase telemetry，则产品应退回开源 benchmark/诊断规范。",
-      "tags": ["Agent Performance", "Latency", "Hooks", "Observability", "CI"]
+      "tags": [
+        "Agent Performance",
+        "Latency",
+        "Hooks",
+        "Observability",
+        "CI"
+      ]
     },
     {
       "rank": 2,
@@ -30,17 +63,54 @@
       "title": "LLM 流式取消的 Cancellation Semantics、计费与可靠性一致性 Gate",
       "category": "ai-infra",
       "decision": "deep-dive",
-      "score": {"total": 23, "demand": 5, "payment": 5, "mvp": 4, "competition": 4, "acquisition": 5},
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
       "opportunity": "做一个可嵌入 LLM gateway/proxy 的 cancellation contract testkit：系统模拟首 token 前取消、已流式一部分后取消、client disconnect、scanner/context canceled、上游已完成但 usage 未到、retry race 等状态，验证 upstream cancellation、用户结算、provider 成本、渠道成功率和审计事件彼此一致，并把 completed / upstream_failed / downstream_cancelled / unknown 作为不同终态处理。",
       "whyNow": "New API 在 9 月 1 日出现真实生产样本：客户端取消被无条件记成模型/渠道失败，单个用户的 61 次 context canceled 持续污染成功率；8 月 28 日另一报告显示 client_gone 后本地退款为 0 消费，但上游已实际计费；而 4 月曾出现相反故障——客户端断开后上游根本不取消而继续烧 token。不同修复方向互相牵制，说明需要可执行的 cancellation 状态机契约而不是逐 bug 修补。",
       "evidence": [
-        {"title": "new-api #7134 — 客户端取消被计为模型失败并污染成功率", "url": "https://github.com/QuantumNous/new-api/issues/7134", "sourceType": "github-issue", "publishedAt": "2026-09-01", "summary": "生产窗口内 61 条 context canceled 全来自同一用户，但系统把已返回 HTTP 200、已转发大量 SSE 数据的请求记录为渠道失败，持续降低模型/渠道成功率。"},
-        {"title": "new-api #7062 — client_gone 本地退款但上游已经计费", "url": "https://github.com/QuantumNous/new-api/issues/7062", "sourceType": "github-issue", "publishedAt": "2026-08-28", "summary": "流式请求断开后 New API 无最终 usage 并退还预扣额度，消费记录为 0，但上游已经完成处理并实际扣费，造成财务对账差异。"},
-        {"title": "new-api #4186 — 客户端断开后上游请求未取消导致持续计费", "url": "https://github.com/QuantumNous/new-api/issues/4186", "sourceType": "github-issue", "publishedAt": "2026-04-11", "summary": "旧路径没有把下游 request context 传给上游，客户端已经断开后上游仍继续推理并可能重试，长上下文请求继续产生实际费用。"},
-        {"title": "new-api #4168 — 异常 stream 且 completion_tokens=0 时仍可能按 prompt 扣费", "url": "https://github.com/QuantumNous/new-api/issues/4168", "sourceType": "github-issue", "publishedAt": "2026-04-10", "summary": "生产报告显示 client_gone/timeout 与 token estimate 结合时可能造成错误结算，进一步说明 stream end reason、usage 与 billing settlement 需要统一可测试语义。"}
+        {
+          "title": "new-api #7134 — 客户端取消被计为模型失败并污染成功率",
+          "url": "https://github.com/QuantumNous/new-api/issues/7134",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-01",
+          "summary": "生产窗口内 61 条 context canceled 全来自同一用户，但系统把已返回 HTTP 200、已转发大量 SSE 数据的请求记录为渠道失败，持续降低模型/渠道成功率。"
+        },
+        {
+          "title": "new-api #7062 — client_gone 本地退款但上游已经计费",
+          "url": "https://github.com/QuantumNous/new-api/issues/7062",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-08-28",
+          "summary": "流式请求断开后 New API 无最终 usage 并退还预扣额度，消费记录为 0，但上游已经完成处理并实际扣费，造成财务对账差异。"
+        },
+        {
+          "title": "new-api #4186 — 客户端断开后上游请求未取消导致持续计费",
+          "url": "https://github.com/QuantumNous/new-api/issues/4186",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-04-11",
+          "summary": "旧路径没有把下游 request context 传给上游，客户端已经断开后上游仍继续推理并可能重试，长上下文请求继续产生实际费用。"
+        },
+        {
+          "title": "new-api #4168 — 异常 stream 且 completion_tokens=0 时仍可能按 prompt 扣费",
+          "url": "https://github.com/QuantumNous/new-api/issues/4168",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-04-10",
+          "summary": "生产报告显示 client_gone/timeout 与 token estimate 结合时可能造成错误结算，进一步说明 stream end reason、usage 与 billing settlement 需要统一可测试语义。"
+        }
       ],
       "verdict": "值得深挖。首版可只做 Go/TypeScript black-box harness + reference state machine，不代理真实流量；若 LiteLLM/New API/主流 gateway 已统一实现并测试 cancellation outcome、billing 和 health metric 三者解耦，则独立产品空间会缩小为 conformance suite。",
-      "tags": ["LLM Gateway", "Streaming", "Cancellation", "Billing", "Reliability"]
+      "tags": [
+        "LLM Gateway",
+        "Streaming",
+        "Cancellation",
+        "Billing",
+        "Reliability"
+      ]
     },
     {
       "rank": 3,
@@ -48,16 +118,47 @@
       "title": "Agent 后台 Runtime 的 Windows Portability 与 Service Lifecycle Gate",
       "category": "developer-tools",
       "decision": "deep-dive",
-      "score": {"total": 21, "demand": 5, "payment": 4, "mvp": 4, "competition": 4, "acquisition": 4},
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 4
+      },
       "opportunity": "做一个针对跨平台 Agent gateway/daemon 的 Windows-first conformance harness：在原生 Windows、Scheduled Task、Windows Service、交互进程与 WSL 边界下验证 socket/API 可用性、父进程/服务归属、shutdown/heartbeat、update/restart、signal/exit semantics 和残留进程清理，并用 disposable VM/CI 输出最小可复现报告。",
       "whyNow": "Hermes v0.21.0 在 9 月 1 日连续暴露两个 Windows 特有 lifecycle 问题：shutdown watchdog 直接调用 Unix-only asyncio.start_unix_server 导致 liveness 子系统崩溃；标准 Scheduled Task 自启动路径又因为 shared svchost ancestor 被错误判定为 service ownership ambiguity，使 hermes update 无法执行。Codex 同日也出现 Windows app-server 异常退出后前端需要重启后端并恢复会话的重复报告。Agent 从 CLI 走向长期后台 gateway 后，Windows service/process 语义正在成为独立测试面。",
       "evidence": [
-        {"title": "Hermes #99895 — Windows shutdown watchdog calls Unix-only asyncio.start_unix_server", "url": "https://github.com/NousResearch/hermes-agent/issues/99895", "sourceType": "github-issue", "publishedAt": "2026-09-01", "summary": "Hermes gateway 在原生 Windows 启动时 watchdog 使用 Unix-domain socket API，导致 heartbeat/liveness 线程崩溃，主体服务只能部分运行。"},
-        {"title": "Hermes #99911 — Scheduled Task gateway ownership is misclassified under shared svchost", "url": "https://github.com/NousResearch/hermes-agent/issues/99911", "sourceType": "github-issue", "publishedAt": "2026-09-01", "summary": "标准 Windows Scheduled Task 自启动的 gateway 因 Task Scheduler shared svchost ancestor 被当作可能的服务 owner，hermes update 在真正归属判断前直接抛错。"},
-        {"title": "Codex #41988 — Windows desktop app-server exits and frontend must recover", "url": "https://github.com/openai/codex/issues/41988", "sourceType": "github-issue", "publishedAt": "2026-09-01", "summary": "用户多次记录 Windows Codex app-server 异常退出，桌面壳保持存活并重新拉起后端、恢复当前会话；恢复过程中还出现 MCP 请求早于 app-server ready 的竞态。"}
+        {
+          "title": "Hermes #99895 — Windows shutdown watchdog calls Unix-only asyncio.start_unix_server",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/99895",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-01",
+          "summary": "Hermes gateway 在原生 Windows 启动时 watchdog 使用 Unix-domain socket API，导致 heartbeat/liveness 线程崩溃，主体服务只能部分运行。"
+        },
+        {
+          "title": "Hermes #99911 — Scheduled Task gateway ownership is misclassified under shared svchost",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/99911",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-01",
+          "summary": "标准 Windows Scheduled Task 自启动的 gateway 因 Task Scheduler shared svchost ancestor 被当作可能的服务 owner，hermes update 在真正归属判断前直接抛错。"
+        },
+        {
+          "title": "Codex #41988 — Windows desktop app-server exits and frontend must recover",
+          "url": "https://github.com/openai/codex/issues/41988",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-01",
+          "summary": "用户多次记录 Windows Codex app-server 异常退出，桌面壳保持存活并重新拉起后端、恢复当前会话；恢复过程中还出现 MCP 请求早于 app-server ready 的竞态。"
+        }
       ],
       "verdict": "值得深挖但应严格限定为测试工具，不做新的进程管理器。最小 MVP 是 GitHub Actions/Azure VM 上的 Windows lifecycle fixture pack；若问题主要是单项目的明显移植 bug、不能形成跨项目稳定 invariant，则降级为开源 CI 模板。",
-      "tags": ["Windows", "Agent Runtime", "Daemon", "Lifecycle", "Portability"]
+      "tags": [
+        "Windows",
+        "Agent Runtime",
+        "Daemon",
+        "Lifecycle",
+        "Portability"
+      ]
     },
     {
       "rank": 4,
@@ -65,27 +166,79 @@
       "title": "Agent Profile / Skill Distribution 的安装状态与生命周期一致性检查器",
       "category": "developer-tools",
       "decision": "watch",
-      "score": {"total": 19, "demand": 4, "payment": 3, "mvp": 5, "competition": 4, "acquisition": 3},
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 3,
+        "mvp": 5,
+        "competition": 4,
+        "acquisition": 3
+      },
       "opportunity": "做一个面向 Agent profile/skill/plugin distribution 的小型状态一致性工具：对 install/update/delete/reinstall/sync/rollback 建立 manifest、filesystem、registry/tombstone、active environment 四方对账，检测‘文件存在但逻辑已删除’、同步目录为空、锁文件与实际版本不符等 drift，并生成 repair plan。",
       "whyNow": "Hermes 9 月 2 日新报告显示删除 profile 后用同名 distribution 重装会报告成功并恢复文件，但 tombstone 没清掉，profile 仍被 list/show/命令判为已删除；NVIDIA skills 的自动 sync tracker 同时显示多个 skill component 因目录为空或缺失而持续失败。更早的 LocalLLaMA 用户已经因为手工复制 skill、版本不明和环境切换麻烦而做出带 Git commit pin 与 skills.lock 的 Trivium。信号真实但商业付费强度尚弱，因此先观察。",
       "evidence": [
-        {"title": "Hermes #100772 — profile reinstall does not clear a deletion tombstone", "url": "https://github.com/NousResearch/hermes-agent/issues/100772", "sourceType": "github-issue", "publishedAt": "2026-09-02", "summary": "同名 profile 删除后重装会成功创建文件，但 list/show 与 profile-scoped 命令仍拒绝使用，manifest 可读而逻辑状态仍是 deleted，形成多个 truth source 不一致。"},
-        {"title": "NVIDIA skills #279 — automated sync failure tracker", "url": "https://github.com/NVIDIA/skills/issues/279", "sourceType": "github-issue", "publishedAt": "2026-09-01", "summary": "自动同步 tracker 在 9 月 1 日仍记录多个 skill component 目录为空或缺失，说明 skill distribution 的同步完整性已经需要持续机器校验。"},
-        {"title": "Trivium — reproducible management of agent skills", "url": "https://www.reddit.com/r/LocalLLaMA/comments/1v04xlm/tool_for_reproducible_management_of_agent_skills/", "sourceType": "reddit", "publishedAt": "2026-07-18", "summary": "开发者因手工复制 agent skill、无法确认安装 revision 和切换不同 skill set 麻烦，制作了用 exact Git commits、skills.lock 与 named environments 管理技能集的 CLI。"}
+        {
+          "title": "Hermes #100772 — profile reinstall does not clear a deletion tombstone",
+          "url": "https://github.com/NousResearch/hermes-agent/issues/100772",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-02",
+          "summary": "同名 profile 删除后重装会成功创建文件，但 list/show 与 profile-scoped 命令仍拒绝使用，manifest 可读而逻辑状态仍是 deleted，形成多个 truth source 不一致。"
+        },
+        {
+          "title": "NVIDIA skills #279 — automated sync failure tracker",
+          "url": "https://github.com/NVIDIA/skills/issues/279",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-01",
+          "summary": "自动同步 tracker 在 9 月 1 日仍记录多个 skill component 目录为空或缺失，说明 skill distribution 的同步完整性已经需要持续机器校验。"
+        },
+        {
+          "title": "Trivium — reproducible management of agent skills",
+          "url": "https://www.reddit.com/r/LocalLLaMA/comments/1v04xlm/tool_for_reproducible_management_of_agent_skills/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-07-18",
+          "summary": "开发者因手工复制 agent skill、无法确认安装 revision 和切换不同 skill set 麻烦，制作了用 exact Git commits、skills.lock 与 named environments 管理技能集的 CLI。"
+        }
       ],
       "verdict": "先观察。MVP 很小，可以从 manifest/filesystem/tombstone lockfile doctor 开始，但需求可能快速被各 Agent 自己的 package/profile manager 吸收；只有出现跨 Claude/Codex/Hermes/OpenCode 的共同 distribution 格式或大量企业内部 skill registry 后才更像独立产品。",
-      "tags": ["Agent Skills", "Profiles", "Package Management", "State Drift", "Developer Tools"]
+      "tags": [
+        "Agent Skills",
+        "Profiles",
+        "Package Management",
+        "State Drift",
+        "Developer Tools"
+      ]
     }
   ],
   "priorities": {
-    "deepDive": {"slug": "agent-tool-latency-attribution-lab", "reason": "多个平台都出现‘Agent 很慢但模型/命令本身并不慢’的可测量案例，阶段级 latency receipt 是边界清晰、可快速验证且对专业用户直接节省高价值时间的楔子。"},
-    "fastestMvp": {"slug": "agent-profile-lifecycle-conformance", "reason": "只需读取 manifest、filesystem、registry/tombstone 与 lockfile 做一致性检查和 repair preview，不需要托管基础设施即可做出可用 CLI。"},
-    "highestCommercialValue": {"slug": "llm-stream-cancel-settlement-gate", "reason": "取消语义错误会同时污染供应商健康度、用户账单和上游真实成本，直接关联财务损失与生产路由决策，商业价值最明确。"},
-    "needsValidation": {"slug": "agent-windows-runtime-portability-gate", "reason": "Windows 痛点重复且集中，但必须先验证这些故障能否抽象成跨 Agent 的稳定 lifecycle invariants，而不是每个项目各自的一次性移植 bug。"}
+    "deepDive": {
+      "slug": "agent-tool-latency-attribution-lab",
+      "reason": "多个平台都出现‘Agent 很慢但模型/命令本身并不慢’的可测量案例，阶段级 latency receipt 是边界清晰、可快速验证且对专业用户直接节省高价值时间的楔子。"
+    },
+    "fastestMvp": {
+      "slug": "agent-profile-lifecycle-conformance",
+      "reason": "只需读取 manifest、filesystem、registry/tombstone 与 lockfile 做一致性检查和 repair preview，不需要托管基础设施即可做出可用 CLI。"
+    },
+    "highestCommercialValue": {
+      "slug": "llm-stream-cancel-settlement-gate",
+      "reason": "取消语义错误会同时污染供应商健康度、用户账单和上游真实成本，直接关联财务损失与生产路由决策，商业价值最明确。"
+    },
+    "needsValidation": {
+      "slug": "agent-windows-runtime-portability-gate",
+      "reason": "Windows 痛点重复且集中，但必须先验证这些故障能否抽象成跨 Agent 的稳定 lifecycle invariants，而不是每个项目各自的一次性移植 bug。"
+    }
   },
   "scanNotes": {
     "coverageWindow": "2026-08-31 至 2026-09-02（重点优先 2026-09-01 至 2026-09-02）",
-    "sources": ["GitHub Issues / Discussions", "Hacker News", "Reddit", "Public Web Search"],
-    "limitations": "本次可核验的高质量新需求主要来自 GitHub Issues；Hacker News 返回了近期开发者/机器人数据基础设施讨论，但未形成比上述候选更强的重复痛点证据。Reddit 的最新可索引结果较稀疏，仅用较早但可核验的 agent-skill 管理需求作辅助证据。Product Hunt、Starter Story、X、Exploding Topics、Google Trends 与 Indie Hackers 未能在本次扫描中稳定返回足以作为真实痛点证据的最新原始页面，因此未用搜索摘要或纯趋势信号替代用户需求证据。"
+    "sources": [
+      "GitHub Issues / Discussions",
+      "Hacker News",
+      "Reddit",
+      "Public Web Search",
+      "Product Hunt",
+      "Indie Hackers",
+      "Starter Story",
+      "GitHub Trending"
+    ],
+    "limitations": "本次即时复核直接打开了 Product Hunt、Indie Hackers、Starter Story、GitHub Trending、Reddit r/SideProject 和 Hacker News Ask 页面，并将可核验信号与原有 GitHub Issue 证据交叉比较。Hacker News 单条讨论页随后触发 429，r/somebodymakethis 页面抓取失败，X、Exploding Topics 与 Google Trends 未能稳定提供可核验的最新原文；这些来源未被用搜索摘要替代真实需求证据。Product Hunt、Indie Hackers 和 Starter Story 主要作为市场/机会背景，未改变现有 Top 4 的评分排序。"
   }
 }

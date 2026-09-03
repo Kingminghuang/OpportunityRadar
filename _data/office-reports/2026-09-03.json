@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-03",
+  "timezone": "Asia/Shanghai",
+  "track": "office",
+  "title": "每日白领办公机会扫描 — 2026-09-03",
+  "summary": "今日白领办公信号继续集中在“自动化之后的核验成本”：财会用户需要对自动对账结果留下责任链，销售运营用户需要让 AI 生成的表格结果可复算、可解释。与昨日相比，新增核验重点是 Xero 社区在 2026 年 8 月仍报告自动对账丢失细节和错误分配；其他强信号仍以近几个月公开讨论为主。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "auditable-ai-reconciliation-review",
+      "title": "可审计的 AI 对账复核工作台",
+      "category": "accounting-automation",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 3,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "面向会计师事务所、代账机构和多实体财务团队，提供一个接收银行流水/发票/账簿匹配结果的复核层：逐笔展示匹配依据、原始描述、发票号、规则命中、人工确认人和时间，并支持批量标记、异常回退和审计导出。最小产品可先覆盖 CSV/PDF 导入与 Xero/QuickBooks 导出，不直接承担记账或报税责任。",
+      "whyNow": "Xero 自动对账反馈在 2026 年 8 月仍出现“丢失交易细节、错误分配、需要关闭功能”的用户评论；其他用户还指出同额发票缺少发票号会迫使他们逐笔点击核验。中国数电发票红冲与入账咨询要求确认、进项转出和凭证留存，进一步放大了自动处理后的责任链需求。",
+      "evidence": [
+        {
+          "title": "Xero 用户要求为自动对账结果增加人工审核记录",
+          "url": "https://productideas.xero.com/forums/966939-automatic-bank-reconciliation-beta/suggestions/50981083-auto-bank-rec-ability-to-mark-auto-reconciliatio",
+          "sourceType": "product-feedback",
+          "publishedAt": "2026-02-08",
+          "summary": "用户明确要求记录人工审核人、日期和时间，并表示自动对账若仍需额外检查，会增加 BAS 前复核成本；该想法有 42 票。2026-08-06 的后续评论称自动对账没有复制交易详情且错误分配，用户最终关闭了该功能。"
+        },
+        {
+          "title": "Xero 用户反馈自动匹配缺少发票号和可验证细节",
+          "url": "https://productideas.xero.com/forums/966939-automatic-bank-reconciliation-beta/suggestions/50747240-auto-bank-rec-show-invoice-numbers-in-auto-recon",
+          "sourceType": "role-community",
+          "publishedAt": "2025-11-26",
+          "summary": "用户表示同额发票很多，自动匹配后只显示客户名，必须逐笔点击核对；另一位用户称相同流程在其他软件约 30 分钟，在 Xero 变成 21 小时，说明核验层会直接影响自动化的实际 ROI。"
+        },
+        {
+          "title": "Xero 会计顾问要求批量导入历史交易并自动按科目编码",
+          "url": "https://productideas.xero.com/forums/966939-automatic-bank-reconciliation-beta/suggestions/50606624-auto-bank-rec-mass-upload-auto-coding",
+          "sourceType": "role-community",
+          "publishedAt": "2025-10-20",
+          "summary": "CPA/会计顾问描述为新客户导入数十万笔历史交易、手工加科目代码并分类的工作流，认为现有流程耗时且希望自动读取输入字段完成编码；该想法有 44 票。"
+        },
+        {
+          "title": "数电发票入账与红冲需要双方确认和可留痕流程",
+          "url": "https://12366.chinatax.gov.cn/nszx/onlinemessage/detail?id=2da4cf1f2b7c4e118e0c00d20ace177b",
+          "sourceType": "regulatory",
+          "publishedAt": "2026-03-24",
+          "summary": "国家税务总局 12366 对企业实际咨询说明，已入账数电发票的红冲需经对方确认红字发票信息确认单，且涉及进项转出和记账凭证留存；这强化了财务自动化对责任链和证据链的要求。"
+        }
+      ],
+      "verdict": "深挖：需求强度和付费价值高，但 MVP 必须限定为复核、留痕和异常队列，先避开直接记账、报税及复杂税务判断。",
+      "tags": [
+        "财会",
+        "对账",
+        "审计追踪",
+        "AI办公"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "traceable-spreadsheet-reporting",
+      "title": "带公式血缘和校验的 AI 表格报表助手",
+      "category": "office-data-workflows",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "面向销售运营、市场运营和部门助理，把多张 Excel/WPS 表格转换成可复用的月报：自动识别字段、跨表合并、生成公式或变换步骤、输出异常清单和可点击的数据血缘。最小产品不是“替用户写一段答案”，而是让用户能看到每个数字来自哪些行、用了什么公式、如何重新计算。",
+      "whyNow": "WPS 官方社区近期仍以月底几千行销售明细、清洗、跨表匹配和分析报告为典型办公场景；公开内容同时承认 AI 生成公式和分析需要逐列检查。Microsoft 反馈入口也持续反映 Power Query 与 Excel 交互连续性问题，说明“能生成”与“能复核、能继续操作”之间仍有缺口。",
+      "evidence": [
+        {
+          "title": "WPS 社区以月底数千行销售明细为例推广 AI 表格处理",
+          "url": "https://forum.wps.cn/topic/87497",
+          "sourceType": "role-community",
+          "publishedAt": "2026-05-12",
+          "summary": "WPS 官方社区内容以销售人员月底处理几千行明细并交付月度分析报告为场景，覆盖数据清洗、跨表匹配、部门汇总、异常标记和图表报告；文中也要求用户逐列检查清洗结果，说明办公用户仍承担结果复核责任。"
+        },
+        {
+          "title": "WPS 社区展示销售/运营用户对 AI 汇总和报表的需求",
+          "url": "https://forum.wps.cn/topic/83918",
+          "sourceType": "role-community",
+          "publishedAt": "2026-03-15",
+          "summary": "用户场景指向销售与运营岗位长期手工收集、汇总和整理数据，公开内容将一键生成销量统计表作为明确效率需求；这验证了目标岗位和高频任务，但不等于用户已经愿意为独立工具付费。"
+        },
+        {
+          "title": "Microsoft Feedback：希望在 Power Query 中继续操作 Excel",
+          "url": "https://feedbackportal.microsoft.com/feedback/idea/2d3d0fc7-f753-ed11-9561-000d3a1f4287",
+          "sourceType": "product-feedback",
+          "summary": "微软公开反馈条目直接提出在使用 Power Query 时仍可与 Excel 交互，指向表格导入、转换和分析之间的操作连续性缺口；页面当前为 JavaScript 只读壳，正文细节不可稳定抓取，因此仅作辅助产品反馈证据。"
+        }
+      ],
+      "verdict": "观察：MVP 很小且痛点具体，但通用表格 AI 已较拥挤；先验证销售运营是否愿意为“可追溯、可复算、可审计”而非普通自然语言分析付费。",
+      "tags": [
+        "销售运营",
+        "市场运营",
+        "Excel",
+        "数据血缘",
+        "报表"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "auditable-ai-reconciliation-review",
+      "reason": "Xero 用户在自动对账功能下持续提出审核标记、匹配依据、交易细节、发票号和错误回退需求，且直接关联报税责任与额外人工成本。"
+    },
+    "fastestMvp": {
+      "slug": "traceable-spreadsheet-reporting",
+      "reason": "可先从 CSV/XLSX 上传、字段映射、公式生成、异常差异报告和可复算导出开始，不必接入银行或税务系统。"
+    },
+    "highestCommercialValue": {
+      "slug": "auditable-ai-reconciliation-review",
+      "reason": "错误对账可能影响收款提醒、税务申报和客户信任，会计师事务所还可把复核时间直接计入服务成本。"
+    },
+    "needsValidation": {
+      "slug": "auditable-ai-reconciliation-review",
+      "reason": "需要先访谈中国代账机构，确认其是否愿意为“自动匹配后的责任链和复核队列”单独付费，以及数据接入能否在不触碰敏感凭据的前提下完成。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-27 至 2026-09-03；近 24–48 小时未发现足够多可公开核验的白领新帖，按规则扩展至 7 天并补充核验 2025-10 至 2026-08 的公开反馈。",
+    "sources": [
+      "Xero Product Ideas",
+      "WPS Office 官方社区",
+      "Microsoft Feedback Portal",
+      "国家税务总局 12366"
+    ],
+    "limitations": "Reddit、G2、Capterra、TrustRadius、飞书/钉钉部分社区和若干国内论坛未能稳定取得可核验正文；ExcelHome 在搜索结果中发现相关帖，但直接访问出现 403 或 Unicode 解码失败，因此未将其作为最终证据。中国政府采购网近期财务/电子发票/HR 采购结果页面部分返回 403，本日报未把仅有搜索摘要的采购线索计入最终机会证据。多数可用痛点证据早于本次 7 天窗口，已在证据日期和说明中明确标注。"
+  }
+}

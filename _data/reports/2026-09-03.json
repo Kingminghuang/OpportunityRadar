@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-03",
+  "timezone": "Asia/Shanghai",
+  "track": "developer",
+  "title": "每日机会扫描 — 2026-09-03",
+  "summary": "今日公开信号集中在 Agent 从“能调用工具”走向“可安全、可解释、可运营”的生产边界：团队需要在动作执行前做细粒度授权，在执行后证明结果真的发生；同时同一任务在不同 harness/model 组合下的成本与成功率差异很大，需求规格、上下文和运行状态也开始需要可验证的证据层。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-action-governance-control-plane",
+      "title": "Agent 行动治理与结果核验 Control Plane",
+      "category": "ai-infra",
+      "decision": "deep-dive",
+      "score": {
+        "total": 23,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 5
+      },
+      "opportunity": "做一个嵌入 Agent runtime/gateway 的治理层：在工具调用前按具体操作、参数和风险等级执行 allow/deny/approval；在调用后记录可验证结果、失败/取消/超时和证据包，把“被允许”与“已成功”分开，并提供策略版本、审计和回放。",
+      "whyNow": "Product Hunt 上的 Traccia、DataGrout 都把 Agent control plane、审批、验证、审计和可靠性作为核心卖点；Indie Hackers 的近期讨论明确区分“允许动作”与“动作实际成功”；AURA 已在生产中组合护栏、人工审批、状态管理和 OpenTelemetry，但其公开 Issue 仍暴露 consolidated MCP tool 的细粒度过滤、审批取消通知和事件语义等缺口。市场信号说明预算正在形成，技术边界也仍未收敛。",
+      "evidence": [
+        {
+          "title": "Traccia — vendor-neutral AI Agent Control Plane",
+          "url": "https://www.producthunt.com/products/traccia",
+          "sourceType": "product-hunt",
+          "publishedAt": "2026-09-03",
+          "summary": "近期 Product Hunt 页面显示其围绕 observe/evaluate/govern/audit 的 Agent control plane 定位，并获得公开社区关注，属于市场供给与需求方向信号。"
+        },
+        {
+          "title": "Indie Hackers — AI Agent authorization and audit",
+          "url": "https://www.indiehackers.com/post/just-because-an-ai-agent-can-do-something-doesnt-mean-it-should-be-allowed-to-407b9b9d79",
+          "sourceType": "indie-hackers",
+          "publishedAt": "2026-09-01",
+          "summary": "讨论把 Agent 能力与授权边界分开，围绕 allow/deny/approval/audit 以及 silent failure 与 verified outcome 展开，提供了具体治理痛点。"
+        },
+        {
+          "title": "AURA — production-tested SRE agent platform",
+          "url": "https://github.com/mezmo/aura",
+          "sourceType": "github-repository",
+          "publishedAt": "2026-09-03",
+          "summary": "公开项目将 operator-defined guardrails、人工审批、state management、failure handling 与 OpenTelemetry tracing 作为生产能力，说明这类控制面已进入真实部署场景。"
+        },
+        {
+          "title": "AURA #613 — HITL webhook cancellation contract",
+          "url": "https://github.com/mezmo/aura/issues/613",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-03",
+          "summary": "Issue 指出被放弃的审批可能没有通知 webhook 接收方，导致人看到的审批提示长期悬挂；这是审批生命周期与审计可靠性的具体缺口。"
+        }
+      ],
+      "verdict": "最值得深挖。首版应做 SDK/middleware + reference event schema，先覆盖 MCP/tool call 的操作级策略、审批超时/取消、结果证明和不可篡改的 JSON receipt；不要一开始做通用 SIEM 或完整 APM。",
+      "tags": [
+        "Agent Governance",
+        "Policy",
+        "HITL",
+        "Audit",
+        "MCP"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "agent-cost-quality-benchmark-gate",
+      "title": "Agent 任务的成本—质量—成功率基准与预算 Gate",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向 coding-agent/harness 的可复现实验与 CI gate：在相同初始 checkpoint、模型、机器和任务集下比较 pass rate、失败后真实成本、缓存、耗时和重试，并按团队预算和最低质量阈值给出 harness/model 路由建议。",
+      "whyNow": "FrontierHarness 的 360 次同模型实验显示不同 harness 的通过率、单任务成本和时间显著分离，且页面特别提醒缓存命中不等于低成本、失败不能被排除；Aramb/Oxlo 等产品正在把多模型运行时、统一账单与成本预测商品化；Codex 近期 Issue 也出现超大工具结果导致输入 token 暴涨以及用户要求更清晰 quota 反馈的案例。开发者需要从“模型单价”转向“每个成功任务的全成本”。",
+      "evidence": [
+        {
+          "title": "FrontierHarness Eval",
+          "url": "https://frontierharness.org/",
+          "sourceType": "hacker-news",
+          "publishedAt": "2026-09-03",
+          "summary": "公开实验在相同模型与运行环境下比较 9 个 harness，显示 pass rate、median cost per task、successful-task cost 与 runtime 并不一致，且失败排除会扭曲结论。"
+        },
+        {
+          "title": "Aramb — agent runtime and billing consolidation",
+          "url": "https://www.producthunt.com/products/aramb",
+          "sourceType": "product-hunt",
+          "publishedAt": "2026-09-03",
+          "summary": "产品定位直接回应多套 SDK、API key、rate limit 和 invoice 的碎片化，并公开按个人/团队收费，验证统一运行时与账单的付费方向。"
+        },
+        {
+          "title": "Codex #42367 — unbounded code-mode tool result inflates context cost",
+          "url": "https://github.com/openai/codex/issues/42367",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-03",
+          "summary": "Issue 记录约 497 KB 工具结果在特定 code-mode 路径进入模型上下文，造成约 138K 输入 token 与显著等待；说明工具结果边界本身会改变 Agent 成本。"
+        },
+        {
+          "title": "Codex #42416 — clearer usage limits when quota is exhausted",
+          "url": "https://github.com/openai/codex/issues/42416",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-03",
+          "summary": "用户请求在 weekly quota 耗尽时提供更清晰的 usage limit 反馈，反映成本、配额和可预测性已影响日常 Agent 采用。"
+        }
+      ],
+      "verdict": "值得深挖，但定位必须窄：先做本地 benchmark runner、任务级成本归一化和 GitHub Action，不先做云端模型聚合或聊天式路由；核心指标应是 cost per successful task，而不是 token price。",
+      "tags": [
+        "Agent Evaluation",
+        "Cost",
+        "Harness",
+        "CI",
+        "Routing"
+      ]
+    },
+    {
+      "rank": 3,
+      "slug": "agent-context-continuity-verifier",
+      "title": "Agent 上下文与工作区连续性的可验证恢复层",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 4,
+        "acquisition": 3
+      },
+      "opportunity": "做一个跨 Agent/IDE/沙箱的 continuity verifier：对 workspace root、cwd、指令文件、插件/技能版本、MCP 凭据引用、运行状态和产物建立 manifest，在 session resume、后台任务切换、跨项目并发和 sandbox restore 前后做一致性检查，并 fail closed。",
+      "whyNow": "Skydive 等产品把跨 Slack、邮件、网页和终端的后台 Agent、共享团队上下文与持续学习作为新体验；与此同时 Codex 公开 Issue 报告并发会话间 workspace root/context 泄漏，Copilot SDK Issue 报告会话 resume 在版本变化后失败以及长寿命 MCP token 无法刷新。Agent 从单轮聊天变成长任务后，连续性错误会直接导致错项目修改、凭据失效或 silent state loss。",
+      "evidence": [
+        {
+          "title": "Skydive — cloud agents with background execution and shared context",
+          "url": "https://www.producthunt.com/products/skydive",
+          "sourceType": "product-hunt",
+          "publishedAt": "2026-09-03",
+          "summary": "近期产品页面将跨工具执行、后台 routines、团队共享和持续学习作为 Agent 体验，代表长生命周期与跨上下文工作流正在被市场教育。"
+        },
+        {
+          "title": "Codex #24224 — concurrent sessions leak workspace root across projects",
+          "url": "https://github.com/openai/codex/issues/24224",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-03",
+          "summary": "Issue 报告并发长任务下项目 root、cwd、仓库和指令上下文可能跨会话泄漏，影响数据完整性与对 Agent 的信任。"
+        },
+        {
+          "title": "Copilot SDK #2485 — session resume fails after SDK version change",
+          "url": "https://github.com/github/copilot-sdk/issues/2485",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-03",
+          "summary": "SDK 版本变化后旧会话 resume 因字段不兼容失败，说明持久化会话需要 schema/version manifest 与迁移前验证。"
+        },
+        {
+          "title": "Copilot SDK #2492 — MCP auth headers fixed for session lifetime",
+          "url": "https://github.com/github/copilot-sdk/issues/2492",
+          "sourceType": "github-issue",
+          "publishedAt": "2026-09-03",
+          "summary": "长寿命会话中的 MCP bearer token 无法在服务端要求刷新时被更新，展示了后台 Agent 状态与凭据生命周期脱节的具体风险。"
+        }
+      ],
+      "verdict": "先观察。技术 MVP 清晰，但部分能力会被 Agent framework、IDE 或 sandbox provider 原生吸收；只有在 5 个以上真实团队愿意把 restore/continuity check 纳入 CI 或生产启动门禁后，才值得独立产品化。",
+      "tags": [
+        "Session Resume",
+        "Workspace Isolation",
+        "State",
+        "MCP",
+        "Reliability"
+      ]
+    },
+    {
+      "rank": 4,
+      "slug": "evidence-first-build-spec",
+      "title": "从非结构化客户输入生成可审计 Build Spec",
+      "category": "productivity",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 5,
+        "competition": 3,
+        "acquisition": 3
+      },
+      "opportunity": "做一个把访谈、聊天、邮件和会议笔记转换为确认项、假设、未知项、冲突和验收条件的 build spec 层；每个字段保留来源片段、决策人和状态，并在交给 coding agent 前生成可追踪的实现任务与变更差异。",
+      "whyNow": "Reddit 上的 Brief to Build Spec 明确以 scope ambiguity、隐藏未知项和需求冲突为问题，采用付费 skill 形式；UX review 工具的构建动机则来自 AI-built apps 反复出现相同体验问题；Indie Hackers 的 IdeaPz 讨论同时暴露“投票者不是目标付费用户”的验证偏差。机会不在再做一个文档生成器，而在把需求证据和真实验收连接起来。",
+      "evidence": [
+        {
+          "title": "Brief to Build Spec",
+          "url": "https://www.reddit.com/r/SideProject/comments/1vxixsu/brief_to_build_spec_turns_messy_client_notes_into/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-09-03",
+          "summary": "产品公开描述把 messy notes 转为 confirmed/proposed/unknown/conflicting requirements，并以 8.99 美元付费 skill 形式试探需求。"
+        },
+        {
+          "title": "UX review tool for AI-built apps",
+          "url": "https://www.reddit.com/r/SideProject/comments/1vxkaee/i_built_a_ux_review_tool_because_i_kept_seeing/",
+          "sourceType": "reddit",
+          "publishedAt": "2026-09-03",
+          "summary": "作者因 AI 构建应用重复出现相同 UX 问题而制作 review 工具，提供了 AI 生成软件需要额外质量与验收层的侧面信号。"
+        },
+        {
+          "title": "IdeaPz — idea validation and audience mismatch",
+          "url": "https://www.indiehackers.com/product/ideapz",
+          "sourceType": "indie-hackers",
+          "publishedAt": "2026-08-31",
+          "summary": "讨论围绕投票、邮件收集与目标用户错配展开，说明需求文档若没有角色、过去付费和可观察行为，验证结果容易失真。"
+        }
+      ],
+      "verdict": "先观察。MVP 很小，但 Notion/Linear/Cursor 类产品都可能向上游吸收；先用 concierge 为 3 个真实项目生成 spec，并以返工率、澄清轮次和验收通过率验证，而不是以文档好看程度验证。",
+      "tags": [
+        "Requirements",
+        "Product Specs",
+        "AI Coding",
+        "Validation",
+        "Traceability"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "agent-action-governance-control-plane",
+      "reason": "多个市场产品、开源项目和近期 Issue 同时指向工具调用授权、审批生命周期、审计事件和结果核验的组合缺口；其事故成本直接关联安全、合规和生产可靠性。"
+    },
+    "fastestMvp": {
+      "slug": "evidence-first-build-spec",
+      "reason": "可以先用 CLI/文档解析和人工复核交付，最小版本不需要接管 Agent runtime 或托管敏感生产数据。"
+    },
+    "highestCommercialValue": {
+      "slug": "agent-action-governance-control-plane",
+      "reason": "错误授权、悬挂审批和把允许误当成功会造成安全事件、运营中断和审计责任，企业预算锚点清晰。"
+    },
+    "needsValidation": {
+      "slug": "agent-context-continuity-verifier",
+      "reason": "痛点真实但容易被框架原生能力吸收，必须先验证跨项目、跨 provider 的共同 invariant。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-09-01 至 2026-09-03（重点优先 2026-09-03 可直接核验页面）",
+    "sources": [
+      "Product Hunt",
+      "Starter Story",
+      "Reddit r/SideProject",
+      "Reddit r/somebodymakethis",
+      "Hacker News Ask/Show",
+      "GitHub Issues / Discussions",
+      "GitHub Trending",
+      "Indie Hackers",
+      "Public Web Search"
+    ],
+    "limitations": "本轮成功读取仓库 main 分支规则并直接复核 Product Hunt、Hacker News Show/Ask、Reddit r/SideProject、Indie Hackers、GitHub Trending 及多个 GitHub repository/Issue 页面。X、Exploding Topics、Google Trends 未能稳定提供可核验的最新原文；r/somebodymakethis 页面抓取内容陈旧；Starter Story 与部分 Hacker News 单帖正文没有形成强的新需求证据，因此未用搜索摘要替代原文。Product Hunt、Reddit 和 Indie Hackers 主要作为市场/构建者信号，并与 GitHub 的具体故障/功能请求交叉使用。"
+  }
+}

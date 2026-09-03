@@ -43,7 +43,7 @@
         {
           "title": "AURA — production-tested SRE agent platform",
           "url": "https://github.com/mezmo/aura",
-          "sourceType": "github-repository",
+          "sourceType": "other",
           "publishedAt": "2026-09-03",
           "summary": "公开项目将 operator-defined guardrails、人工审批、state management、failure handling 与 OpenTelemetry tracing 作为生产能力，说明这类控制面已进入真实部署场景。"
         },

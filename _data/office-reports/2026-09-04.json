@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-04",
+  "timezone": "Asia/Shanghai",
+  "track": "office",
+  "title": "每日白领办公机会扫描 — 2026-09-04",
+  "summary": "今日最强的白领办公信号进一步收敛到“财务数据处理的证据链”：发票和银行交易之间的附件、匹配依据、重复检查与人工审核记录没有连成一条可复核链路；表格 AI 则正在把可溯源、可回滚从加分项变成用户期待。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "auditable-ai-reconciliation-review",
+      "title": "可审计的 AI 对账与发票复核工作台",
+      "category": "accounting-automation",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 3,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "面向会计师事务所、代账机构和多实体财务团队，提供一个不直接写回账套的复核层：把银行流水、发票、账簿匹配结果和附件汇聚到同一条证据链，展示匹配依据、原始描述、发票号、附件、规则命中、人工确认人和时间，并支持重复发票检查、批量标记、异常回退和审计导出。",
+      "whyNow": "Xero 近期公开反馈显示，财务人员在银行交易视图中无法直接看到关联发票/收据附件，自动对账也仍缺少人工审核标记和完整交易细节；WPS 财务办公案例则描述了手工抄录发票号、去重和月底复核的重复劳动。需求横跨产品反馈、岗位场景和税务留痕要求，且直接关联月结、审计与报税责任。",
+      "evidence": [
+        {
+          "title": "Xero 用户要求在已对账银行交易中直接显示发票和收据附件",
+          "url": "https://productideas.xero.com/forums/967139-purchase-orders-bills-inventory/suggestions/51380086-display-bill-attachments-within-reconciled-transac",
+          "sourceType": "product-feedback",
+          "publishedAt": "2026-06-08",
+          "summary": "用户描述会计、审计和月末复核时必须从银行交易跳转到付款、账单再查看附件，建议在对账交易和审计视图直接显示附件；Xero 管理员于 2026-07-03 将该想法标为 Gaining Support。"
+        },
+        {
+          "title": "WPS 社区展示财务人员手工录入发票号和月底复核痛点",
+          "url": "https://forum.wps.cn/topic/87316",
+          "sourceType": "role-community",
+          "publishedAt": "2026-05-09",
+          "summary": "财务办公场景描述了为防止报销重复而手工抄录发票号码、用函数去重，以及月底统计开票方和金额后还要人工复核；作者称高峰期相关统计可能耗费一天。"
+        },
+        {
+          "title": "Xero 用户要求自动对账结果具备人工审核记录",
+          "url": "https://productideas.xero.com/forums/966939-automatic-bank-reconciliation-beta/suggestions/50981083-auto-bank-rec-ability-to-mark-auto-reconciliatio",
+          "sourceType": "product-feedback",
+          "publishedAt": "2026-02-08",
+          "summary": "用户要求记录审核人、日期和时间，并表示自动对账如果仍需额外检查会增加 BAS 前成本；该想法有 42 票，2026-08-06 的后续评论继续报告交易细节丢失和错误分配。"
+        },
+        {
+          "title": "国家税务总局 12366 关于已入账数电发票红冲的答复",
+          "url": "https://12366.chinatax.gov.cn/nszx/onlinemessage/detail?id=2da4cf1f2b7c4e118e0c00d20ace177b",
+          "sourceType": "regulatory",
+          "publishedAt": "2026-03-24",
+          "summary": "官方答复涉及对方确认红字发票信息确认单、进项转出和记账凭证留存，说明中国本地财务自动化需要保留操作记录和责任链，不能只输出匹配成功。"
+        }
+      ],
+      "verdict": "深挖：痛点有明确岗位、风险和时间成本；MVP 应先做导入、证据链、复核队列和审计包，避开自动记账、报税及复杂税务判断。",
+      "tags": [
+        "财会",
+        "发票",
+        "对账",
+        "审计追踪",
+        "AI办公"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "traceable-spreadsheet-reporting",
+      "title": "带公式血缘和回滚能力的 AI 表格报表助手",
+      "category": "office-data-workflows",
+      "decision": "watch",
+      "score": {
+        "total": 19,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "面向销售运营、财务运营和部门助理，把多张 Excel/WPS 表格转换成可复用的月报：自动识别字段、跨表合并、生成公式或变换步骤、输出异常清单和可点击的数据血缘，并保留 AI 操作日志和一键回滚。最小产品的核心不是生成一段分析文字，而是让每个数字都能追溯到原始行和计算步骤。",
+      "whyNow": "WPS 2026 年内测内容已经把多表合并、跨表计算、公式溯源、计算留痕和回滚作为表格 Agent 的核心卖点，社区用户也把每周合表和透视视为高频重复任务；Grist 用户则明确要求在记录创建时自动清洗和规范化字段，表明“生成结果”正在向“可持续的数据工作流”演进。",
+      "evidence": [
+        {
+          "title": "WPS 表格 Agent 内测帖将公式溯源、AI 日志和回滚作为核心能力",
+          "url": "https://forum.wps.cn/topic/90051",
+          "sourceType": "product-feedback",
+          "publishedAt": "2026-06-11",
+          "summary": "WPS 官方社区内测内容展示多表合并、批量清洗、跨表计算、公式溯源、计算留痕和一键回滚；评论者明确表示每周反复合表和透视，希望由 AI 持续处理。这同时是产品能力信号和用户工作流反馈，不能单独证明付费意愿。"
+        },
+        {
+          "title": "WPS 社区以月底数千行销售明细为例描述表格工作",
+          "url": "https://forum.wps.cn/topic/87497",
+          "sourceType": "role-community",
+          "publishedAt": "2026-05-12",
+          "summary": "内容以销售人员月底处理几千行明细并交付月度分析报告为场景，覆盖数据清洗、跨表匹配、部门汇总、异常标记和图表报告，并要求逐列检查 AI 结果，说明结果复核仍是岗位责任。"
+        },
+        {
+          "title": "Grist 用户要求在记录创建时自动应用公式清洗字段",
+          "url": "https://github.com/gristlabs/grist-core/issues/2461",
+          "sourceType": "community",
+          "publishedAt": "2026-07-11",
+          "summary": "用户描述表单提交后希望自动规范化姓名等字段，并要求自动化在记录创建时执行数据转换；这是可持续表格数据工作流的实现/需求信号，但 GitHub 社区本身不能单独证明一般白领市场付费需求。"
+        },
+        {
+          "title": "Microsoft Feedback：希望在 Power Query 中继续操作 Excel",
+          "url": "https://feedbackportal.microsoft.com/feedback/idea/2d3d0fc7-f753-ed11-9561-000d3a1f4287",
+          "sourceType": "product-feedback",
+          "summary": "公开反馈条目指向 Power Query 导入、转换与 Excel 后续操作之间的连续性缺口；反馈页面当前为 JavaScript 只读壳，正文细节不稳定，因此仅作辅助产品反馈证据。"
+        }
+      ],
+      "verdict": "观察：用户任务高频且 MVP 可小范围落地，但 WPS 等平台正快速补齐溯源与回滚能力；应先验证跨工具、跨部门的可复算审计层是否有独立付费空间。",
+      "tags": [
+        "销售运营",
+        "财务运营",
+        "Excel",
+        "公式血缘",
+        "数据回滚"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "auditable-ai-reconciliation-review",
+      "reason": "Xero 的附件可见性、自动对账审核记录和 WPS 的发票去重场景共同指向同一个责任链缺口，且与月结、审计和报税风险直接相关。"
+    },
+    "fastestMvp": {
+      "slug": "traceable-spreadsheet-reporting",
+      "reason": "先支持 CSV/XLSX 上传、字段映射、公式生成、异常差异报告、操作日志和可复算导出即可验证，无需接入银行或税务系统。"
+    },
+    "highestCommercialValue": {
+      "slug": "auditable-ai-reconciliation-review",
+      "reason": "错误匹配、缺失附件或重复发票会增加复核成本并影响报税、审计和客户信任，代账机构可将节省的复核时间直接转化为服务价值。"
+    },
+    "needsValidation": {
+      "slug": "auditable-ai-reconciliation-review",
+      "reason": "优先访谈中国代账机构和企业财务团队，确认他们最需要的是附件可见性、重复发票检查、匹配解释还是审核责任链，并测试是否愿意为只读复核层付费。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-08-29 至 2026-09-04；近 24–48 小时未发现足够多可公开核验的白领新帖，按规则扩展至 7 天，并按来源规则回溯近 180 天的公开 Issue/反馈。",
+    "sources": [
+      "Xero Product Ideas",
+      "WPS Office 官方社区",
+      "Grist GitHub Issues",
+      "Microsoft Feedback Portal",
+      "国家税务总局 12366"
+    ],
+    "limitations": "Reddit、HubSpot Ideas、QuickBooks Ideas、飞书/钉钉部分社区和若干国内论坛本轮未能稳定取得可核验正文；ExcelHome 及部分采购页面访问不稳定，因此未把搜索摘要作为最终证据。聚合资讯和厂商宣传仅用于发现或背景，未单独计入需求结论。多数可用证据早于本次 7 天窗口，已在各条证据中标注日期和证据性质。"
+  }
+}

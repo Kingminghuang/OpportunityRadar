@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-04",
+  "timezone": "Asia/Shanghai",
+  "track": "developer",
+  "title": "每日机会扫描 — 2026-09-04",
+  "summary": "今日最具体的新机会集中在 Agent 的长期运行边界：会话历史、压缩快照和恢复状态正在产生磁盘膨胀、OOM 与静默丢失；与此同时，企业开始需要把重复后台工作变成“演示一次即可部署”的 Agent，把 MCP 工具质量纳入 CI，并为 Agent 间协作保留授权与证据链。",
+  "categories": [
+    "opportunities"
+  ],
+  "opportunities": [
+    {
+      "rank": 1,
+      "slug": "agent-session-storage-resume-integrity",
+      "title": "Agent 会话存储与 Resume 完整性验证层",
+      "category": "developer-tools",
+      "decision": "deep-dive",
+      "score": {
+        "total": 22,
+        "demand": 5,
+        "payment": 4,
+        "mvp": 5,
+        "competition": 4,
+        "acquisition": 4
+      },
+      "opportunity": "做一个跨 coding-agent/runtime 的 session doctor 与 durable resume 层：扫描 rollout、compaction、tool artifact、workspace 和 schema version，检测重复历史、超大记录、损坏/缺失快照、跨版本不兼容和恢复截断；在继续运行前生成可验证 manifest，提供安全的 prune、repair、export 和 resume preflight。",
+      "whyNow": "Codex 近期公开 Issue 连续出现 42 GB 单月增长、数十至数百 GiB 的 session rollout、multi-agent compaction 快照导致 100 GiB 级膨胀，以及 resume 成功但静默丢失最新 turns 的报告；Copilot SDK 的公开文档则把会话持久化、跨客户端恢复、删除和无限会话作为正式能力，Microsoft Agent Framework 也将 durable state、失败恢复、跨 worker resume 和 TTL cleanup 产品化。需求已经从“保存聊天记录”变成“证明长任务还能正确继续”。",
+      "evidence": [
+        {
+          "title": "Codex #41806 — session storage grew to about 42 GB",
+          "url": "https://github.com/openai/codex/issues/41806",
+          "sourceType": "github-issue",
+          "summary": "用户报告 ~/.codex 在一个月内增长到约 42 GB，其中单月约 28.6 GB，问题与 compaction 重新嵌入 replacement_history 及旧 session 未清理有关。"
+        },
+        {
+          "title": "Codex #30932 — resume can OOM on huge compacted rollout",
+          "url": "https://github.com/openai/codex/issues/30932",
+          "sourceType": "github-issue",
+          "summary": "长运行 CLI session 的 rollout 增长到约 19.1 GiB，resume 时出现无界内存增长并被系统 Killed；用户通过保留最新 compaction 与后缀的方式恢复可用性。"
+        },
+        {
+          "title": "Codex #38169 — resume silently drops newest turns",
+          "url": "https://github.com/openai/codex/issues/38169",
+          "sourceType": "github-issue",
+          "summary": "重度 compaction 后 thread/resume 返回的内容少于磁盘 rollout，且静默丢失最新 turns；Issue 明确要求无法完整重建时应显式失败而非返回看似完整的旧片段。"
+        },
+        {
+          "title": "Copilot SDK session persistence",
+          "url": "https://github.com/github/copilot-sdk/blob/main/docs/features/session-persistence.md",
+          "sourceType": "other",
+          "summary": "官方文档把 conversation history、tool state、planning context 的持久化、跨重启/容器迁移恢复、deleteSession 和无限会话 compaction 作为正式生命周期能力，说明该问题具有跨 runtime 的产品面。"
+        }
+      ],
+      "verdict": "最值得深挖。首版先做本地 CLI/CI doctor：不接触模型内容，只输出大小、记录类型、hash、schema 和恢复前后计数；若能在多个 Agent 上稳定捕获“可恢复但不安全继续”的状态，再扩展 repair/export。",
+      "tags": [
+        "Session Resume",
+        "Compaction",
+        "Storage",
+        "Reliability",
+        "Developer Tools"
+      ]
+    },
+    {
+      "rank": 2,
+      "slug": "demonstration-first-backoffice-agent",
+      "title": "演示一次即可部署的后台工作 Agent",
+      "category": "productivity",
+      "decision": "deep-dive",
+      "score": {
+        "total": 21,
+        "demand": 5,
+        "payment": 5,
+        "mvp": 4,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "面向律所、RIA、会计事务所和其他小型专业服务团队，做“看一次屏幕演示→生成可编辑 workflow→遇到歧义暂停询问→按最小权限执行”的后台 Agent。重点不是通用 RPA，而是把重复文件、CRM、合同和归档流程中的例外处理、规则版本和运行日志保留下来。",
+      "whyNow": "Caddi 在 Product Hunt 明确针对律所、RIA 和会计事务所，称传统 RPA/工作流自动化需要 scoping、开发者和配置项目，导致每月重复工作继续手工完成；其产品用 narrated screenshare 学习流程，并把例外答案转成规则、按权限记录每次运行。Ardent 则把 code-first agent 用于非工程工作；HN 的 MCP 生产讨论也出现把规划数据抓取和日常 9-to-5 用户工作接入 Agent 的案例。需求强，但 Caddi 已占据宽入口，必须从一个垂直流程切入。",
+      "evidence": [
+        {
+          "title": "Caddi — agent that builds agents",
+          "url": "https://www.producthunt.com/products/caddi-3",
+          "sourceType": "product-hunt",
+          "summary": "近期页面显示 Caddi 获得 312 points、717 followers，定位为通过一次 narrated screenshare 构建后台 Agent，并强调确定性执行、运行日志和权限范围。"
+        },
+        {
+          "title": "Caddi maker description",
+          "url": "https://www.producthunt.com/products/caddi-3",
+          "sourceType": "product-hunt",
+          "summary": "Maker 以签署合同下载、重命名、归档到 matter、更新 CRM 等每月重复工作为例，表示传统自动化需要项目化配置，客户因此持续手工处理。"
+        },
+        {
+          "title": "Show HN: Ardent, a code-first agent for non-engineering work",
+          "url": "https://news.ycombinator.com/show",
+          "sourceType": "hacker-news",
+          "summary": "当前 Show HN 列表出现面向非工程工作的 code-first Agent，说明 Agent 正从 coding 场景向专业服务与后台工作扩展；单条列表本身只作为趋势/机会信号。"
+        },
+        {
+          "title": "Ask HN: Who is using MCP in production?",
+          "url": "https://news.ycombinator.com/item?id=49548600",
+          "sourceType": "hacker-news",
+          "summary": "讨论中有开发者将规划申请数据抓取、运行状态和覆盖缺口通过 MCP 接入日常调试，并明确想到把相同模式带给 9-to-5 用户；同时也有人反馈 CLI 比 MCP 更便宜更快，体现了产品取舍。"
+        }
+      ],
+      "verdict": "值得深挖但要垂直化。优先选择合同归档、客户 onboarding 或账务文档处理中的一个闭环，用半人工方式验证每月重复次数、例外率、最小权限和客户愿意支付的金额；不要直接做跨行业 RPA 平台。",
+      "tags": [
+        "Back Office",
+        "Workflow Automation",
+        "RPA",
+        "Professional Services",
+        "Human-in-the-loop"
+      ]
+    },
+    {
+      "rank": 3,
+      "slug": "mcp-tool-surface-quality-gate",
+      "title": "MCP 工具定义质量与发布 Gate",
+      "category": "ai-infra",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 5,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "做一个面向 MCP server 的 tool-surface quality gate：静态检查 schema、参数语义、使用时机、行为透明度、命名一致性、工具边界和 transport limits，并用真实 agent selection/smoke tests 验证工具是否会被正确选择；输出可进 CI 的分数、缺陷和 README badge。",
+      "whyNow": "TDQS 已公开展示 228,369 个工具、15,036 个 MCP server 的评分规模，并称 97% 的 description 至少带有一个 defect、89% 未说明何时使用；其 CLI/API/registry 形态说明工具描述质量正在从文档问题变成可度量的发布门槛。APIMatic 的 Context Marketplace 也在把 API 上下文直接包装成 coding-agent 可消费的插件；Copilot SDK 则出现 JSON-RPC frame 无上限、队列无界以及 host-provided plugin 触发权限提示的工程问题。市场存在，但直接竞品已明显。",
+      "evidence": [
+        {
+          "title": "TDQS — Tool Definition Quality Score",
+          "url": "https://tdqs.dev/",
+          "sourceType": "other",
+          "summary": "公开产品提供 MCP 工具定义的六维评分、CLI、Hosted API、CI fail-under gate 和 registry badge，并展示 228,369 个工具与 97% description defect 的统计。"
+        },
+        {
+          "title": "API Context Marketplace",
+          "url": "https://context.apimatic.io/",
+          "sourceType": "other",
+          "summary": "公开产品将 API context/plugins 包装为 coding agent 可以正确编写 API integration 的上下文市场，说明 tool/API surface 的可理解性正在形成独立产品层。"
+        },
+        {
+          "title": "Ask HN: Who is using MCP in production?",
+          "url": "https://news.ycombinator.com/item?id=49548600",
+          "sourceType": "hacker-news",
+          "summary": "当前讨论的 21 条评论同时出现生产使用、MCP 与 CLI 的成本/速度取舍、API 直连更便宜、工具描述降低概率性失败等观点，显示采用尚未收敛且质量/成本是决策因素。"
+        },
+        {
+          "title": "Copilot SDK #2510 — bound JSON-RPC frames and transport queues",
+          "url": "https://github.com/github/copilot-sdk/issues/2510",
+          "sourceType": "github-issue",
+          "summary": "Issue 要求为 Rust SDK 的 JSON-RPC frame、partial-frame deadline、inbound dispatch 和 outbound queue 增加上限，体现 Agent tool transport 的安全边界也需要可自动验证。"
+        }
+      ],
+      "verdict": "先观察。MVP 极小且可开源，但 TDQS 已占据定义质量评分；独立空间只可能来自真实 agent selection tests、跨 runtime transport fuzzing、企业内部工具目录和安全策略的组合。",
+      "tags": [
+        "MCP",
+        "Tooling",
+        "CI",
+        "Schema",
+        "Agent Interfaces"
+      ]
+    },
+    {
+      "rank": 4,
+      "slug": "agent-done-proof-manifest",
+      "title": "AI Agent 的可审计 Done Proof Manifest",
+      "category": "developer-tools",
+      "decision": "watch",
+      "score": {
+        "total": 20,
+        "demand": 4,
+        "payment": 4,
+        "mvp": 5,
+        "competition": 3,
+        "acquisition": 4
+      },
+      "opportunity": "定义一个轻量的 Agent 完成证明协议：每次完成声明必须附带 intent、实际变更、验证范围、未验证项、环境、运行中的后台进程和外部副作用；按风险等级自动要求测试、状态检查、人工确认或回滚证据。",
+      "whyNow": "近期 Indie Hackers 文章指出 Agent 的最终消息只是接口，不是事实来源：任务列表为空不代表进程已退出，测试通过也不代表覆盖了请求范围；Show HN 的 Devbar、代码变更 transcript 工具和工具质量评分产品都在补充 Agent 输出与可检查证据之间的缺口。该方向易做，但 GitHub、IDE、CI 和 Agent framework 都可能吸收为内置功能。",
+      "evidence": [
+        {
+          "title": "How I decide when an AI coding agent is actually done",
+          "url": "https://www.indiehackers.com/post/how-i-decide-when-an-ai-coding-agent-is-actually-done-PCtaTw3foAnXNbjRULux",
+          "sourceType": "indie-hackers",
+          "summary": "文章以后台进程未退出、长任务丢失请求片段和测试覆盖不足为例，主张完成声明必须包含变更、证据、覆盖范围和未验证项。"
+        },
+        {
+          "title": "Show HN: Devbar",
+          "url": "https://devbar.sh/",
+          "sourceType": "hacker-news",
+          "summary": "当前 Show HN 项目让用户指出要修改的位置并由 Agent 发货，代表 Agent 交付正在接近真实代码变更工作流，因而需要可检查的完成边界。"
+        },
+        {
+          "title": "Show HN: instantly get the transcript from the agent that wrote any line of code",
+          "url": "https://news.ycombinator.com/show",
+          "sourceType": "hacker-news",
+          "summary": "当前 Show HN 列表出现按代码行追溯生成 Agent transcript 的工具，提供了变更来源与审计需求的市场信号；列表页未作为单独用户痛点的充分证明。"
+        },
+        {
+          "title": "Codex #25779 — unbounded session/turn state and lost active-turn control",
+          "url": "https://github.com/openai/codex/issues/25779",
+          "sourceType": "github-issue",
+          "summary": "Issue 将长 session 的 context bloat、冻结和 active-turn 控制丢失归为同一类问题，说明“Agent 自称完成”之外还需要运行态与外部状态检查。"
+        }
+      ],
+      "verdict": "先观察。先做四字段 JSON manifest + CLI verifier，接入一个 coding agent 和 CI；若能在不显著增加小任务耗时的情况下捕获后台进程、未覆盖测试和 scope drift，再考虑团队版。",
+      "tags": [
+        "Proof of Done",
+        "Verification",
+        "Coding Agents",
+        "Audit",
+        "CI"
+      ]
+    }
+  ],
+  "priorities": {
+    "deepDive": {
+      "slug": "agent-session-storage-resume-integrity",
+      "reason": "近期多个独立 Codex Issue 记录了磁盘膨胀、OOM、静默丢失最新 turns 等可复现后果，且 Copilot/Microsoft 已把 durable session 作为正式能力，存在跨 runtime 的完整性验证切口。"
+    },
+    "fastestMvp": {
+      "slug": "agent-done-proof-manifest",
+      "reason": "只需定义 JSON manifest、读取本地运行结果并执行规则校验，不需要托管模型、业务数据或生产 Agent。"
+    },
+    "highestCommercialValue": {
+      "slug": "demonstration-first-backoffice-agent",
+      "reason": "律所、RIA、会计等专业服务团队有重复且可计量的后台工作，成功后能直接替代人工时间并形成按流程/席位收费。"
+    },
+    "needsValidation": {
+      "slug": "mcp-tool-surface-quality-gate",
+      "reason": "需求和产品供给都已出现，但 TDQS 已是直接竞争者，必须验证企业是否愿意为真实 selection/transport/security gate 单独付费。"
+    }
+  },
+  "scanNotes": {
+    "coverageWindow": "2026-09-02 至 2026-09-04（重点优先 2026-09-04 可直接读取页面）",
+    "sources": [
+      "Product Hunt",
+      "Starter Story",
+      "Reddit r/SideProject",
+      "Reddit r/somebodymakethis",
+      "Hacker News Ask/Show",
+      "X",
+      "Exploding Topics",
+      "GitHub Issues / Discussions",
+      "GitHub Trending",
+      "Google Trends",
+      "Indie Hackers",
+      "Public Web Search"
+    ],
+    "limitations": "本轮成功读取 Product Hunt、Hacker News Ask/Show、Reddit r/SideProject、Reddit r/somebodymakethis、Starter Story、Exploding Topics、GitHub Trending、Indie Hackers 及多个 GitHub Issue/文档页面。X 搜索页与 Google Trends 返回内部错误；Hacker News 部分单帖触发 429，因此只使用成功读取的直接帖子或列表页。r/somebodymakethis、Starter Story、Exploding Topics 和 GitHub Trending 本轮未形成强的新需求证据；趋势/产品发布信号均未单独用于证明需求。"
+  }
+}
